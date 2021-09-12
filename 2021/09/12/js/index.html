@@ -20,17 +20,19 @@
     var CONFIG = {"hostname":"0range-x.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="慢就是快，少就是多">
-<meta property="og:type" content="website">
-<meta property="og:title" content="0r@nge の小窝">
-<meta property="og:url" content="http://0range-x.github.io/tags/%E5%A4%96%E6%8C%82/index.html">
+  <meta name="description" content="111">
+<meta property="og:type" content="article">
+<meta property="og:title" content="js">
+<meta property="og:url" content="http://0range-x.github.io/2021/09/12/js/index.html">
 <meta property="og:site_name" content="0r@nge の小窝">
-<meta property="og:description" content="慢就是快，少就是多">
+<meta property="og:description" content="111">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-09-12T07:25:04.000Z">
+<meta property="article:modified_time" content="2021-09-12T07:27:52.731Z">
 <meta property="article:author" content="0r@nge">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://0range-x.github.io/tags/%E5%A4%96%E6%8C%82/">
+<link rel="canonical" href="http://0range-x.github.io/2021/09/12/js/">
 
 
 <script id="page-configurations">
@@ -38,12 +40,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>标签: 外挂 | 0r@nge の小窝</title>
+  <title>js | 0r@nge の小窝</title>
   
 
 
@@ -156,51 +158,204 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">外挂
-          <small>标签</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://0range-x.github.io/2021/09/12/js/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/icon.jpg">
+      <meta itemprop="name" content="0r@nge">
+      <meta itemprop="description" content="慢就是快，少就是多">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0r@nge の小窝">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          js
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-12 15:25:04 / 修改时间：15:27:52" itemprop="dateCreated datePublished" datetime="2021-09-12T15:25:04+08:00">2021-09-12</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
+        <p>111</p>
+<span id="more"></span>
+
+<pre><code>     &lt;script type=&quot;text/javascript&quot;&gt;
+        $(function()&#123;
+            //二级菜单滑动实现代码
+            $
+            (&quot;.nav_container&gt;li&quot;).hover(
+                function()&#123;
+                    $(this).find(&quot;ul&quot;).slideDown(&quot;fast&quot;);
+                &#125;,function()&#123;
+                    $(this).find(&quot;ul&quot;).slideUp(&quot;fast&quot;);
+            &#125;)
+     //动态设置轮播图背景图片代码        
+        $(&quot;.imgBox li&quot;).width($(window).width());      //将li的宽度设置为屏幕的宽度
+        $(&quot;.imgBox&gt;li&quot;).each(function()&#123;
+            imgURL=&quot;url(img/0&quot;+String($(this).index()+1)+&quot;.png)&quot;;
+            $(this).css(&quot;background&quot;,imgURL+&quot;center center no-repeat&quot;);
+        &#125;)
+        
+        //轮播效果实现代码
+          var imgWidth=$(&quot;.imgBox li&quot;).eq(0).width();        
+        var imgCount=$(&quot;.imgBox li&quot;).length;    //获取轮播图片的张数
+        var imgIndex=0;
+        function showImg(imgIndex)&#123;
+            $(&quot;.imgBox&quot;).animate(&#123;left:-imgWidth*imgIndex&#125;);
+            $(&quot;.imgNav&quot;).find(&quot;li&quot;).eq(imgIndex).addClass(&quot;focus&quot;).siblings().removeClass(&quot;focus&quot;);
+        &#125;
+        $(&quot;.next&quot;).stop(true,true).click(function()&#123;
+            imgIndex++;
+            if(imgIndex==imgCount)&#123;imgIndex=0;&#125;
+            showImg(imgIndex);
+            
+        &#125;)            
+        $(&quot;.prev&quot;).stop(true,true).click(function()&#123;
+            imgIndex--;
+            if(imgIndex&lt;0)&#123;imgIndex=imgCount-1;&#125;
+            showImg(imgIndex);                
+        &#125;)
+        
+        $(&quot;.slideBox&quot;).hover(
+            function()&#123;
+                clearInterval(timer);
+            &#125;,
+            function()&#123;
+                timer = setInterval(function()&#123;
+                $(&quot;.next&quot;).trigger(&quot;click&quot;)
+                &#125;,3000);    
+            &#125;    
+        )
+        $(&quot;.slideBox&quot;).mouseleave();
+        //轮播图数字导航代码            
+        var imgNavWidth=$(&quot;.imgNav&quot;).width();
+        $(&quot;.imgNav&quot;).css(&quot;left&quot;,imgWidth/2-imgNavWidth/2);    //设置轮播导航居中显示
+        $(&quot;.imgNav li&quot;).click(function()&#123;
+            imgIndex=$(this).index();
+            showImg(imgIndex);
+        &#125;)
+        
+        //main部分选项卡代码
+        $(&quot;.tab_content&gt;ul:gt(0)&quot;).hide();
+        $(&quot;.tab_title&gt;li&quot;).mouseenter(function()&#123;
+            $(this).addClass(&quot;active&quot;).siblings().removeClass(&quot;active&quot;);
+            $(&quot;.tab_content&gt;ul&quot;).eq($(this).index()).show().siblings().hide();
+        &#125;)
+        
+        //无缝图片滑动实现代码    
+        $(&quot;.subject_list&gt;li:lt(3)&quot;).each(function()&#123;
+            $(this).clone().appendTo($(&quot;.subject_list&quot;));
+        &#125;)
+        
+        var teamIndex=0;
+        var teamCount=$(&quot;.subject_list&gt;li&quot;).length;
+        
+        function showteam(teamIndex)&#123;            
+            teamleft=-teamIndex*400+&quot;px&quot;;
+            $(&quot;.subject_list&quot;).stop(true,false).animate(&#123;&quot;left&quot;:teamleft&#125;);
+        &#125;
+            
+        $(&quot;.subject_list&quot;).hover(function()&#123;
+            clearInterval(timer_subject);
+        &#125;,
+        function()&#123;
+            timer_subject = setInterval(function()&#123;
+                teamIndex++;
+                if(teamIndex==teamCount-2)&#123;
+                    $(&quot;.subject_list&quot;).stop().css(&quot;left&quot;,&quot;0px&quot;);
+                    teamIndex=1;                    
+                &#125; 
+                showteam(teamIndex);
+            &#125;,2000);
+        &#125;)
+        $(&quot;.subject_list&quot;).mouseleave();
+        
+        //二维码放大效果
+        $(&quot;.footer_top dl&quot;).find(&quot;img&quot;).hover(function()&#123;
+            $(this).css(&quot;zIndex&quot;,&quot;100&quot;).stop(true,false).animate(&#123;&quot;width&quot;:&quot;220px&quot;,&quot;height&quot;:&quot;230px&quot;,&quot;z-index&quot;:&quot;100&quot;&#125;,500);
+        &#125;,function()&#123;
+            $(this).css(&quot;zIndex&quot;,&quot;auto&quot;).stop(true,false).animate(&#123;&quot;width&quot;:&quot;100px&quot;,&quot;height&quot;:&quot;110px&quot;,&quot;z-index&quot;:&quot;0&quot;&#125;,500);
+        &#125;)
+    &#125;)        
+&lt;/script&gt;    
+</code></pre>
+<p>​            </p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
+        
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-08-27T14:50:19+08:00"
-              content="2021-08-27">
-          08-27
-        </time>
-      </div>
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>0r@nge
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://0range-x.github.io/2021/09/12/js/" title="js">http://0range-x.github.io/2021/09/12/js/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/08/27/%E5%A4%96%E6%8C%82%E5%AD%A6%E4%B9%A0/" itemprop="url">
-            <span itemprop="name">CE的第一次使用</span>
-          </a>
-      </div>
 
-    </header>
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="prev" title="某盟安服校招面试题">
+      <i class="fa fa-chevron-left"></i> 某盟安服校招面试题
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
