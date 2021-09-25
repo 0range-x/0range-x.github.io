@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103321890.png">
 <meta property="og:image" content="http://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103535675.png">
 <meta property="article:published_time" content="2021-09-25T01:26:23.000Z">
-<meta property="article:modified_time" content="2021-09-25T09:12:17.029Z">
+<meta property="article:modified_time" content="2021-09-25T09:46:29.580Z">
 <meta property="article:author" content="0r@nge">
 <meta property="article:tag" content="原理剖析">
 <meta name="twitter:card" content="summary">
@@ -189,7 +189,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-09-25 09:26:23 / 修改时间：17:12:17" itemprop="dateCreated datePublished" datetime="2021-09-25T09:26:23+08:00">2021-09-25</time>
+              <time title="创建时间：2021-09-25 09:26:23 / 修改时间：17:46:29" itemprop="dateCreated datePublished" datetime="2021-09-25T09:26:23+08:00">2021-09-25</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -256,17 +256,19 @@
 </ol>
 <p>至此，Kerberos协议认证基本结束。只是大概讲一下认证流程，很多细节认证没有讲。</p>
 <p>关键来了，第4步中没有验证client是否具有访问server的权限，在上述认证流程中，只要用户的hash正确，就可以拿到TGT，继而拿到TGS去访问服务。就是说上面的认证只解决了“Who am I”的问题，而没有解决 “ What can I do” 的问题</p>
-<p>因此微软引进了 PAC，PAC 中包含的是用户的 SID、用户所在的组等一些信息。</p>
+<p>因此微软引进了 PAC</p>
+<p>PAC包含Client的User的SID、Group的SID。PAC决定了Client的组属性，即决定了Client的权限PAC为了保证自身的合法性，还包含2个签名，Key为krbtgt的NTLM，签名的内容除了User SID、Group SID外，还有其他部分PAC作为TGT的一部分，是加密的，密钥为krbtgt的NTLM作Client向KDC的AS模块发起认证请求，AS返回TGT时，会根据Client所在的组，生成PAC，包含Client的User SID、Group SID，以及用于确保PAC不被篡改的2个签名</p>
 <p>PAC 是用来验证 Client 的访问权限的，它会被放在 TGT 里发送给 Client，然后由 Client 发送给 TGS。但也恰恰是这个 PAC 造成了 MS14-068 这个漏洞。</p>
 <p>更多关于PAC的介绍参考链接：</p>
 <p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/previous-versions/aa302203(v=msdn.10)#security-considerations">https://docs.microsoft.com/en-us/previous-versions/aa302203(v=msdn.10)#security-considerations</a></p>
 <p>该漏洞是位于 kdcsvc.dll 域控制器的密钥分发中心（KDC）服务中的 Windows 漏洞，<strong>它允许经过身份验证的用户在其获得的票证 TGT 中插入任意的PAC</strong> 。</p>
-<p>其本质就是KDC无法正确检查TGT票据请求中的PAC中的有效签名，这里的签名就是上面提到的服务检验和KDC校验和。签名原本的设计是要用到HMAC系列的checksum算法，也就是必须要有key的参与，我们没有krbtgt的hash以及服务的hash，就没有办法生成有效的签名，但是问题就出在，实现的时候允许所有的checksum算法都可以，包括MD5。那我们只需要把PAC 进行md5，就生成新的校验和。这也就意味着我们可以随意更改PAC的内容，完了之后再用md5 给他生成一个服务检验和以及KDC校验和。在MS14-068修补程序之后，Microsoft添加了一个附加的验证步骤，以确保校验和类型为KRB_CHECKSUM_HMAC_MD5。</p>
+<p>其本质就是KDC无法正确检查TGT票据请求中的PAC中的有效签名，这里的签名就是上面提到的服务检验和KDC校验和。签名原本的设计是要用到HMAC系列的checksum算法，也就是必须要有key的参与，我们没有krbtgt的hash以及服务的hash，就没有办法生成有效的签名。但是问题就出在，<strong>KDC对PAC进行验证时，对于PAC尾部的签名算法，虽然原理上规定必须是带有Key的签名算法才可以，但微软在实现上，却允许任意签名算法，只要客户端指定任意签名算法，KDC服务器就会使用指定的算法进行签名验证（包括md5）</strong>。因此伪造的任意内容都可以是合法的。那我们只需要把PAC 进行md5，就生成新的校验和。这也就意味着我们可以随意更改PAC的内容，完了之后再用md5 给他生成一个服务检验和以及KDC校验和。</p>
 <p>至此，漏洞的原理大致了解，普通用户可以通过改变 PAC 的 TGT 来伪造票据获得管理员权限。</p>
 <p>编写exp脚本的话无非就是按照这个思路，当然，我是废物，不会写exp，这里就画个大饼。</p>
 <p><strong>生成一张TGT票据（此时没有伪造的PAC，为了给伪造的PAC腾出位置），伪造PAC，向TGS请求，此时返回的TGS票据（ST）里面就含有伪造的PAC</strong></p>
 <p>在这个漏洞中主要的问题是存在于 KDC 会根据client指定 PAC 中数字签名的加密算法， 以及 PAC 的加密算法，来校验 PAC 的合法性。这使得攻击者可通过伪造 PAC，修改 PAC 中的 SID，导致 KDC 判断攻击者为高权限用户，从而导致权限提升漏洞的产生。</p>
-<p>简单分析到这，以后再补充</p>
+<p>简单分析到这，以后再补充.</p>
+<p>如果哪里有错误，请大佬与我邮箱联系。</p>
 <p>Peace</p>
 
     </div>
@@ -399,6 +401,11 @@
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:x-0range@qq.com" title="E-Mail → mailto:x-0range@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-qq"></i>E-Mail</a>
+      </span>
+  </div>
   <div class="cc-license motion-element" itemprop="license">
     <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
   </div>
