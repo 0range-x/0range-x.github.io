@@ -6,7 +6,7 @@
   <link href="http://0range-x.github.io/atom.xml" rel="self"/>
   
   <link href="http://0range-x.github.io/"/>
-  <updated>2021-09-28T02:43:52.835Z</updated>
+  <updated>2021-09-28T09:59:42.245Z</updated>
   <id>http://0range-x.github.io/</id>
   
   <author>
@@ -15,6 +15,42 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>11</title>
+    <link href="http://0range-x.github.io/2021/09/28/11/"/>
+    <id>http://0range-x.github.io/2021/09/28/11/</id>
+    <published>2021-09-28T09:59:28.000Z</published>
+    <updated>2021-09-28T09:59:42.245Z</updated>
+    
+    
+    <summary type="html">Here&#39;s something encrypted, password is required to continue reading.</summary>
+    
+    
+    
+    
+    <category term="11" scheme="http://0range-x.github.io/tags/11/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>医院深秋系统0day</title>
+    <link href="http://0range-x.github.io/2021/09/28/%E5%8C%BB%E9%99%A2%E6%B7%B1%E7%A7%8B%E7%B3%BB%E7%BB%9F0day/"/>
+    <id>http://0range-x.github.io/2021/09/28/%E5%8C%BB%E9%99%A2%E6%B7%B1%E7%A7%8B%E7%B3%BB%E7%BB%9F0day/</id>
+    <published>2021-09-28T09:01:57.000Z</published>
+    <updated>2021-09-28T09:44:09.794Z</updated>
+    
+    
+    <summary type="html">Here&#39;s something encrypted, password is required to continue reading.</summary>
+    
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/categories/0day/"/>
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/tags/0day/"/>
+    
+  </entry>
   
   <entry>
     <title>【转载】高效学习攻防的一点思考和经验</title>
