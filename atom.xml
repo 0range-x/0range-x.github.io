@@ -6,7 +6,7 @@
   <link href="http://0range-x.github.io/atom.xml" rel="self"/>
   
   <link href="http://0range-x.github.io/"/>
-  <updated>2021-09-28T02:43:52.835Z</updated>
+  <updated>2021-09-28T09:36:19.428Z</updated>
   <id>http://0range-x.github.io/</id>
   
   <author>
@@ -15,6 +15,63 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>医院深秋系统0day</title>
+    <link href="http://0range-x.github.io/2021/09/28/%E5%8C%BB%E9%99%A2%E6%B7%B1%E7%A7%8B%E7%B3%BB%E7%BB%9F0day/"/>
+    <id>http://0range-x.github.io/2021/09/28/%E5%8C%BB%E9%99%A2%E6%B7%B1%E7%A7%8B%E7%B3%BB%E7%BB%9F0day/</id>
+    <published>2021-09-28T09:01:57.000Z</published>
+    <updated>2021-09-28T09:36:19.428Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;Peace&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/categories/0day/"/>
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/tags/0day/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>红帆OA ioffice 0day</title>
+    <link href="http://0range-x.github.io/2021/09/28/%E7%BA%A2%E5%B8%86OA-ioffice-0day/"/>
+    <id>http://0range-x.github.io/2021/09/28/%E7%BA%A2%E5%B8%86OA-ioffice-0day/</id>
+    <published>2021-09-28T08:59:17.000Z</published>
+    <updated>2021-09-28T09:35:19.666Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;Peace&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/categories/0day/"/>
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/tags/0day/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>帆软前台rce</title>
+    <link href="http://0range-x.github.io/2021/09/28/%E5%B8%86%E8%BD%AF%E5%89%8D%E5%8F%B0rce/"/>
+    <id>http://0range-x.github.io/2021/09/28/%E5%B8%86%E8%BD%AF%E5%89%8D%E5%8F%B0rce/</id>
+    <published>2021-09-28T08:54:48.000Z</published>
+    <updated>2021-09-28T09:35:22.106Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;Peace&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/categories/0day/"/>
+    
+    
+    <category term="0day" scheme="http://0range-x.github.io/tags/0day/"/>
+    
+  </entry>
   
   <entry>
     <title>【转载】高效学习攻防的一点思考和经验</title>
