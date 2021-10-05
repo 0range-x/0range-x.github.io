@@ -1023,7 +1023,8 @@
 
 <p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004151523096.png" alt="image-20211004151523096"></p>
 <p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004110918710.png" alt="image-20211004110918710"></p>
-<h3 id="0x02-ADfind-搜集域内各类信息"><a href="#0x02-ADfind-搜集域内各类信息" class="headerlink" title="0x02 ADfind 搜集域内各类信息"></a>0x02 ADfind 搜集域内各类信息</h3><p>各种cs插件已经集成了此工具，z1等等。可以自己去找。当然已经被杀软杀烂了</p>
+<h3 id="0x02-ADfind-搜集域内各类信息"><a href="#0x02-ADfind-搜集域内各类信息" class="headerlink" title="0x02 ADfind 搜集域内各类信息"></a>0x02 ADfind 搜集域内各类信息</h3><p>下载地址：<a href="https://www.softpedia.com/get/Programming/Other-Programming-Files/AdFind.shtml">https://www.softpedia.com/get/Programming/Other-Programming-Files/AdFind.shtml</a></p>
+<p>各种cs插件已经集成了此工具，z1等等。当然已经被AV杀烂了</p>
 <p>使用方法：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">adfind.exe -help</span><br></pre></td></tr></table></figure>
 
