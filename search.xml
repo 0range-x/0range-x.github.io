@@ -370,7 +370,7 @@
 <p>Peace.</p>
 ]]></content>
       <categories>
-        <category>总结</category>
+        <category>个人总结</category>
       </categories>
       <tags>
         <tag>闲聊</tag>
@@ -737,29 +737,10 @@
 <p><a href="https://github.com/EvilAnne/Violation_Pnetest">https://github.com/EvilAnne/Violation_Pnetest</a></p>
 ]]></content>
       <categories>
-        <category>总结</category>
+        <category>转载</category>
       </categories>
       <tags>
-        <tag>转载</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>转载-高效学习攻防的一点思考和经验</title>
-    <url>/2021/09/28/%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E6%94%BB%E9%98%B2%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83%E5%92%8C%E7%BB%8F%E9%AA%8C/</url>
-    <content><![CDATA[<p>当你拿到某个“技术点”, 或是遇到某个什么所谓的”技巧”, 甚至是工具之后,该如何进一步展开学习思考?</p>
-<span id="more"></span>
-
-<p>如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.-&gt; 这TM 到底是个什么东西?</span><br><span class="line">2.-&gt; &quot;正常情况下&quot; 它都被用在什么地方? 平时主要拿它来干啥? 或者说这个东西可以协助解决一些什么样的实际业务问题 ?</span><br><span class="line">3.-&gt; 它在&quot;正常情况下&quot;, 具体是怎么运作的 ? 或者说其内部大致 实现原理 和 正常执行流程 是怎样的?</span><br><span class="line">4.-&gt; 在实际渗透中我们到底能利用它来干些啥? 最终又能达到什么样的利用效果? 或者说它能帮我们避免或者解决一些什么样的实际渗透问题?</span><br><span class="line">5.-&gt; 针对它所演化出来的具体利用场景都有哪些? 覆盖范围影响如何?</span><br><span class="line">6.-&gt; 详细利用条件又是啥? 利用成功的限制条件是否苛刻? 对于自己现有的目标性质是否有继续深入研究的价值?</span><br><span class="line">7.-&gt; 实际利用中可能会存在什么样的风险? 能否提前规避这些风险? 怎么规避? 万一误操作是否还能及时补救? 如何补救?</span><br><span class="line">8.-&gt; 能否在其原有基础上进行针对性的改良利用,将其深度武器化而后直接付诸实战?</span><br><span class="line">9.-&gt; 能否通过这个又联想到一些其它的衍生利用场景? 或者因此萌生出了一些比较另类优秀的利用思路?</span><br><span class="line">10.-&gt; 仔细分析哪些情况下可能会直接导致利用失败?</span><br><span class="line">11.-&gt; 如何从源头防御这种利用?</span><br><span class="line"></span><br><span class="line">之后总结：</span><br><span class="line">-&gt; 将以上问题的详细答案认真梳理总结,最后全部付诸于笔记或者文档</span><br><span class="line">-&gt; 随着后续自己知识体系不断的完善加深和大量的实践经验积累,不停的去修改自己之前文章/笔记中的一些错误认知</span><br><span class="line">-&gt; 最终,达到真正熟练掌握某个技术点甚至某个领域</span><br><span class="line">-&gt; 以后攻防技术的发展趋势更多可能会越来越偏向于 &quot;专而精&quot; ,而非 &quot;大而全&quot;</span><br><span class="line">-&gt; 慢慢尝试先单点突破 再逐步全局控制</span><br></pre></td></tr></table></figure>
-
-<p>上面这种学习过程，其实无形中就是在帮你节省大量的时间，毫不夸张的说，可能你一年就把别人三年的东西全部学完了，甚至最后比别人三年学的还要扎实，因为一旦养成这种学习习惯之后基本就不用再去无休止的反攻浪费时间，最后，你会发现只要自己基础掌握的足够扎实，后面不管学什么东西，只要不是那种全新的领域或者非常高精尖的东西通常情况下入门都相对比较快，只是过程中思维转变确实需要一定的过度时间</p>
-<p>  后期，当你自己确实有了一定的技术积淀之后，那时候你应该思考更多的不再是全，而是选择一两个自己真正喜欢或者擅长的领域去深入专，最终要专到什么程度呢 ?  这样说吧，起码在那个领域上，你无人可替，然后把其它领域都作为辅助</p>
-]]></content>
-      <categories>
-        <category>总结</category>
-      </categories>
-      <tags>
-        <tag>转载</tag>
+        <tag>总结</tag>
       </tags>
   </entry>
   <entry>
@@ -1795,8 +1776,27 @@
       </tags>
   </entry>
   <entry>
+    <title>转载-高效学习攻防的一点思考和经验</title>
+    <url>/2021/09/28/%E8%BD%AC%E8%BD%BD-%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E6%94%BB%E9%98%B2%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83%E5%92%8C%E7%BB%8F%E9%AA%8C/</url>
+    <content><![CDATA[<p>当你拿到某个“技术点”, 或是遇到某个什么所谓的”技巧”, 甚至是工具之后,该如何进一步展开学习思考?</p>
+<span id="more"></span>
+
+<p>如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.-&gt; 这TM 到底是个什么东西?</span><br><span class="line">2.-&gt; &quot;正常情况下&quot; 它都被用在什么地方? 平时主要拿它来干啥? 或者说这个东西可以协助解决一些什么样的实际业务问题 ?</span><br><span class="line">3.-&gt; 它在&quot;正常情况下&quot;, 具体是怎么运作的 ? 或者说其内部大致 实现原理 和 正常执行流程 是怎样的?</span><br><span class="line">4.-&gt; 在实际渗透中我们到底能利用它来干些啥? 最终又能达到什么样的利用效果? 或者说它能帮我们避免或者解决一些什么样的实际渗透问题?</span><br><span class="line">5.-&gt; 针对它所演化出来的具体利用场景都有哪些? 覆盖范围影响如何?</span><br><span class="line">6.-&gt; 详细利用条件又是啥? 利用成功的限制条件是否苛刻? 对于自己现有的目标性质是否有继续深入研究的价值?</span><br><span class="line">7.-&gt; 实际利用中可能会存在什么样的风险? 能否提前规避这些风险? 怎么规避? 万一误操作是否还能及时补救? 如何补救?</span><br><span class="line">8.-&gt; 能否在其原有基础上进行针对性的改良利用,将其深度武器化而后直接付诸实战?</span><br><span class="line">9.-&gt; 能否通过这个又联想到一些其它的衍生利用场景? 或者因此萌生出了一些比较另类优秀的利用思路?</span><br><span class="line">10.-&gt; 仔细分析哪些情况下可能会直接导致利用失败?</span><br><span class="line">11.-&gt; 如何从源头防御这种利用?</span><br><span class="line"></span><br><span class="line">之后总结：</span><br><span class="line">-&gt; 将以上问题的详细答案认真梳理总结,最后全部付诸于笔记或者文档</span><br><span class="line">-&gt; 随着后续自己知识体系不断的完善加深和大量的实践经验积累,不停的去修改自己之前文章/笔记中的一些错误认知</span><br><span class="line">-&gt; 最终,达到真正熟练掌握某个技术点甚至某个领域</span><br><span class="line">-&gt; 以后攻防技术的发展趋势更多可能会越来越偏向于 &quot;专而精&quot; ,而非 &quot;大而全&quot;</span><br><span class="line">-&gt; 慢慢尝试先单点突破 再逐步全局控制</span><br></pre></td></tr></table></figure>
+
+<p>上面这种学习过程，其实无形中就是在帮你节省大量的时间，毫不夸张的说，可能你一年就把别人三年的东西全部学完了，甚至最后比别人三年学的还要扎实，因为一旦养成这种学习习惯之后基本就不用再去无休止的反攻浪费时间，最后，你会发现只要自己基础掌握的足够扎实，后面不管学什么东西，只要不是那种全新的领域或者非常高精尖的东西通常情况下入门都相对比较快，只是过程中思维转变确实需要一定的过度时间</p>
+<p>  后期，当你自己确实有了一定的技术积淀之后，那时候你应该思考更多的不再是全，而是选择一两个自己真正喜欢或者擅长的领域去深入专，最终要专到什么程度呢 ?  这样说吧，起码在那个领域上，你无人可替，然后把其它领域都作为辅助</p>
+]]></content>
+      <categories>
+        <category>转载</category>
+      </categories>
+      <tags>
+        <tag>总结</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>转载-红队作战手册</title>
-    <url>/2021/11/05/%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/</url>
+    <url>/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/</url>
     <content><![CDATA[<p>以下仅针对日常 “红队” 场景, 进行了一次相对全面完整的实战攻击利用技术提炼汇总</p>
 <span id="more"></span>
 
