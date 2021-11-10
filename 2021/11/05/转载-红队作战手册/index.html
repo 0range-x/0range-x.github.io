@@ -29,7 +29,7 @@
 <meta property="og:description" content="以下仅针对日常 “红队” 场景, 进行了一次相对全面完整的实战攻击利用技术提炼汇总">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-11-04T16:11:10.000Z">
-<meta property="article:modified_time" content="2021-11-04T16:15:16.332Z">
+<meta property="article:modified_time" content="2021-11-07T09:07:56.794Z">
 <meta property="article:author" content="0r@nge">
 <meta property="article:tag" content="总结">
 <meta name="twitter:card" content="summary">
@@ -215,10 +215,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-11-05 00:11:10 / Modified: 00:15:16" itemprop="dateCreated datePublished" datetime="2021-11-05T00:11:10+08:00">2021-11-05</time>
+              <time title="Created: 2021-11-05 00:11:10" itemprop="dateCreated datePublished" datetime="2021-11-05T00:11:10+08:00">2021-11-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-11-07 17:07:56" itemprop="dateModified" datetime="2021-11-07T17:07:56+08:00">2021-11-07</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -433,11 +439,11 @@
 <h3 id="0x10-内网安全-跨平台横向渗透-远程执行-，防御重点-“重中之重”"><a href="#0x10-内网安全-跨平台横向渗透-远程执行-，防御重点-“重中之重”" class="headerlink" title="0x10 内网安全 [ 跨平台横向渗透 (远程执行)，防御重点 ( “重中之重” ) ]"></a>0x10 内网安全 [ 跨平台横向渗透 (远程执行)，防御重点 ( “重中之重” ) ]</h3><ul>
 <li><p>从 Windows平台 横向至  Windows平台</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">注: 以下某些远程执行方式, 即可直接用明文账号密码 亦可 基于pth来进行, 不局限</span><br><span class="line"></span><br><span class="line">远程服务管理 [ SCM ]</span><br><span class="line">远程创建执行计划任务 [ Scheduled Tasks ]</span><br><span class="line">WMI 远程执行 [ WMI ]</span><br><span class="line">针对高版本Windows 的WinRM 远程执行 </span><br><span class="line">DCOM 远程执行 [ 需要目标Windows机器事先已关闭防火墙 ]</span><br><span class="line">高版本 RDP 远程执行</span><br><span class="line">利用MSSQL数据库存储过程来变相远程执行</span><br><span class="line">利用Oracle数据库存储过程来变相远程执行</span><br><span class="line">SMB [ PTH (hash传递) ]</span><br><span class="line">RDP[MSTSC] 反向渗透 [ 即可用于突破某些隔离, 亦可通过云(Windows vps)直接反控目标管理员个人机 CVE-2019-0887 ]</span><br><span class="line">利用补丁服务器下发执行</span><br><span class="line">利用EDR主控端定向下发执行</span><br></pre></td></tr></table></figure></li>
-<li><p>从 Windows平台 横向至 *inux平台</p>
+<li><p>从 Windows平台 横向至 Linux平台</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plink 或者 基于Windows SSH库自行开发各种远程执行小工具</span><br></pre></td></tr></table></figure></li>
-<li><p>从 *inux平台 横向至 Windows 平台</p>
+<li><p>从 linux平台 横向至 Windows 平台</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">一般都会将 impacket套件中的各个常用py脚本事先直接打包成可执行文件, 然后丢到目标linux系统中去执行,如下</span><br><span class="line">wmiexec_linux_x86_64</span><br><span class="line">smbexec_linux_x86_64</span><br><span class="line">psexec_linux_x86_64</span><br><span class="line">atexec_linux_x86_64</span><br><span class="line">dcomexec_linux_x86_64</span><br><span class="line"></span><br><span class="line">另外,还有一些基于go的工具,同样也可以编译成可执行文件之后再丢上去执行</span><br></pre></td></tr></table></figure></li>
-<li><p>从 *inux平台 横向至 *inux 平台</p>
+<li><p>从 linux平台 横向至 linux 平台</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">linux 自带的ssh客户端工具套件, 默认就可以用来进行远程执行</span><br></pre></td></tr></table></figure></li>
 <li><p>各种远程下载技巧</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget [ win &amp; linux ]</span><br><span class="line">curl [ win &amp; linux ]</span><br></pre></td></tr></table></figure>
@@ -456,7 +462,7 @@
 
 <h3 id="0x13-各类常用-C2-渗透-框架"><a href="#0x13-各类常用-C2-渗透-框架" class="headerlink" title="0x13 各类常用 C2 / 渗透 框架"></a>0x13 各类常用 C2 / 渗透 框架</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CobaltStrike [二次开发]</span><br><span class="line">  payload(beacon) 逆向/改进重写</span><br><span class="line">Metasploit [二次开发]</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
 
-<h3 id="0x14-各类常用-Webshell管理工具"><a href="#0x14-各类常用-Webshell管理工具" class="headerlink" title="0x14 各类常用 Webshell管理工具"></a>0x14 各类常用 Webshell管理工具</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">菜刀	caidao20160622</span><br><span class="line">冰蟹	Behinder_v2.0.1</span><br><span class="line">蚁剑	AntSword</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+<h3 id="0x14-各类常用-Webshell管理工具"><a href="#0x14-各类常用-Webshell管理工具" class="headerlink" title="0x14 各类常用 Webshell管理工具"></a>0x14 各类常用 Webshell管理工具</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">菜刀	</span><br><span class="line">冰蝎	</span><br><span class="line">蚁剑	</span><br><span class="line">哥斯拉</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
 
 <h3 id="0x15-免杀-及-各类防火墙对抗"><a href="#0x15-免杀-及-各类防火墙对抗" class="headerlink" title="0x15 免杀 及 各类防火墙对抗"></a>0x15 免杀 及 各类防火墙对抗</h3><ul>
 <li><p>静态</p>
@@ -505,7 +511,10 @@
     <a href="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/" rel="prev" title="从反汇编看恶意程序的C语言结构">
       <i class="fa fa-chevron-left"></i> 从反汇编看恶意程序的C语言结构
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/" rel="next" title="DLL劫持转发重定向后门的分析">
+      DLL劫持转发重定向后门的分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -581,7 +590,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -683,12 +692,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">86k</span>
+    <span title="Symbols count total">95k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:19</span>
+    <span title="Reading time total">1:27</span>
 </div>
 
 <span id="sitetime"></span>
