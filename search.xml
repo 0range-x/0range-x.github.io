@@ -2096,4 +2096,71 @@
         <tag>木马</tag>
       </tags>
   </entry>
+  <entry>
+    <title>基于PSexec的一些原理分析</title>
+    <url>/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<p>关于psexec和命名管道的一些分析</p>
+<span id="more"></span>
+
+<h2 id="0x01-PSexec"><a href="#0x01-PSexec" class="headerlink" title="0x01 PSexec"></a>0x01 PSexec</h2><p>PsExec可以算是一个轻量级的 telnet 替代工具，无需手动安装客户端软件即可执行其他系统上的进程，并且可以获得与命令控制台几乎相同的实时交互性。PsExec最强大的功能就是在远程系统和远程支持工具（如 ipconfig）中启动交互式命令提示窗口，以便显示无法通过其他方式显示的有关远程系统的信息。</p>
+<p>一般使用psexec用来横向移动，可以用来控制主机，条件是拥有被控主机的账户和密码.</p>
+<p>psexec工具的使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">psexec.exe \\目标IP –u administrator –p password</span><br></pre></td></tr></table></figure>
+
+<p>建立PSexec的过程:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.通过ipc$连接，释放psexecsvc.exe到目标</span><br><span class="line">2.通过服务管理SCManager远程创建psexecsvc服务，并启动服务</span><br><span class="line">3.客户端连接执行命令，服务端启动相应的程序并执行回显数据</span><br><span class="line">4.运行完后删除服务</span><br><span class="line">！！！会产生大量日志，很容易被溯源</span><br><span class="line">5.在域环境测试时发现，⾮域⽤户⽆法利⽤内存中的票据使⽤ PSexec 功能，只能依靠账号和密码进⾏传递</span><br></pre></td></tr></table></figure>
+
+<p>登录认证方式是 NTLM 认证，通过ipc（进程间通信）连接后，登录目标主机，连接admin$通道，向目标主机写入 <code>psexecsvc.exe</code> 文件到<code>C:\Windows\AppendData(或者WirteData</code> 目录下 ，接着使用IPC命名管道调用svcctl接口，用于开启远程服务<code>psexecsvc.exe</code>（ 用于在其他系统中远程执行命令），  最终创建服务后会建立4个命名管道。</p>
+<p>因此，在使⽤ <code>Metasploit</code> 对⽬标进⾏ <code>Psexec</code> 的时候， payload ⼀定要使⽤正向 bind连接 ，因为目标是服务端，我们是客户端主动去连接服务端</p>
+<p>而命名管道又是什么？</p>
+<h2 id="0x02-命名管道"><a href="#0x02-命名管道" class="headerlink" title="0x02 命名管道"></a>0x02 命名管道</h2><p>管道: 管道是一个共享内存块，可用于通信和数据交换。管道是一个有两端的对象，一个进程向管道写入信息，另一个进程从管道读取信息。创建管道的进程称为管道服务端（只能在本地创建），连接管道的进程称为管道客户端。</p>
+<p>特点:</p>
+<p>基于smb协议通信，而不是tcp，用于在两个进程之间传输数据，包括本地进程和远程进程，其客户端既可以接收数据也可以发送数据，服务器端也是可以接收数据，又可以发送数据。支持单向、双向通信。可以被任意符合权限要求的进程访问，</p>
+<p>命名管道可以由 <code>CreateNamedPipeA</code>创建，接着客户端连接，然后实现读写操作</p>
+<p>可以参考以下文档</p>
+<p><a href="https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createnamedpipea">创建命名网络功能 （winbase.h） - win32 应用程序|微软文档 (microsoft.com)</a></p>
+<p>为什么要使用命名管道来建立网络通信呢？</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">因为他走的是smb协议，而不是tcp协议。在Windows中，当尝试绑定一个tcp socket端口建立通信时，defender防火墙会警报，需要用户确认放行才可以，这没有高权限不就直接寄了。而命名管道利用了未加密的smb协议（445端口），在Windows中，通常是默认允许smb协议出入站的，所以命名管道经常被使用来绕过防火墙</span><br></pre></td></tr></table></figure>
+
+
+
+<p>利用:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">利用模拟客户端功能获取system权限，eg：msf的getsystem功能</span><br><span class="line">作为c2通信</span><br><span class="line">本地权限提升</span><br></pre></td></tr></table></figure>
+
+<p>msf中<code>getsystem</code>原理:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">官方回答:</span><br><span class="line">creates a named pipe from Meterpreter. It also creates and runs a service that runs cmd.exe /c echo “some data” &gt;\.\pipe[random pipe here]. When the spawned cmd.exe connects to Meterpreter’s named pipe, Meterpreter has the opportunity to impersonate that security context. Impersonation of clients is a named pipes feature. The context of the service is SYSTEM, so when you impersonate it, you become SYSTEM.</span><br><span class="line"></span><br><span class="line">msf 会创建一个命名管道，然后创建一个服务去运行cmd.exe /c echo “some data” &gt;\\.\pipe\[random pipe here]，当 cmd 连接到 Meterpreter 的命名管道的时候，因为服务是 system 权限，msf 也就得到了一个 system 的 shell</span><br></pre></td></tr></table></figure>
+
+
+
+<p>C2通信:</p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110105758482.png" alt="image-20211110105758482"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">每个终端将为每个直接连接的子终端提供一个命名管道服务器和一个命名管道客户端。服务器监听管道名称，并等待客户端的连接。客户端连接到特定主机名和管道名称的服务器，从而创建命名管道。管道的每一个终端都有从另一个终端读取和写入的能力，即，将 Payload 运行（注入）后，创建了自定义命名管道（作服务端），等待连接即可，这一过程被称为Bind连接。</span><br><span class="line"></span><br><span class="line">这种连接方式很常见，如 Metasploit 和 Cobalt Strike 都有类似功能。</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120312544.png" alt="image-20211110120312544"></p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115836196.png" alt="image-20211110115836196"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PsExec.exe -accepteula \\10.10.10.10 -s cmd.exe</span><br><span class="line"># -accepteula 第⼀次运⾏ PsExec 会弹出确认框，使⽤该参数就不会弹出确认框</span><br><span class="line"># -s以System权限运⾏远程进程，获得⼀个System权限的交互式Shell，如果不⽤这个参数，那么会获得⼀个administrator权限的shell</span><br></pre></td></tr></table></figure>
+
+<p>system权限</p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115854129.png" alt="image-20211110115854129"></p>
+<p>administrator权限</p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120524480.png" alt="image-20211110120524480"></p>
+<p>在不建立ipc连接的前提下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PsExec.exe \\10.10.10.11 -u redteam\administrator -p admin!@#456 -s cmd.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110224732770.png" alt="image-20211110224732770"></p>
+<p>在不想获得交互式shell的情况下，可以直接执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PsExec.exe \\10.10.10.11 -u redteam\administrator -p admin!@#456 -s cmd /c &quot;ipconfig&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110224130243.png" alt="image-20211110224130243"></p>
+<p>Peace.</p>
+]]></content>
+      <categories>
+        <category>内网</category>
+      </categories>
+      <tags>
+        <tag>内网</tag>
+      </tags>
+  </entry>
 </search>

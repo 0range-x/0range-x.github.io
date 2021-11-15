@@ -21,22 +21,28 @@
     var CONFIG = {"hostname":"0range-x.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":true,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="海投了一下，先面的绿盟。">
+  <meta name="description" content="关于psexec和命名管道的一些分析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="某盟安服校招面试题">
-<meta property="og:url" content="http://0range-x.github.io/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/index.html">
+<meta property="og:title" content="基于PSexec的一些原理分析">
+<meta property="og:url" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="0r@nge の窝">
-<meta property="og:description" content="海投了一下，先面的绿盟。">
+<meta property="og:description" content="关于psexec和命名管道的一些分析">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://0range-x.github.io/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/image-20210910223809093.png">
-<meta property="article:published_time" content="2021-09-09T16:28:30.000Z">
-<meta property="article:modified_time" content="2021-09-27T15:36:35.132Z">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110105758482.png">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120312544.png">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115836196.png">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115854129.png">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120524480.png">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110224732770.png">
+<meta property="og:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110224130243.png">
+<meta property="article:published_time" content="2021-11-15T02:32:10.000Z">
+<meta property="article:modified_time" content="2021-11-15T02:32:33.984Z">
 <meta property="article:author" content="0r@nge">
-<meta property="article:tag" content="面试">
+<meta property="article:tag" content="内网">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://0range-x.github.io/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/image-20210910223809093.png">
+<meta name="twitter:image" content="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110105758482.png">
 
-<link rel="canonical" href="http://0range-x.github.io/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/">
+<link rel="canonical" href="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">
 
 
 <script id="page-configurations">
@@ -49,7 +55,7 @@
   };
 </script>
 
-  <title>某盟安服校招面试题 | 0r@nge の窝</title>
+  <title>基于PSexec的一些原理分析 | 0r@nge の窝</title>
   
 
 
@@ -195,7 +201,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://0range-x.github.io/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/">
+    <link itemprop="mainEntityOfPage" href="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/icon.jpg">
@@ -208,7 +214,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          某盟安服校招面试题
+          基于PSexec的一些原理分析
         </h1>
 
         <div class="post-meta">
@@ -217,23 +223,17 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2021-09-10 00:28:30" itemprop="dateCreated datePublished" datetime="2021-09-10T00:28:30+08:00">2021-09-10</time>
+              <time title="Created: 2021-11-15 10:32:10 / Modified: 10:32:33" itemprop="dateCreated datePublished" datetime="2021-11-15T10:32:10+08:00">2021-11-15</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-09-27 23:36:35" itemprop="dateModified" datetime="2021-09-27T23:36:35+08:00">2021-09-27</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9D%A2%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">面试</span></a>
+                  <a href="/categories/%E5%86%85%E7%BD%91/" itemprop="url" rel="index"><span itemprop="name">内网</span></a>
                 </span>
             </span>
 
@@ -253,8 +253,8 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/" itemprop="commentCount"></span>
+    <a title="valine" href="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -263,13 +263,13 @@
               <span class="post-meta-item-icon">
                 <i class="fa fa-file-word-o"></i>
               </span>
-              <span>1k</span>
+              <span>2.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
 
         </div>
@@ -281,51 +281,61 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>海投了一下，先面的绿盟。</p>
+        <p>关于psexec和命名管道的一些分析</p>
 <span id="more"></span>
 
-<h3 id="9-2-视频一面"><a href="#9-2-视频一面" class="headerlink" title="9.2 视频一面"></a>9.2 视频一面</h3><p>一面还是很简单的，没有问什么技术方面的东西</p>
-<p>1.介绍一下自己的学校、专业情况、学校成绩、排名这些</p>
-<p>2.学习安全多长时间了</p>
-<p>3.现在的学习方向</p>
-<p>4.说说你对未来的规划</p>
-<p>5.在校期间有没有打过ctf 挖过src</p>
-<p>6.说说你的项目经历</p>
-<p>7.说说你的实习经历</p>
-<p>8.为什么选择绿盟这家公司</p>
-<p>9.拿到一个站点的渗透思路</p>
-<p>大概就这些，正常回答就好了。</p>
-<h3 id="9-6-电话二面"><a href="#9-6-电话二面" class="headerlink" title="9.6 电话二面"></a>9.6 电话二面</h3><p>二面来面的技术，面了半个多小时，中间面试官还遭遇了Ddos（有点离谱）</p>
-<p>1.自我介绍  和一面不同的是，这里主要介绍自己会的东西，研究方向</p>
-<p>2.学习安全是自学还是报班学</p>
-<p>3.有没得打过ctf 和挖过src</p>
-<p>4.有没有运维经验（这里因为我简历上写了熟悉Windows和Linux的运维，翻车了，也面试过好几次了，但也从来没问过运维 哈哈哈，已经把简历改过来啦）</p>
-<p>5.基础的web漏洞原理，sql注入的分类，存在点，怎么判断，怎么利用，遇到了waf怎么绕过</p>
-<p>6.xss问的比较多，分类，三种xss不同的区别，存在的位置，怎么绕过waf （后来才知道绿盟的扫描器大部分都是扫出来的xss，哈哈哈，怪不得问这么多xss）</p>
-<p>7.对逻辑漏洞了解多少，遇到一个有验证码的登录框，存在找回密码功能，你有什么想法</p>
-<p>8.http 数据包的结构</p>
-<p>9.文件上传的绕过思路，绕过waf</p>
-<p>10.谈谈你的项目经历</p>
-<p>11.你印象最深的渗透经历是哪次</p>
-<p>12.会什么语言，写过什么东西</p>
-<p>13.Java安全了解吗（这里我直接说了对Java安全不了解，不然后续应该会问）shiro 、fastjson、weblogic反序列化的原理，还问了你碰到shiro 、weblogic这类站点怎么处理（我直接exp 哈哈哈）</p>
-<p>14.渗透过程中常见的端口号以及对应的服务</p>
-<p>15.内网渗透经历，详细说下过程，渗透思路</p>
-<p>16.拿到webshell发现目标主机不出网怎么办</p>
-<p>17.有没有复现过一些漏洞</p>
-<p>18.会不会关注最新的安全资讯</p>
-<p>19.说一下通配符注入</p>
-<p>20.内网中横向的常用方法</p>
-<p>21.说一下你是怎么做免杀的（我刚说完无源码的免杀，就问我下一个问题了……我都还没说完……）</p>
-<p>22.对域前置技术了解多少</p>
-<p>23.目前的研究方向，未来的研究方向，规划</p>
-<p>24.有没有代码审计能力</p>
-<p>25.怎么找越权漏洞，常见的参数</p>
-<p>emmm，大概就这些吧，暂时想起来了这么多，后面想起来了再补充。</p>
-<h2 id="9-10结果"><a href="#9-10结果" class="headerlink" title="9.10结果"></a>9.10结果</h2><p>我是废物呜呜呜</p>
-<p>安服岗被拒</p>
-<p><img src="/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/image-20210910223809093.png" alt="image-20210910223809093"></p>
-<p>但是我个人认为二面技术上问的问题都是过关的。。。被拒原因emmm，不合适吧哈哈哈(还是太菜了)</p>
+<h2 id="0x01-PSexec"><a href="#0x01-PSexec" class="headerlink" title="0x01 PSexec"></a>0x01 PSexec</h2><p>PsExec可以算是一个轻量级的 telnet 替代工具，无需手动安装客户端软件即可执行其他系统上的进程，并且可以获得与命令控制台几乎相同的实时交互性。PsExec最强大的功能就是在远程系统和远程支持工具（如 ipconfig）中启动交互式命令提示窗口，以便显示无法通过其他方式显示的有关远程系统的信息。</p>
+<p>一般使用psexec用来横向移动，可以用来控制主机，条件是拥有被控主机的账户和密码.</p>
+<p>psexec工具的使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">psexec.exe \\目标IP –u administrator –p password</span><br></pre></td></tr></table></figure>
+
+<p>建立PSexec的过程:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.通过ipc$连接，释放psexecsvc.exe到目标</span><br><span class="line">2.通过服务管理SCManager远程创建psexecsvc服务，并启动服务</span><br><span class="line">3.客户端连接执行命令，服务端启动相应的程序并执行回显数据</span><br><span class="line">4.运行完后删除服务</span><br><span class="line">！！！会产生大量日志，很容易被溯源</span><br><span class="line">5.在域环境测试时发现，⾮域⽤户⽆法利⽤内存中的票据使⽤ PSexec 功能，只能依靠账号和密码进⾏传递</span><br></pre></td></tr></table></figure>
+
+<p>登录认证方式是 NTLM 认证，通过ipc（进程间通信）连接后，登录目标主机，连接admin$通道，向目标主机写入 <code>psexecsvc.exe</code> 文件到<code>C:\Windows\AppendData(或者WirteData</code> 目录下 ，接着使用IPC命名管道调用svcctl接口，用于开启远程服务<code>psexecsvc.exe</code>（ 用于在其他系统中远程执行命令），  最终创建服务后会建立4个命名管道。</p>
+<p>因此，在使⽤ <code>Metasploit</code> 对⽬标进⾏ <code>Psexec</code> 的时候， payload ⼀定要使⽤正向 bind连接 ，因为目标是服务端，我们是客户端主动去连接服务端</p>
+<p>而命名管道又是什么？</p>
+<h2 id="0x02-命名管道"><a href="#0x02-命名管道" class="headerlink" title="0x02 命名管道"></a>0x02 命名管道</h2><p>管道: 管道是一个共享内存块，可用于通信和数据交换。管道是一个有两端的对象，一个进程向管道写入信息，另一个进程从管道读取信息。创建管道的进程称为管道服务端（只能在本地创建），连接管道的进程称为管道客户端。</p>
+<p>特点:</p>
+<p>基于smb协议通信，而不是tcp，用于在两个进程之间传输数据，包括本地进程和远程进程，其客户端既可以接收数据也可以发送数据，服务器端也是可以接收数据，又可以发送数据。支持单向、双向通信。可以被任意符合权限要求的进程访问，</p>
+<p>命名管道可以由 <code>CreateNamedPipeA</code>创建，接着客户端连接，然后实现读写操作</p>
+<p>可以参考以下文档</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createnamedpipea">创建命名网络功能 （winbase.h） - win32 应用程序|微软文档 (microsoft.com)</a></p>
+<p>为什么要使用命名管道来建立网络通信呢？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">因为他走的是smb协议，而不是tcp协议。在Windows中，当尝试绑定一个tcp socket端口建立通信时，defender防火墙会警报，需要用户确认放行才可以，这没有高权限不就直接寄了。而命名管道利用了未加密的smb协议（445端口），在Windows中，通常是默认允许smb协议出入站的，所以命名管道经常被使用来绕过防火墙</span><br></pre></td></tr></table></figure>
+
+
+
+<p>利用:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">利用模拟客户端功能获取system权限，eg：msf的getsystem功能</span><br><span class="line">作为c2通信</span><br><span class="line">本地权限提升</span><br></pre></td></tr></table></figure>
+
+<p>msf中<code>getsystem</code>原理:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">官方回答:</span><br><span class="line">creates a named pipe from Meterpreter. It also creates and runs a service that runs cmd.exe /c echo “some data” &gt;\.\pipe[random pipe here]. When the spawned cmd.exe connects to Meterpreter’s named pipe, Meterpreter has the opportunity to impersonate that security context. Impersonation of clients is a named pipes feature. The context of the service is SYSTEM, so when you impersonate it, you become SYSTEM.</span><br><span class="line"></span><br><span class="line">msf 会创建一个命名管道，然后创建一个服务去运行cmd.exe /c echo “some data” &gt;\\.\pipe\[random pipe here]，当 cmd 连接到 Meterpreter 的命名管道的时候，因为服务是 system 权限，msf 也就得到了一个 system 的 shell</span><br></pre></td></tr></table></figure>
+
+
+
+<p>C2通信:</p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110105758482.png" alt="image-20211110105758482"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">每个终端将为每个直接连接的子终端提供一个命名管道服务器和一个命名管道客户端。服务器监听管道名称，并等待客户端的连接。客户端连接到特定主机名和管道名称的服务器，从而创建命名管道。管道的每一个终端都有从另一个终端读取和写入的能力，即，将 Payload 运行（注入）后，创建了自定义命名管道（作服务端），等待连接即可，这一过程被称为Bind连接。</span><br><span class="line"></span><br><span class="line">这种连接方式很常见，如 Metasploit 和 Cobalt Strike 都有类似功能。</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120312544.png" alt="image-20211110120312544"></p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115836196.png" alt="image-20211110115836196"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PsExec.exe -accepteula \\10.10.10.10 -s cmd.exe</span><br><span class="line"># -accepteula 第⼀次运⾏ PsExec 会弹出确认框，使⽤该参数就不会弹出确认框</span><br><span class="line"># -s以System权限运⾏远程进程，获得⼀个System权限的交互式Shell，如果不⽤这个参数，那么会获得⼀个administrator权限的shell</span><br></pre></td></tr></table></figure>
+
+<p>system权限</p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115854129.png" alt="image-20211110115854129"></p>
+<p>administrator权限</p>
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120524480.png" alt="image-20211110120524480"></p>
+<p>在不建立ipc连接的前提下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PsExec.exe \\10.10.10.11 -u redteam\administrator -p admin!@#456 -s cmd.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110224732770.png" alt="image-20211110224732770"></p>
+<p>在不想获得交互式shell的情况下，可以直接执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PsExec.exe \\10.10.10.11 -u redteam\administrator -p admin!@#456 -s cmd /c &quot;ipconfig&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110224130243.png" alt="image-20211110224130243"></p>
 <p>Peace.</p>
 
     </div>
@@ -342,7 +352,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>Post link: </strong>
-    <a href="http://0range-x.github.io/2021/09/10/%E6%9F%90%E7%9B%9F%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E9%A2%98/" title="某盟安服校招面试题">http://0range-x.github.io/2021/09/10/某盟校招面试题/</a>
+    <a href="http://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" title="基于PSexec的一些原理分析">http://0range-x.github.io/2021/11/15/PSexec的原理分析/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -353,7 +363,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag"># 面试</a>
+              <a href="/tags/%E5%86%85%E7%BD%91/" rel="tag"># 内网</a>
           </div>
 
         
@@ -362,13 +372,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/09/09/weblogicRCE/" rel="prev" title="weblogicRCE到内网渗透">
-      <i class="fa fa-chevron-left"></i> weblogicRCE到内网渗透
+    <a href="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/" rel="prev" title="DLL劫持转发重定向后门的分析">
+      <i class="fa fa-chevron-left"></i> DLL劫持转发重定向后门的分析
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/09/14/%E6%9F%90%E5%A4%A7%E5%8E%82web%E7%BA%A2%E8%93%9D%E5%AE%9E%E4%B9%A0%E9%9D%A2%E8%AF%95/" rel="next" title="某大厂web红蓝实习面试">
-      某大厂web红蓝实习面试 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -428,7 +435,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#9-2-%E8%A7%86%E9%A2%91%E4%B8%80%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">9.2 视频一面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-6-%E7%94%B5%E8%AF%9D%E4%BA%8C%E9%9D%A2"><span class="nav-number">2.</span> <span class="nav-text">9.6 电话二面</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-10%E7%BB%93%E6%9E%9C"><span class="nav-number"></span> <span class="nav-text">9.10结果</span></a></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-PSexec"><span class="nav-number">1.</span> <span class="nav-text">0x01 PSexec</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93"><span class="nav-number">2.</span> <span class="nav-text">0x02 命名管道</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
