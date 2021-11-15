@@ -2138,6 +2138,7 @@
 
 
 
+<h2 id="0x03-复现"><a href="#0x03-复现" class="headerlink" title="0x03 复现"></a>0x03 复现</h2><p>首先建立下ipc连接</p>
 <p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110120312544.png" alt="image-20211110120312544"></p>
 <p><img src="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/image-20211110115836196.png" alt="image-20211110115836196"></p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PsExec.exe -accepteula \\10.10.10.10 -s cmd.exe</span><br><span class="line"># -accepteula 第⼀次运⾏ PsExec 会弹出确认框，使⽤该参数就不会弹出确认框</span><br><span class="line"># -s以System权限运⾏远程进程，获得⼀个System权限的交互式Shell，如果不⽤这个参数，那么会获得⼀个administrator权限的shell</span><br></pre></td></tr></table></figure>
