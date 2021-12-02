@@ -2120,7 +2120,7 @@
 <p>可以参考以下文档</p>
 <p><a href="https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createnamedpipea">创建命名网络功能 （winbase.h） - win32 应用程序|微软文档 (microsoft.com)</a></p>
 <p>为什么要使用命名管道来建立网络通信呢？</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">因为他走的是smb协议，而不是tcp协议。在Windows中，当尝试绑定一个tcp socket端口建立通信时，defender防火墙会警报，需要用户确认放行才可以，这没有高权限不就直接寄了。而命名管道利用了未加密的smb协议（445端口），在Windows中，通常是默认允许smb协议出入站的，所以命名管道经常被使用来绕过防火墙</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">因为他走的是smb协议，也是tcp的一种。在Windows中，当尝试绑定一个tcp socket端口建立通信时，defender防火墙会警报，需要用户确认放行才可以，这没有高权限不就直接寄了。而命名管道利用了未加密的smb协议（445端口），在Windows中，通常是默认允许smb协议出入站的，所以命名管道经常被使用来绕过防火墙</span><br></pre></td></tr></table></figure>
 
 
 
