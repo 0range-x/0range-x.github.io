@@ -1,27 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang=en>
 <head>
-  <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
-<meta name="google-site-verification" content="Nv43Gf_zIo5EJqngQhh4qjV6xkrox0ZPbJsgA5kCNps" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/icon.jpg">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/icon.jpg">
-  <link rel="mask-icon" href="/images/icon.jpg" color="#222">
-
-<link rel="stylesheet" href="/css/main.css">
-
-
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
-
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"0range-x.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":true,"preload":true},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
-  </script>
-
-  <meta name="description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;833">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;833">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从反汇编看恶意程序的C语言结构">
 <meta property="og:url" content="http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/index.html">
@@ -70,253 +55,148 @@
 <meta property="article:tag" content="木马">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211023170231536.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>从反汇编看恶意程序的C语言结构</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
 
-<link rel="canonical" href="http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/">
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
 
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Friend-links</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&text=从反汇编看恶意程序的C语言结构"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&is_video=false&description=从反汇编看恶意程序的C语言结构"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从反汇编看恶意程序的C语言结构&body=Check out this article: http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&name=从反汇编看恶意程序的C语言结构&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/833&#34;&gt;https://forum.butian.net/share/833&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&t=从反汇编看恶意程序的C语言结构"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'en'
-  };
-</script>
-
-  <title>从反汇编看恶意程序的C语言结构 | 0r@nge の窝</title>
-  
-
-
-
-
-
-
-  <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
-<link rel="alternate" href="/atom.xml" title="0r@nge の窝" type="application/atom+xml">
-</head>
-
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
-
-    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-container">
-  <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
     </div>
-  </div>
-
-  <div class="site-meta">
-
-    <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">0r@nge の窝</h1>
-      <span class="logo-line-after"><i></i></span>
-    </a>
-      <p class="site-subtitle" itemprop="description">黄昏见证真正的信徒</p>
-  </div>
-
-  <div class="site-nav-right">
-    <div class="toggle popup-trigger">
-        <i class="fa fa-search fa-fw fa-lg"></i>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01"><span class="toc-number">2.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02"><span class="toc-number">4.</span> <span class="toc-text">0x02</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03"><span class="toc-number">5.</span> <span class="toc-text">0x03</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-2"><span class="toc-number">5.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">5.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04"><span class="toc-number">6.</span> <span class="toc-text">0x04</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-3"><span class="toc-number">6.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-3"><span class="toc-number">6.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-4"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
     </div>
-  </div>
-</div>
-
-
-
-
-<nav class="site-nav">
-  <ul id="menu" class="menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
-
-  </li>
-        <li class="menu-item menu-item-about">
-
-    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
-
-  </li>
-      <li class="menu-item menu-item-search">
-        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
-        </a>
-      </li>
-  </ul>
-</nav>
-
-
-
-  <div class="search-pop-overlay">
-    <div class="popup search-popup">
-        <div class="search-header">
-  <span class="search-icon">
-    <i class="fa fa-search"></i>
-  </span>
-  <div class="search-input-container">
-    <input autocomplete="off" autocapitalize="off"
-           placeholder="Searching..." spellcheck="false"
-           type="search" class="search-input">
-  </div>
-  <span class="popup-btn-close">
-    <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result">
-  <div id="no-result">
-    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
-  </div>
-</div>
-
-    </div>
-  </div>
-
-</div>
-    </header>
 
     
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
     
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/">
+    <h1 class="posttitle" itemprop="name headline">
+        从反汇编看恶意程序的C语言结构
+    </h1>
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/icon.jpg">
-      <meta itemprop="name" content="0r@nge">
-      <meta itemprop="description" content="是个🍊呀~">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="0r@nge の窝">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          从反汇编看恶意程序的C语言结构
-        </h1>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-11-04 15:55:10" itemprop="dateCreated datePublished" datetime="2021-11-04T15:55:10+08:00">2021-11-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-11-10 22:07:21" itemprop="dateModified" datetime="2021-11-10T22:07:21+08:00">2021-11-10</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">木马分析</span></a>
-                </span>
-            </span>
-
-          
-            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span id="busuanzi_value_page_pv"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
       </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-              <span>11k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-              <span>10 mins.</span>
-            </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-11-04T07:55:10.000Z" itemprop="datePublished">2021-11-04</time>
+        
+      
+    </div>
 
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
 
       
-        <p>本文首发于奇安信攻防社区，原文链接：<a target="_blank" rel="noopener" href="https://forum.butian.net/share/833">https://forum.butian.net/share/833</a></p>
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%9C%A8%E9%A9%AC/" rel="tag">木马</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>本文首发于奇安信攻防社区，原文链接：<a target="_blank" rel="noopener" href="https://forum.butian.net/share/833">https://forum.butian.net/share/833</a></p>
 <span id="more"></span>
 
 <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>本文利用IDA分析4个简单的恶意程序，旨在基本掌握这4个恶意程序的C语言逻辑结构，同时这4个程序功能逐渐递增，循序渐进。笔者也是初学者，有些不足之处在所难免，请师傅们斧正</p>
@@ -441,384 +321,170 @@
 <h2 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h2><p>通过简单的反汇编看简单恶意文件的C语言结构就先到这里，思路我上面都有提到，更复杂的我也正在慢慢学习，如有不足，欢迎师傅们斧正。</p>
 <p>Peace.</p>
 
-    </div>
-
-    
-    
-    
-        
-
-<div>
-<ul class="post-copyright">
-  <li class="post-copyright-author">
-    <strong>Post author:  </strong>0r@nge
-  </li>
-  <li class="post-copyright-link">
-    <strong>Post link: </strong>
-    <a href="http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/" title="从反汇编看恶意程序的C语言结构">http://0range-x.github.io/2021/11/04/反汇编看恶意程序的C语言结构/</a>
-  </li>
-  <li class="post-copyright-license">
-    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
-  </li>
-</ul>
-</div>
-
-
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/%E6%9C%A8%E9%A9%AC/" rel="tag"># 木马</a>
-          </div>
-
-        
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2021/10/30/ida%E5%88%86%E6%9E%90dll/" rel="prev" title="记一次IDA分析恶意DLL文件">
-      <i class="fa fa-chevron-left"></i> 记一次IDA分析恶意DLL文件
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/" rel="next" title="转载-红队作战手册">
-      转载-红队作战手册 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
-  
-  
-  
-
-
-
-          </div>
-          
-    <div class="comments" id="valine-comments"></div>
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
   </div>
+</article>
 
-  <aside class="sidebar">
-    <div class="sidebar-inner">
 
-      <ul class="sidebar-nav motion-element">
-        <li class="sidebar-nav-toc">
-          Table of Contents
-        </li>
-        <li class="sidebar-nav-overview">
-          Overview
-        </li>
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Friend-links</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
       </ul>
-
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">0x00 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01"><span class="nav-number">2.</span> <span class="nav-text">0x01</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">详细分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02"><span class="nav-number">4.</span> <span class="nav-text">0x02</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-1"><span class="nav-number">4.0.1.</span> <span class="nav-text">详细分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">4.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03"><span class="nav-number">5.</span> <span class="nav-text">0x03</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-2"><span class="nav-number">5.0.1.</span> <span class="nav-text">详细分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-2"><span class="nav-number">5.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04"><span class="nav-number">6.</span> <span class="nav-text">0x04</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-3"><span class="nav-number">6.0.1.</span> <span class="nav-text">详细分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-3"><span class="nav-number">6.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-4"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
-
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="0r@nge"
-      src="/images/icon.jpg">
-  <p class="site-author-name" itemprop="name">0r@nge</p>
-  <div class="site-description" itemprop="description">是个🍊呀~</div>
-</div>
-<div class="site-state-wrap motion-element">
-  <nav class="site-state">
-      <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
-          <span class="site-state-item-count">24</span>
-          <span class="site-state-item-name">posts</span>
-        </a>
-      </div>
-      <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-          
-        <span class="site-state-item-count">9</span>
-        <span class="site-state-item-name">categories</span></a>
-      </div>
-      <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
-        <span class="site-state-item-count">13</span>
-        <span class="site-state-item-name">tags</span></a>
-      </div>
-  </nav>
-</div>
-  <div class="links-of-author motion-element">
-      <span class="links-of-author-item">
-        <a href="https://github.com/0range-x" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;0range-x" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="mailto:xrang3@gmail.com" title="-Mail → mailto:xrang3@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-google"></i>-Mail</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="/images/wx.png" title="Wechat → images&#x2F;wx.png"><i class="fa fa-fw fa-wechat"></i>Wechat</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="https://twitter.com/0x0024043870" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;0x0024043870" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="https://space.bilibili.com/178890032?spm_id_from=333.1007.0.0" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;178890032?spm_id_from&#x3D;333.1007.0.0" rel="noopener" target="_blank"><i class="fa fa-fw fa-fab fa-bilibili"></i>Bilibili</a>
-      </span>
-      <span class="links-of-author-item">
-        <a href="/atom.xml" title="Rss → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>Rss</a>
-      </span>
-  </div>
-  <div class="cc-license motion-element" itemprop="license">
-    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
-  </div>
-
-
-  <div class="links-of-blogroll motion-element">
-    <div class="links-of-blogroll-title">
-      <i class="fa fa-fw fa-link"></i>
-      Friends-Link
     </div>
-    <ul class="links-of-blogroll-list">
-        <li class="links-of-blogroll-item">
-          <a href="http://antipassion.github.io/" title="http:&#x2F;&#x2F;antipassion.github.io" rel="noopener" target="_blank">Nayon</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://4ra1n.love/" title="https:&#x2F;&#x2F;4ra1n.love" rel="noopener" target="_blank">4ra1n</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://wjlshare.com/" title="http:&#x2F;&#x2F;wjlshare.com" rel="noopener" target="_blank">天下大木头</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://whoamianony.top/" title="https:&#x2F;&#x2F;whoamianony.top&#x2F;" rel="noopener" target="_blank">WHOAMI</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://535yx.cn/" title="http:&#x2F;&#x2F;535yx.cn&#x2F;" rel="noopener" target="_blank">Yanxia</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="http://xiu09.cn/" title="http:&#x2F;&#x2F;xiu09.cn&#x2F;" rel="noopener" target="_blank">xg</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://www.colcool.com/" title="https:&#x2F;&#x2F;www.colcool.com&#x2F;" rel="noopener" target="_blank">十二</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://txluck.github.io/" title="https:&#x2F;&#x2F;txluck.github.io&#x2F;" rel="noopener" target="_blank">永安寺</a>
-        </li>
-        <li class="links-of-blogroll-item">
-          <a href="https://fk0x075.github.io/" title="https:&#x2F;&#x2F;fk0x075.github.io&#x2F;" rel="noopener" target="_blank">狗东</a>
-        </li>
-    </ul>
-  </div>
 
-      </div>
-        <div class="back-to-top motion-element">
-          <i class="fa fa-arrow-up"></i>
-          <span>0%</span>
-        </div>
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01"><span class="toc-number">2.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02"><span class="toc-number">4.</span> <span class="toc-text">0x02</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03"><span class="toc-number">5.</span> <span class="toc-text">0x03</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-2"><span class="toc-number">5.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">5.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04"><span class="toc-number">6.</span> <span class="toc-text">0x04</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-3"><span class="toc-number">6.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-3"><span class="toc-number">6.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-4"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&text=从反汇编看恶意程序的C语言结构"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&is_video=false&description=从反汇编看恶意程序的C语言结构"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从反汇编看恶意程序的C语言结构&body=Check out this article: http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&name=从反汇编看恶意程序的C语言结构&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/833&#34;&gt;https://forum.butian.net/share/833&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&t=从反汇编看恶意程序的C语言结构"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
 
     </div>
-  </aside>
-  <div id="sidebar-dimmer"></div>
 
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
 
-      </div>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        
-
-        
-
-<div class="copyright">
-  
-  &copy; 
-  <span itemprop="copyrightYear">2021</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">0r@nge</span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-area-chart"></i>
-    </span>
-    <span title="Symbols count total">105k</span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-coffee"></i>
-    </span>
-    <span title="Reading time total">1:36</span>
-</div>
-
-<span id="sitetime"></span>
-<script language=javascript>
-	function siteTime(){
-		window.setTimeout("siteTime()", 1000);
-		var seconds = 1000;
-		var minutes = seconds * 60;
-		var hours = minutes * 60;
-		var days = hours * 24;
-		var years = days * 365;
-		var today = new Date();
-		var todayYear = today.getFullYear();
-		var todayMonth = today.getMonth()+1;
-		var todayDate = today.getDate();
-		var todayHour = today.getHours();
-		var todayMinute = today.getMinutes();
-		var todaySecond = today.getSeconds();
-		/* 
-		Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
-		year - 作为date对象的年份，为4位年份值
-		month - 0-11之间的整数，做为date对象的月份
-		day - 1-31之间的整数，做为date对象的天数
-		hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
-		minutes - 0-59之间的整数，做为date对象的分钟数
-		seconds - 0-59之间的整数，做为date对象的秒数
-		microseconds - 0-999之间的整数，做为date对象的毫秒数
-        */
-		var t1 = Date.UTC(2021,08,26,22,00,00); //
-		var t2 = Date.UTC(todayYear,todayMonth,todayDate,todayHour,todayMinute,todaySecond);
-		var diff = t2-t1;
-		var diffYears = Math.floor(diff/years);
-		var diffDays = Math.floor((diff/days)-diffYears*365);
-		var diffHours = Math.floor((diff-(diffYears*365+diffDays)*days)/hours);
-		var diffMinutes = Math.floor((diff-(diffYears*365+diffDays)*days-diffHours*hours)/minutes);
-		var diffSeconds = Math.floor((diff-(diffYears*365+diffDays)*days-diffHours*hours-diffMinutes*minutes)/seconds);
-		document.getElementById("sitetime").innerHTML=" 已运行"+/*diffYears+" 年 "+*/diffDays+" 天 "+diffHours+" 小时 "+diffMinutes+" 分钟 "+diffSeconds+" 秒";
-	}
-	siteTime();
-</script>
-
-
-        
-<div class="busuanzi-count">
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="Total Visitors">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="Total Views">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
   </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021
+    0r@nge
+  </div>
+  
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
 
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
+  
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Friend-links</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
 
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/muse.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
+    </div>
+    <!-- styles -->
 
 
 
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
 
   
-
-
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
   
-<script src="/js/local-search.js"></script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  
-
-
-<script>
-NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
-  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
-    var GUEST = ['nick', 'mail', 'link'];
-    var guest = 'nick,mail,link';
-    guest = guest.split(',').filter(item => {
-      return GUEST.includes(item);
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
     });
-    new Valine({
-      el         : '#valine-comments',
-      verify     : false,
-      notify     : false,
-      appId      : 'WtLTq0Ykf0M7VoANpK7MpEqK-gzGzoHsz',
-      appKey     : 'V5nnXOgzo1QzvWq7UJm0Utab',
-      placeholder: "Just go go",
-      avatar     : 'mp',
-      meta       : guest,
-      pageSize   : '10' || 10,
-      visitor    : false,
-      lang       : '' || 'zh-cn',
-      path       : location.pathname,
-      recordIP   : false,
-      serverURLs : ''
-    });
-  }, window.Valine);
-});
-</script>
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
 
 </body>
 </html>
