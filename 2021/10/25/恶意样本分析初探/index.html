@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
     <meta name="description" content="详细分析首先静态分析该exe文件，看下导入函数，其中一个调用了 WININET.dll中的 InternetGetConnectedState 函数，这个跟其他调用 kernel32.dll 中的函数相比，显得有些特殊。  查阅文档可知，这是一个 判断本地网络连接状态的函数，连接成功返回1，连接失败返回0 互联网连接状态功能 （wininet.h） - win32 应用程序|微软文档 (micro">
 <meta property="og:type" content="article">
 <meta property="og:title" content="恶意样本分析初探">
