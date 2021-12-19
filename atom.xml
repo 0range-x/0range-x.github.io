@@ -6,7 +6,7 @@
   <link href="https://0range-x.github.io/atom.xml" rel="self"/>
   
   <link href="https://0range-x.github.io/"/>
-  <updated>2021-12-10T10:36:50.072Z</updated>
+  <updated>2021-12-19T06:52:58.872Z</updated>
   <id>https://0range-x.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>木马常用dll/api函数</title>
+    <link href="https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"/>
+    <id>https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/</id>
+    <published>2021-12-19T06:52:10.000Z</published>
+    <updated>2021-12-19T06:52:58.872Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;微软提供了很多dll，被木马经常使用的也有很多，没有必要全部记下来，碰到了去查 msdn</summary>
+        
+      
+    
+    
+    
+    <category term="木马分析" scheme="https://0range-x.github.io/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="检索" scheme="https://0range-x.github.io/tags/%E6%A3%80%E7%B4%A2/"/>
+    
+    <category term="辅助文档" scheme="https://0range-x.github.io/tags/%E8%BE%85%E5%8A%A9%E6%96%87%E6%A1%A3/"/>
+    
+  </entry>
   
   <entry>
     <title>加密后门的木马分析</title>
@@ -434,26 +461,6 @@
 &lt;h3 id=&quot;9-14-视频一面&quot;&gt;&lt;a href=&quot;#9-14-视频一面&quot; class=&quot;headerlink&quot; title=&quot;9.14 视频一面&quot;&gt;&lt;/a&gt;9.14</summary>
         
       
-    
-    
-    
-    <category term="面试" scheme="https://0range-x.github.io/categories/%E9%9D%A2%E8%AF%95/"/>
-    
-    
-    <category term="面试" scheme="https://0range-x.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>某大厂移动安全实习生面试</title>
-    <link href="https://0range-x.github.io/2021/09/14/%E6%9F%90%E5%A4%A7%E5%8E%82web%E7%BA%A2%E8%93%9D%E5%AE%9E%E4%B9%A0%E9%9D%A2%E8%AF%95/"/>
-    <id>https://0range-x.github.io/2021/09/14/%E6%9F%90%E5%A4%A7%E5%8E%82web%E7%BA%A2%E8%93%9D%E5%AE%9E%E4%B9%A0%E9%9D%A2%E8%AF%95/</id>
-    <published>2021-09-14T09:16:22.000Z</published>
-    <updated>2021-12-03T18:05:52.179Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;&lt;strong&gt;9.8&lt;/strong&gt; 对该厂的offer暂时没报希望，面一下知道自己的不足在哪。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;10.9&lt;/strong&gt; 运气比较好，拿到了offer~&lt;/p&gt;</summary>
     
     
     

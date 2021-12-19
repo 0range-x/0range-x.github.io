@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/</loc>
+    
+    <lastmod>2021-12-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://0range-x.github.io/baidu_verify_code-n4alrUzr1E.html</loc>
     
     <lastmod>2021-12-19</lastmod>
@@ -432,6 +441,20 @@
   
   <url>
     <loc>https://0range-x.github.io/tags/%E5%8F%8D%E6%B1%87%E7%BC%96/</loc>
+    <lastmod>2021-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://0range-x.github.io/tags/%E6%A3%80%E7%B4%A2/</loc>
+    <lastmod>2021-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://0range-x.github.io/tags/%E8%BE%85%E5%8A%A9%E6%96%87%E6%A1%A3/</loc>
     <lastmod>2021-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
