@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://0range-x.github.io/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/</loc>
+    <lastmod>2021-12-27</lastmod>
+  </url>
+  <url>
     <loc>https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/</loc>
     <lastmod>2021-12-19</lastmod>
   </url>

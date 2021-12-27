@@ -6,7 +6,7 @@
   <link href="https://0range-x.github.io/atom.xml" rel="self"/>
   
   <link href="https://0range-x.github.io/"/>
-  <updated>2021-12-19T06:52:58.872Z</updated>
+  <updated>2021-12-27T17:37:02.346Z</updated>
   <id>https://0range-x.github.io/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>shellcode隐写RGB过火绒、360</title>
+    <link href="https://0range-x.github.io/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/"/>
+    <id>https://0range-x.github.io/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/</id>
+    <published>2021-12-27T17:35:19.000Z</published>
+    <updated>2021-12-27T17:37:02.346Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;cs篇将Shellcode隐写到正常BMP图片中，把字符串拆成字节，写入每个像素的alpha通道中，然后上传到可信任的网站下偏移拼接shellcode进行远程动态加载，能有效地增加了免杀性和隐匿性。&lt;/p&gt;
+&lt;p&gt;首先在cs生成shellcode&lt;/p&gt;
+&lt;p&gt;&lt;img</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/tags/%E5%85%8D%E6%9D%80/"/>
+    
+    <category term="隐写" scheme="https://0range-x.github.io/tags/%E9%9A%90%E5%86%99/"/>
+    
+  </entry>
   
   <entry>
     <title>木马常用dll/api函数</title>
@@ -433,32 +462,6 @@
         
     <summary type="html">&lt;p&gt;岗位是黑灰产研究，和实习经历蛮匹配。&lt;/p&gt;
 &lt;h3 id=&quot;9-23电话一面&quot;&gt;&lt;a href=&quot;#9-23电话一面&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="面试" scheme="https://0range-x.github.io/categories/%E9%9D%A2%E8%AF%95/"/>
-    
-    
-    <category term="面试" scheme="https://0range-x.github.io/tags/%E9%9D%A2%E8%AF%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>某甲方安全工程师校招面试</title>
-    <link href="https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"/>
-    <id>https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/</id>
-    <published>2021-09-14T09:36:37.000Z</published>
-    <updated>2021-12-03T18:04:48.785Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;这是第一次面严格意义上的甲方，知识面学到了很多，问题也很不一样&lt;/p&gt;
-&lt;h3 id=&quot;9-14-视频一面&quot;&gt;&lt;a href=&quot;#9-14-视频一面&quot; class=&quot;headerlink&quot; title=&quot;9.14 视频一面&quot;&gt;&lt;/a&gt;9.14</summary>
         
       
     
