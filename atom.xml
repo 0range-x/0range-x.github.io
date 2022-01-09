@@ -6,7 +6,7 @@
   <link href="https://0range-x.github.io/atom.xml" rel="self"/>
   
   <link href="https://0range-x.github.io/"/>
-  <updated>2021-12-28T16:00:52.953Z</updated>
+  <updated>2022-01-09T16:14:19.840Z</updated>
   <id>https://0range-x.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>浅析邮件伪造</title>
+    <link href="https://0range-x.github.io/2022/01/10/%E6%B5%85%E6%9E%90%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/"/>
+    <id>https://0range-x.github.io/2022/01/10/%E6%B5%85%E6%9E%90%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/</id>
+    <published>2022-01-09T16:13:10.000Z</published>
+    <updated>2022-01-09T16:14:19.840Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;SPF配置&quot;&gt;&lt;a href=&quot;#SPF配置&quot; class=&quot;headerlink&quot; title=&quot;SPF配置&quot;&gt;&lt;/a&gt;SPF配置&lt;/h2&gt;&lt;p&gt;spf全称为（Sender Policy</summary>
+        
+      
+    
+    
+    
+    <category term="钓鱼" scheme="https://0range-x.github.io/categories/%E9%92%93%E9%B1%BC/"/>
+    
+    
+    <category term="钓鱼" scheme="https://0range-x.github.io/tags/%E9%92%93%E9%B1%BC/"/>
+    
+    <category term="邮件伪造" scheme="https://0range-x.github.io/tags/%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/"/>
+    
+  </entry>
   
   <entry>
     <title>回首2021</title>
@@ -448,31 +475,6 @@
     
     
     <category term="总结" scheme="https://0range-x.github.io/tags/%E6%80%BB%E7%BB%93/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>MS14-068原理浅析</title>
-    <link href="https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/"/>
-    <id>https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/</id>
-    <published>2021-09-25T01:26:23.000Z</published>
-    <updated>2021-12-03T18:04:36.156Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;漏洞简介&quot;&gt;&lt;a href=&quot;#漏洞简介&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="内网" scheme="https://0range-x.github.io/categories/%E5%86%85%E7%BD%91/"/>
-    
-    
-    <category term="原理剖析" scheme="https://0range-x.github.io/tags/%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/"/>
     
   </entry>
   
