@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://0range-x.github.io/about/index.html</loc>
+    
+    <lastmod>2022-02-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://0range-x.github.io/2022/02/18/xshell%E6%A1%86%E6%9E%B6/</loc>
     
     <lastmod>2022-02-28</lastmod>
@@ -23,15 +32,6 @@
     <loc>https://0range-x.github.io/links/index.html</loc>
     
     <lastmod>2022-02-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://0range-x.github.io/about/index.html</loc>
-    
-    <lastmod>2022-02-19</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
