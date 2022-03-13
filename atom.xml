@@ -6,7 +6,7 @@
   <link href="https://0range-x.github.io/atom.xml" rel="self"/>
   
   <link href="https://0range-x.github.io/"/>
-  <updated>2022-02-27T14:58:15.277Z</updated>
+  <updated>2022-03-13T16:02:03.918Z</updated>
   <id>https://0range-x.github.io/</id>
   
   <author>
@@ -15,6 +15,36 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>syscall的前世今生</title>
+    <link href="https://0range-x.github.io/2022/03/14/syscall/"/>
+    <id>https://0range-x.github.io/2022/03/14/syscall/</id>
+    <published>2022-03-13T16:00:10.000Z</published>
+    <updated>2022-03-13T16:02:03.918Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;本文首发于跳跳糖社区，原文链接：&lt;a href=&quot;https://tttang.com/archive/1464/&quot;&gt;https://tttang.com/archive/1464/&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/tags/%E5%85%8D%E6%9D%80/"/>
+    
+    <category term="syscall" scheme="https://0range-x.github.io/tags/syscall/"/>
+    
+    <category term="红蓝对抗" scheme="https://0range-x.github.io/tags/%E7%BA%A2%E8%93%9D%E5%AF%B9%E6%8A%97/"/>
+    
+  </entry>
   
   <entry>
     <title>某启动项进程分析</title>
@@ -483,25 +513,6 @@
     <category term="后门" scheme="https://0range-x.github.io/tags/%E5%90%8E%E9%97%A8/"/>
     
     <category term="病毒" scheme="https://0range-x.github.io/tags/%E7%97%85%E6%AF%92/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>最近的一些总结及未来的计划</title>
-    <link href="https://0range-x.github.io/2021/10/10/%E6%9C%80%E8%BF%91%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%BB%E7%BB%93%E5%8F%8A%E6%9C%AA%E6%9D%A5%E7%9A%84%E8%AE%A1%E5%88%92/"/>
-    <id>https://0range-x.github.io/2021/10/10/%E6%9C%80%E8%BF%91%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%BB%E7%BB%93%E5%8F%8A%E6%9C%AA%E6%9D%A5%E7%9A%84%E8%AE%A1%E5%88%92/</id>
-    <published>2021-10-09T17:35:03.000Z</published>
-    <updated>2021-11-04T16:17:20.602Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;今天也是刚注册公众号，想着记录下日常，随便总结下吧。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="个人总结" scheme="https://0range-x.github.io/categories/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/"/>
-    
-    
-    <category term="闲聊" scheme="https://0range-x.github.io/tags/%E9%97%B2%E8%81%8A/"/>
     
   </entry>
   
