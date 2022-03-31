@@ -4376,7 +4376,7 @@
   </entry>
   <entry>
     <title>浅析杀软</title>
-    <url>/2022/03/31/%E5%8F%8D%E7%97%85%E6%AF%92%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D/</url>
+    <url>/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>以前写过一篇介绍杀软原理的，这里再补充一下</p>
 <p><a href="https://0range-x.github.io/2021/10/28/%E5%85%8D%E6%9D%80%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E7%AF%87/">免杀基础入门篇 (0range-x.github.io)</a></p>
 <h2 id="0x00-引擎介绍"><a href="#0x00-引擎介绍" class="headerlink" title="0x00 引擎介绍"></a>0x00 引擎介绍</h2><h3 id="1-杀软属性"><a href="#1-杀软属性" class="headerlink" title="1.杀软属性"></a>1.杀软属性</h3><ol>
@@ -4438,7 +4438,7 @@
 <p>下面说一下杀软监控动态查杀的点：</p>
 <h4 id="计算机相关"><a href="#计算机相关" class="headerlink" title="计算机相关"></a>计算机相关</h4><ol>
 <li><p>系统服务（指的是这些）如果有敏感服务操作的话，容易被监测到</p>
-<img src="/2022/03/31/%E5%8F%8D%E7%97%85%E6%AF%92%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D/image-20211014111540437.png" alt="image-20211014111540437" style="zoom:50%;"></li>
+<img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20211014111540437.png" alt="image-20211014111540437" style="zoom:50%;"></li>
 <li><p>注册表（键值） 修改注册表的行为一般都是敏感行为（高危添加用户、删除用户，没有十足把握bypass，还是算了）</p>
 </li>
 <li><p>组策略</p>
@@ -4479,7 +4479,7 @@
 
 
 <h2 id="0x04-沙箱脱壳技术-Generic-Unpacking"><a href="#0x04-沙箱脱壳技术-Generic-Unpacking" class="headerlink" title="0x04 沙箱脱壳技术(Generic Unpacking)"></a>0x04 沙箱脱壳技术(Generic Unpacking)</h2><p>一般来说，杀软通过虚拟机动态脱壳的方式来处理壳的问题。对于公开壳，首先已经被加入特征库了，用的话基本是必被杀的，对于公开壳，基本是通过指导脱壳的方式来查杀，而对于未公开的包括自定义壳、代码混淆器等其他代码级对抗技术，均采用通用脱壳查杀。</p>
-<p><img src="/2022/03/31/%E5%8F%8D%E7%97%85%E6%AF%92%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D/image-20220119164541263.png" alt="image-20220119164541263"></p>
+<p><img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119164541263.png" alt="image-20220119164541263"></p>
 <p>ps: 动态调试脱壳一般都是手工利用od、windbg这类调试工具调试，杀软的沙箱做不到。</p>
 <h2 id="0x05-检测和规避沙箱-amp-amp-虚拟机"><a href="#0x05-检测和规避沙箱-amp-amp-虚拟机" class="headerlink" title="0x05 检测和规避沙箱&amp;&amp;虚拟机"></a>0x05 检测和规避沙箱&amp;&amp;虚拟机</h2><h3 id="1-规避沙箱"><a href="#1-规避沙箱" class="headerlink" title="1. 规避沙箱"></a>1. 规避沙箱</h3><table>
 <thead>
@@ -4686,8 +4686,8 @@
 <p>另外,本地弓|擎的核心技术可以被应用于云端自动分析平台,所以本地引擎技术的发展对云端的计算结果也有着积极的促进作用。</p>
 <h3 id="统计引擎（启发式引擎）"><a href="#统计引擎（启发式引擎）" class="headerlink" title="统计引擎（启发式引擎）"></a>统计引擎（启发式引擎）</h3><p>这些引擎本质上都是基于统计学算法,通过对海量样本以固定方法抽取特征,并对特征进行统计、分析，进而产生计算模型。依照计算模型对待扫描样本进行分类，进而推测样本是否属于恶意分类。</p>
 <p>感觉这类启发式引擎和机器学习很相似，但是要注意一点，归根结底还是对特征的统计、分析、扫描。</p>
-<p><img src="/2022/03/31/%E5%8F%8D%E7%97%85%E6%AF%92%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D/image-20220119113611084.png" alt="image-20220119113611084"></p>
-<p><img src="/2022/03/31/%E5%8F%8D%E7%97%85%E6%AF%92%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D/image-20220119113619125.png" alt="image-20220119113619125"></p>
+<p><img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119113611084.png" alt="image-20220119113611084"></p>
+<p><img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119113619125.png" alt="image-20220119113619125"></p>
 ]]></content>
       <categories>
         <category>免杀</category>
