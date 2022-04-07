@@ -4531,12 +4531,15 @@
 </tr>
 </tbody></table>
 <h3 id="2-检测虚拟机"><a href="#2-检测虚拟机" class="headerlink" title="2.检测虚拟机"></a>2.检测虚拟机</h3><h4 id="进程检测"><a href="#进程检测" class="headerlink" title="进程检测"></a>进程检测</h4><p>VMware</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Vmtoolscl.exe</span><br><span class="line">Vmwaretrat.exe</span><br><span class="line">Vmwareuser.exe</span><br><span class="line">Vmacthlp.exe</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Vmtoolsd.exe</span><br><span class="line">Vmwaretrat.exe</span><br><span class="line">Vmwareuser.exe</span><br><span class="line">Vmacthlp.exe</span><br></pre></td></tr></table></figure>
 
 
 
 <p>VirtualBox</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vboxservice.exe</span><br><span class="line">vboxtray.exe</span><br></pre></td></tr></table></figure>
+
+<p>parakkeks desktop</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">prl_tools.exe</span><br></pre></td></tr></table></figure>
 
 
 
