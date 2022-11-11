@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>0r@nge の窝</title>
+  
+  
+  <link href="https://0range-x.github.io/atom.xml" rel="self"/>
+  
+  <link href="https://0range-x.github.io/"/>
+  <updated>2022-11-11T17:33:06.484Z</updated>
+  <id>https://0range-x.github.io/</id>
+  
+  <author>
+    <name>0r@nge</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>process-injection</title>
+    <link href="https://0range-x.github.io/2022/11/12/inject/"/>
+    <id>https://0range-x.github.io/2022/11/12/inject/</id>
+    <published>2022-11-11T17:21:19.000Z</published>
+    <updated>2022-11-11T17:33:06.484Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;学习一些基础的windows注入方式&lt;/p&gt;
+&lt;p&gt;代码仓库&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="windows" scheme="https://0range-x.github.io/categories/windows/"/>
+    
+    
+    <category term=" windows" scheme="https://0range-x.github.io/tags/windows/"/>
+    
+    <category term="基础" scheme="https://0range-x.github.io/tags/%E5%9F%BA%E7%A1%80/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>pe解析</title>
+    <link href="https://0range-x.github.io/2022/11/12/%E9%87%8D%E5%9B%9EPE%E7%BB%93%E6%9E%84/"/>
+    <id>https://0range-x.github.io/2022/11/12/%E9%87%8D%E5%9B%9EPE%E7%BB%93%E6%9E%84/</id>
+    <published>2022-11-11T17:16:10.000Z</published>
+    <updated>2022-11-11T17:26:25.080Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;去年学了一遍pe，但是没有用代码实现，导致对pe的理解非常浅，今年又重新学了一遍，旨在加强对代码的掌握，并不是从0开始，只是方便本人理解，因此笔记内容很残缺，可以参考去年的笔记一起看。&lt;/p&gt;
+&lt;p&gt;代码仓库：&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="windows" scheme="https://0range-x.github.io/categories/windows/"/>
+    
+    
+    <category term="基础" scheme="https://0range-x.github.io/tags/%E5%9F%BA%E7%A1%80/"/>
+    
+    <category term="windows" scheme="https://0range-x.github.io/tags/windows/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>浅析杀软</title>
+    <link href="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/"/>
+    <id>https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/</id>
+    <published>2022-03-31T03:13:10.000Z</published>
+    <updated>2022-04-07T09:56:24.690Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;以前写过一篇介绍杀软原理的，这里再补充一下&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="原理" scheme="https://0range-x.github.io/tags/%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="杀软" scheme="https://0range-x.github.io/tags/%E6%9D%80%E8%BD%AF/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>syscall的前世今生</title>
+    <link href="https://0range-x.github.io/2022/03/14/syscall/"/>
+    <id>https://0range-x.github.io/2022/03/14/syscall/</id>
+    <published>2022-03-13T16:00:10.000Z</published>
+    <updated>2022-03-13T16:02:03.918Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;本文首发于跳跳糖社区，原文链接：&lt;a href=&quot;https://tttang.com/archive/1464/&quot;&gt;https://tttang.com/archive/1464/&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/tags/%E5%85%8D%E6%9D%80/"/>
+    
+    <category term="syscall" scheme="https://0range-x.github.io/tags/syscall/"/>
+    
+    <category term="红蓝对抗" scheme="https://0range-x.github.io/tags/%E7%BA%A2%E8%93%9D%E5%AF%B9%E6%8A%97/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>某启动项进程分析</title>
+    <link href="https://0range-x.github.io/2022/02/27/%E6%9F%90%E5%90%AF%E5%8A%A8%E9%A1%B9%E8%BF%9B%E7%A8%8B%E5%88%86%E6%9E%90/"/>
+    <id>https://0range-x.github.io/2022/02/27/%E6%9F%90%E5%90%AF%E5%8A%A8%E9%A1%B9%E8%BF%9B%E7%A8%8B%E5%88%86%E6%9E%90/</id>
+    <published>2022-02-27T14:57:10.000Z</published>
+    <updated>2022-02-27T14:58:15.277Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;周六晚上，本来打开电影网站准备看电影的时候，haya师傅发来张图，说这个 exe</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="持久化" scheme="https://0range-x.github.io/tags/%E6%8C%81%E4%B9%85%E5%8C%96/"/>
+    
+    <category term="进程分析" scheme="https://0range-x.github.io/tags/%E8%BF%9B%E7%A8%8B%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>造轮子记(附xshell7解密逆向分析)</title>
+    <link href="https://0range-x.github.io/2022/02/18/xshell%E6%A1%86%E6%9E%B6/"/>
+    <id>https://0range-x.github.io/2022/02/18/xshell%E6%A1%86%E6%9E%B6/</id>
+    <published>2022-02-17T17:02:10.000Z</published>
+    <updated>2022-03-13T16:33:42.766Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;0x00-前言&quot;&gt;&lt;a href=&quot;#0x00-前言&quot; class=&quot;headerlink&quot; title=&quot;0x00 前言&quot;&gt;&lt;/a&gt;0x00</summary>
+        
+      
+    
+    
+    
+    <category term="工具开发" scheme="https://0range-x.github.io/categories/%E5%B7%A5%E5%85%B7%E5%BC%80%E5%8F%91/"/>
+    
+    
+    <category term="工具" scheme="https://0range-x.github.io/tags/%E5%B7%A5%E5%85%B7/"/>
+    
+    <category term="开发" scheme="https://0range-x.github.io/tags/%E5%BC%80%E5%8F%91/"/>
+    
+    <category term="逆向分析" scheme="https://0range-x.github.io/tags/%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>域渗透一条龙手册</title>
+    <link href="https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/"/>
+    <id>https://0range-x.github.io/2022/01/26/Domain-penetration_one-stop/</id>
+    <published>2022-01-26T09:11:10.000Z</published>
+    <updated>2022-01-26T09:15:29.173Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;1-无凭证情况下&quot;&gt;&lt;a href=&quot;#1-无凭证情况下&quot; class=&quot;headerlink&quot; title=&quot;1.无凭证情况下&quot;&gt;&lt;/a&gt;1.无凭证情况下&lt;/h1&gt;&lt;h2 id=&quot;网络扫描&quot;&gt;&lt;a href=&quot;#网络扫描&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="内网" scheme="https://0range-x.github.io/categories/%E5%86%85%E7%BD%91/"/>
+    
+    
+    <category term="内网渗透" scheme="https://0range-x.github.io/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/"/>
+    
+    <category term="域渗透" scheme="https://0range-x.github.io/tags/%E5%9F%9F%E6%B8%97%E9%80%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>How to Bypass AMSI</title>
+    <link href="https://0range-x.github.io/2022/01/23/AMSI/"/>
+    <id>https://0range-x.github.io/2022/01/23/AMSI/</id>
+    <published>2022-01-22T16:19:10.000Z</published>
+    <updated>2022-02-15T14:39:56.430Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;关于AMSI&quot;&gt;&lt;a href=&quot;#关于AMSI&quot; class=&quot;headerlink&quot; title=&quot;关于AMSI&quot;&gt;&lt;/a&gt;关于AMSI&lt;/h2&gt;&lt;p&gt;当用户执行脚本或启动 PowerShell 时，AMSI.dll</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/tags/%E5%85%8D%E6%9D%80/"/>
+    
+    <category term="AMSI" scheme="https://0range-x.github.io/tags/AMSI/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>浅析邮件伪造</title>
+    <link href="https://0range-x.github.io/2022/01/10/%E6%B5%85%E6%9E%90%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/"/>
+    <id>https://0range-x.github.io/2022/01/10/%E6%B5%85%E6%9E%90%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/</id>
+    <published>2022-01-09T16:13:10.000Z</published>
+    <updated>2022-09-12T03:20:48.103Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;SPF配置&quot;&gt;&lt;a href=&quot;#SPF配置&quot; class=&quot;headerlink&quot; title=&quot;SPF配置&quot;&gt;&lt;/a&gt;SPF配置&lt;/h2&gt;&lt;p&gt;spf全称为（Sender Policy</summary>
+        
+      
+    
+    
+    
+    <category term="钓鱼" scheme="https://0range-x.github.io/categories/%E9%92%93%E9%B1%BC/"/>
+    
+    
+    <category term="钓鱼" scheme="https://0range-x.github.io/tags/%E9%92%93%E9%B1%BC/"/>
+    
+    <category term="邮件伪造" scheme="https://0range-x.github.io/tags/%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>回首2021</title>
+    <link href="https://0range-x.github.io/2021/12/29/2021%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
+    <id>https://0range-x.github.io/2021/12/29/2021%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/</id>
+    <published>2021-12-28T16:00:10.000Z</published>
+    <updated>2021-12-28T16:00:52.953Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;曾经看过一句话，说每个人的人生都有很艰难的一年用来改变自己。以前我不以为然，既觉得一年时间说的太具体又觉得一年有点短。但我真的经历了我相信了。真的是一年。&lt;/p&gt;
+&lt;p&gt;2021与过去的18年最大的不同大概就是踏上了安全这条路，如果没有学习安全的话，今年估计和以往也没什么不</summary>
+        
+      
+    
+    
+    
+    <category term="个人总结" scheme="https://0range-x.github.io/categories/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/"/>
+    
+    
+    <category term="总结" scheme="https://0range-x.github.io/tags/%E6%80%BB%E7%BB%93/"/>
+    
+    <category term="吹水" scheme="https://0range-x.github.io/tags/%E5%90%B9%E6%B0%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>shellcode隐写RGB过火绒、360</title>
+    <link href="https://0range-x.github.io/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/"/>
+    <id>https://0range-x.github.io/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/</id>
+    <published>2021-12-27T17:35:19.000Z</published>
+    <updated>2021-12-27T17:37:02.346Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;cs篇将Shellcode隐写到正常BMP图片中，把字符串拆成字节，写入每个像素的alpha通道中，然后上传到可信任的网站下偏移拼接shellcode进行远程动态加载，能有效地增加了免杀性和隐匿性。&lt;/p&gt;
+&lt;p&gt;首先在cs生成shellcode&lt;/p&gt;
+&lt;p&gt;&lt;img</summary>
+        
+      
+    
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/categories/%E5%85%8D%E6%9D%80/"/>
+    
+    
+    <category term="免杀" scheme="https://0range-x.github.io/tags/%E5%85%8D%E6%9D%80/"/>
+    
+    <category term="隐写" scheme="https://0range-x.github.io/tags/%E9%9A%90%E5%86%99/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>木马常用dll/api函数</title>
+    <link href="https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"/>
+    <id>https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/</id>
+    <published>2021-12-19T06:52:10.000Z</published>
+    <updated>2021-12-19T06:52:58.872Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;微软提供了很多dll，被木马经常使用的也有很多，没有必要全部记下来，碰到了去查 msdn</summary>
+        
+      
+    
+    
+    
+    <category term="木马分析" scheme="https://0range-x.github.io/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="检索" scheme="https://0range-x.github.io/tags/%E6%A3%80%E7%B4%A2/"/>
+    
+    <category term="辅助文档" scheme="https://0range-x.github.io/tags/%E8%BE%85%E5%8A%A9%E6%96%87%E6%A1%A3/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>加密后门的木马分析</title>
+    <link href="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    <id>https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/</id>
+    <published>2021-12-10T07:28:10.000Z</published>
+    <updated>2021-12-10T10:36:50.072Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;详细分析&quot;&gt;&lt;a href=&quot;#详细分析&quot; class=&quot;headerlink&quot; title=&quot;详细分析&quot;&gt;&lt;/a&gt;详细分析&lt;/h2&gt;&lt;p&gt;本文首发于跳跳糖社区，原文链接: &lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="木马分析" scheme="https://0range-x.github.io/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="后门" scheme="https://0range-x.github.io/tags/%E5%90%8E%E9%97%A8/"/>
+    
+    <category term="病毒" scheme="https://0range-x.github.io/tags/%E7%97%85%E6%AF%92/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>短期规划以及学习中存在的问题</title>
+    <link href="https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/"/>
+    <id>https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/</id>
+    <published>2021-12-03T09:34:10.000Z</published>
+    <updated>2021-12-10T06:57:57.812Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="个人总结" scheme="https://0range-x.github.io/categories/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/"/>
+    
+    
+    <category term="总结" scheme="https://0range-x.github.io/tags/%E6%80%BB%E7%BB%93/"/>
+    
+    <category term="吹水" scheme="https://0range-x.github.io/tags/%E5%90%B9%E6%B0%B4/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>CVE-2020-1472的分析与复现</title>
+    <link href="https://0range-x.github.io/2021/11/22/CVE-2020-1472/"/>
+    <id>https://0range-x.github.io/2021/11/22/CVE-2020-1472/</id>
+    <published>2021-11-22T13:06:10.000Z</published>
+    <updated>2021-12-03T18:07:01.473Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;0x01-原理简介&quot;&gt;&lt;a href=&quot;#0x01-原理简介&quot; class=&quot;headerlink&quot; title=&quot;0x01 原理简介&quot;&gt;&lt;/a&gt;0x01</summary>
+        
+      
+    
+    
+    
+    <category term="内网" scheme="https://0range-x.github.io/categories/%E5%86%85%E7%BD%91/"/>
+    
+    
+    <category term="内网" scheme="https://0range-x.github.io/tags/%E5%86%85%E7%BD%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>基于PSexec的一些原理分析</title>
+    <link href="https://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/"/>
+    <id>https://0range-x.github.io/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/</id>
+    <published>2021-11-15T02:32:10.000Z</published>
+    <updated>2021-12-03T18:06:52.056Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;0x01-PSexec&quot;&gt;&lt;a href=&quot;#0x01-PSexec&quot; class=&quot;headerlink&quot; title=&quot;0x01 PSexec&quot;&gt;&lt;/a&gt;0x01 PSexec&lt;/h2&gt;&lt;p&gt;PsExec可以算是一个轻量级的 telnet</summary>
+        
+      
+    
+    
+    
+    <category term="内网" scheme="https://0range-x.github.io/categories/%E5%86%85%E7%BD%91/"/>
+    
+    
+    <category term="内网" scheme="https://0range-x.github.io/tags/%E5%86%85%E7%BD%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>DLL劫持转发重定向后门的分析</title>
+    <link href="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/"/>
+    <id>https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/</id>
+    <published>2021-11-10T14:05:10.000Z</published>
+    <updated>2021-12-10T07:01:35.890Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&quot;https://forum.butian.net/share/857&quot;&gt;https://forum.butian.net/share/857&lt;/a&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="木马分析" scheme="https://0range-x.github.io/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="后门" scheme="https://0range-x.github.io/tags/%E5%90%8E%E9%97%A8/"/>
+    
+    <category term="病毒" scheme="https://0range-x.github.io/tags/%E7%97%85%E6%AF%92/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>转载-红队作战手册</title>
+    <link href="https://0range-x.github.io/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/"/>
+    <id>https://0range-x.github.io/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/</id>
+    <published>2021-11-04T16:11:10.000Z</published>
+    <updated>2021-11-07T09:07:56.794Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;以下仅针对日常 “红队” 场景, 进行了一次相对全面完整的实战攻击利用技术提炼汇总&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="转载" scheme="https://0range-x.github.io/categories/%E8%BD%AC%E8%BD%BD/"/>
+    
+    
+    <category term="总结" scheme="https://0range-x.github.io/tags/%E6%80%BB%E7%BB%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>从反汇编看恶意程序的C语言结构</title>
+    <link href="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"/>
+    <id>https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/</id>
+    <published>2021-11-04T07:55:10.000Z</published>
+    <updated>2021-12-10T06:59:07.510Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&quot;https://forum.butian.net/share/833&quot;&gt;https://forum.butian.net/share/833&lt;/a&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="木马分析" scheme="https://0range-x.github.io/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="病毒" scheme="https://0range-x.github.io/tags/%E7%97%85%E6%AF%92/"/>
+    
+    <category term="反汇编" scheme="https://0range-x.github.io/tags/%E5%8F%8D%E6%B1%87%E7%BC%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>记一次IDA分析恶意DLL文件</title>
+    <link href="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/"/>
+    <id>https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/</id>
+    <published>2021-10-30T15:37:10.000Z</published>
+    <updated>2021-10-30T15:42:37.343Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&quot;https://forum.butian.net/share/809&quot;&gt;https://forum.butian.net/share/809&lt;/a&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="木马分析" scheme="https://0range-x.github.io/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="木马" scheme="https://0range-x.github.io/tags/%E6%9C%A8%E9%A9%AC/"/>
+    
+  </entry>
+  
+</feed>

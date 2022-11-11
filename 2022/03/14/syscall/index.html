@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="本文首发于跳跳糖社区，原文链接：https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1464&#x2F; 前言学免杀不可避免的学习syscall，虽然是几年前的技术，还是有必要学习。学习新技术之前先掌握旧技术。 PEB(Process Envirorment Block Structure)进程环境信息块，是一个从内核中分配给每个进程的用户模式结构,每一个进程都会有从ring0分配给该进程的进程环境块，后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="syscall的前世今生">
+<meta property="og:url" content="https://0range-x.github.io/2022/03/14/syscall/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="本文首发于跳跳糖社区，原文链接：https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1464&#x2F; 前言学免杀不可避免的学习syscall，虽然是几年前的技术，还是有必要学习。学习新技术之前先掌握旧技术。 PEB(Process Envirorment Block Structure)进程环境信息块，是一个从内核中分配给每个进程的用户模式结构,每一个进程都会有从ring0分配给该进程的进程环境块，后">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://md.buptmerak.cn/uploads/upload_fbae1ed22b607a3f19ca525422d55b97.png">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/mj7qfictF08WxW0FWklBjAqyXuqWWcicfxP1dL1MCNs5nxYZGiaGERwCbaKaUs5BvFKOgHibZ5xbZXyHicXOFHbqibyQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220302172656771.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220302172726585.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220302172844674.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220303162154007.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220303165921255.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220303172723877.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220302180209698.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220304010508030.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220303214153418.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220303213710095.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220303213729361.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220310014525396.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/14/syscall/image-20220310014618135.png">
+<meta property="article:published_time" content="2022-03-13T16:00:10.000Z">
+<meta property="article:modified_time" content="2022-03-13T16:02:03.918Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="免杀">
+<meta property="article:tag" content="syscall">
+<meta property="article:tag" content="红蓝对抗">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://md.buptmerak.cn/uploads/upload_fbae1ed22b607a3f19ca525422d55b97.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>syscall的前世今生</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/02/27/%E6%9F%90%E5%90%AF%E5%8A%A8%E9%A1%B9%E8%BF%9B%E7%A8%8B%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/03/14/syscall/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/03/14/syscall/&text=syscall的前世今生"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/03/14/syscall/&is_video=false&description=syscall的前世今生"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=syscall的前世今生&body=Check out this article: https://0range-x.github.io/2022/03/14/syscall/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/03/14/syscall/&name=syscall的前世今生&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/03/14/syscall/&t=syscall的前世今生"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PEB-Process-Envirorment-Block-Structure"><span class="toc-number">2.</span> <span class="toc-text">PEB(Process Envirorment Block Structure)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#syscall"><span class="toc-number">3.</span> <span class="toc-text">syscall</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ntdll"><span class="toc-number">3.0.0.2.</span> <span class="toc-text">ntdll</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.0.0.3.</span> <span class="toc-text">代码分析</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#syscall%E9%A1%B9%E7%9B%AE"><span class="toc-number">4.</span> <span class="toc-text">syscall项目</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Hell%E2%80%99s-Gate%EF%BC%9A%E5%9C%B0%E7%8B%B1%E4%B9%8B%E9%97%A8"><span class="toc-number">4.0.0.1.</span> <span class="toc-text">Hell’s Gate：地狱之门</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SysWhisoers2"><span class="toc-number">4.0.0.2.</span> <span class="toc-text">SysWhisoers2</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Halo%E2%80%99s-Gate%EF%BC%9A%E5%85%89%E7%8E%AF%E4%B9%8B%E9%97%A8"><span class="toc-number">4.0.0.3.</span> <span class="toc-text">Halo’s Gate：光环之门</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#TartarusGate"><span class="toc-number">4.0.0.4.</span> <span class="toc-text">TartarusGate:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Spoofing-Gate%EF%BC%9A%E6%AC%BA%E9%AA%97%E4%B9%8B%E9%97%A8"><span class="toc-number">4.0.0.5.</span> <span class="toc-text">Spoofing-Gate：欺骗之门</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ParallelSyscalls"><span class="toc-number">4.0.0.6.</span> <span class="toc-text">ParallelSyscalls</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#GetSSN"><span class="toc-number">4.0.0.7.</span> <span class="toc-text">GetSSN</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SysWhispers3"><span class="toc-number">4.0.0.8.</span> <span class="toc-text">SysWhispers3</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A3%80%E6%B5%8Bsyscall"><span class="toc-number">5.</span> <span class="toc-text">检测syscall</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E6%A3%80%E6%B5%8B"><span class="toc-number">5.0.0.1.</span> <span class="toc-text">磁盘检测</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-Frida-%E6%A3%80%E6%B5%8B%E7%9B%B4%E6%8E%A5%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">5.0.0.2.</span> <span class="toc-text">使用 Frida 检测直接系统调用</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        syscall的前世今生
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-13T16:00:10.000Z" itemprop="datePublished">2022-03-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%85%8D%E6%9D%80/">免杀</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/syscall/" rel="tag">syscall</a>, <a class="tag-link-link" href="/tags/%E5%85%8D%E6%9D%80/" rel="tag">免杀</a>, <a class="tag-link-link" href="/tags/%E7%BA%A2%E8%93%9D%E5%AF%B9%E6%8A%97/" rel="tag">红蓝对抗</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>本文首发于跳跳糖社区，原文链接：<a target="_blank" rel="noopener" href="https://tttang.com/archive/1464/">https://tttang.com/archive/1464/</a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>学免杀不可避免的学习syscall，虽然是几年前的技术，还是有必要学习。学习新技术之前先掌握旧技术。</p>
+<h2 id="PEB-Process-Envirorment-Block-Structure"><a href="#PEB-Process-Envirorment-Block-Structure" class="headerlink" title="PEB(Process Envirorment Block Structure)"></a>PEB(Process Envirorment Block Structure)</h2><p>进程环境信息块，是一个从内核中分配给每个进程的用户模式结构,每一个进程都会有从ring0分配给该进程的进程环境块，后续我们主要需要了解<code>_PEB_LDR_DATA</code>以及其他子结构</p>
+<p>这张图是x86系统的结构体</p>
+<p><img src="https://md.buptmerak.cn/uploads/upload_fbae1ed22b607a3f19ca525422d55b97.png" alt="img"></p>
+<p>FS段寄存器指向当前的TEB结构，可以看到PEB在TEB的0x30偏移处</p>
+<p>微软并没有定义PEB结构，因此需要我们自定义</p>
+<p>PEB的结构</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">PEB</span> &#123;</span></span><br><span class="line">	BOOLEAN InheritedAddressSpace;</span><br><span class="line">	BOOLEAN ReadImageFileExecOptions;</span><br><span class="line">	BOOLEAN BeingDebugged;</span><br><span class="line">	BOOLEAN Spare;</span><br><span class="line">	HANDLE Mutant;</span><br><span class="line">	PVOID ImageBase;</span><br><span class="line">	PPEB_LDR_DATA LoaderData;</span><br><span class="line">	PVOID ProcessParameters;</span><br><span class="line">	PVOID SubSystemData;</span><br><span class="line">	PVOID ProcessHeap;</span><br><span class="line">	PVOID FastPebLock;</span><br><span class="line">	PVOID FastPebLockRoutine;</span><br><span class="line">	PVOID FastPebUnlockRoutine;</span><br><span class="line">	ULONG EnvironmentUpdateCount;</span><br><span class="line">	PVOID* KernelCallbackTable;</span><br><span class="line">	PVOID EventLogSection;</span><br><span class="line">	PVOID EventLog;</span><br><span class="line">	PVOID FreeList;</span><br><span class="line">	ULONG TlsExpansionCounter;</span><br><span class="line">	PVOID TlsBitmap;</span><br><span class="line">	ULONG TlsBitmapBits[<span class="number">0x2</span>];</span><br><span class="line">	PVOID ReadOnlySharedMemoryBase;</span><br><span class="line">	PVOID ReadOnlySharedMemoryHeap;</span><br><span class="line">	PVOID* ReadOnlyStaticServerData;</span><br><span class="line">	PVOID AnsiCodePageData;</span><br><span class="line">	PVOID OemCodePageData;</span><br><span class="line">	PVOID UnicodeCaseTableData;</span><br><span class="line">	ULONG NumberOfProcessors;</span><br><span class="line">	ULONG NtGlobalFlag;</span><br><span class="line">	BYTE Spare2[<span class="number">0x4</span>];</span><br><span class="line">	LARGE_INTEGER CriticalSectionTimeout;</span><br><span class="line">	ULONG HeapSegmentReserve;</span><br><span class="line">	ULONG HeapSegmentCommit;</span><br><span class="line">	ULONG HeapDeCommitTotalFreeThreshold;</span><br><span class="line">	ULONG HeapDeCommitFreeBlockThreshold;</span><br><span class="line">	ULONG NumberOfHeaps;</span><br><span class="line">	ULONG MaximumNumberOfHeaps;</span><br><span class="line">	PVOID** ProcessHeaps;</span><br><span class="line">	PVOID GdiSharedHandleTable;</span><br><span class="line">	PVOID ProcessStarterHelper;</span><br><span class="line">	PVOID GdiDCAttributeList;</span><br><span class="line">	PVOID LoaderLock;</span><br><span class="line">	ULONG OSMajorVersion;</span><br><span class="line">	ULONG OSMinorVersion;</span><br><span class="line">	ULONG OSBuildNumber;</span><br><span class="line">	ULONG OSPlatformId;</span><br><span class="line">	ULONG ImageSubSystem;</span><br><span class="line">	ULONG ImageSubSystemMajorVersion;</span><br><span class="line">	ULONG ImageSubSystemMinorVersion;</span><br><span class="line">	ULONG GdiHandleBuffer[<span class="number">0x22</span>];</span><br><span class="line">	ULONG PostProcessInitRoutine;</span><br><span class="line">	ULONG TlsExpansionBitmap;</span><br><span class="line">	BYTE TlsExpansionBitmapBits[<span class="number">0x80</span>];</span><br><span class="line">	ULONG SessionId;</span><br><span class="line">&#125; PEB, * PPEB;</span><br></pre></td></tr></table></figure>
+
+<p>在PEB中的0x0c处为一指针，指向<code>PEB_LDR_DATA</code>结构，该结构体包含有关为进程加载的模块的信息（存储着该进程所有模块数据的链表）。</p>
+<p>在<code>PEB_LDR_DATA</code>的0x0c,0x14,0x1c中为三个双向链表<code>LIST_ENTRY</code>，在<code>struct _LDR_MODULE</code>的0x00,0x08和0x10处是三个对应的同名称的<code>LIST_ENTRY</code>, <code>PEB_LDR_DATA</code>和<code>struct _LDR_MODULE</code>就是通过这三个LIST_ENTRY对应连接起来的。</p>
+<p>三个双向链表分别代表<strong>模块加载顺序，模块在内存中的加载顺序以及模块初始化装载的顺序</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">PEB_LDR_DATA</span> &#123;</span></span><br><span class="line">	ULONG Length;</span><br><span class="line">	ULONG Initialized;</span><br><span class="line">	PVOID SsHandle;</span><br><span class="line">	LIST_ENTRY InLoadOrderModuleList;</span><br><span class="line">	LIST_ENTRY InMemoryOrderModuleList;</span><br><span class="line">	LIST_ENTRY InInitializationOrderModuleList;</span><br><span class="line">&#125; PEB_LDR_DATA, * PPEB_LDR_DATA;</span><br></pre></td></tr></table></figure>
+
+<p>双向链表 <code>LIST_ENTRY</code>的定义如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">LIST_ENTRY</span> &#123;</span></span><br><span class="line">   <span class="class"><span class="keyword">struct</span> _<span class="title">LIST_ENTRY</span> *<span class="title">Flink</span>;</span></span><br><span class="line">   <span class="class"><span class="keyword">struct</span> _<span class="title">LIST_ENTRY</span> *<span class="title">Blink</span>;</span></span><br><span class="line">&#125; LIST_ENTRY, *PLIST_ENTRY, *RESTRICTED_POINTER PRLIST_ENTRY;</span><br></pre></td></tr></table></figure>
+
+<p>每个双向链表都是指向进程装载的模块，结构中的每个指针，指向了一个<code>LDR_DATA_TABLE_ENTRY</code>的结构:</p>
+<p>这个结构很重要，提供了内存模块的基址和dll名称</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">LDR_MODULE</span> &#123;</span></span><br><span class="line">	LIST_ENTRY InLoadOrderModuleList;</span><br><span class="line">	LIST_ENTRY InMemoryOrderModuleList;</span><br><span class="line">	LIST_ENTRY InInitializationOrderModuleList;</span><br><span class="line">	PVOID BaseAddress;</span><br><span class="line">	PVOID EntryPoint;</span><br><span class="line">	ULONG SizeOfImage;</span><br><span class="line">	UNICODE_STRING FullDllName;</span><br><span class="line">	UNICODE_STRING BaseDllName;</span><br><span class="line">	ULONG Flags;</span><br><span class="line">	SHORT LoadCount;</span><br><span class="line">	SHORT TlsIndex;</span><br><span class="line">	LIST_ENTRY HashTableEntry;</span><br><span class="line">	ULONG TimeDateStamp;</span><br><span class="line">&#125; LDR_MODULE, * PLDR_MODULE;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>微软给出了如何检索PEB得到偏移地址  32位和64位</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/cpp/intrinsics/readgsbyte-readgsdword-readgsqword-readgsword?view=msvc-170&viewFallbackFrom=vs-2019">__readgsbyte, __readgsdword, __readgsqword, __readgsword | Microsoft Docs</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/cpp/intrinsics/readfsbyte-readfsdword-readfsqword-readfsword?view=msvc-170&viewFallbackFrom=vs-2019">__readfsbyte, __readfsdword, __readfsqword, __readfsword | Microsoft Docs</a></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/mj7qfictF08WxW0FWklBjAqyXuqWWcicfxP1dL1MCNs5nxYZGiaGERwCbaKaUs5BvFKOgHibZ5xbZXyHicXOFHbqibyQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></p>
+<h2 id="syscall"><a href="#syscall" class="headerlink" title="syscall"></a>syscall</h2><h5 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h5><p>Windows下有两种处理器访问模式：用户模式（user mode）和内核模式（kernel mode）。用户模式下运行应用程序时，Windows 会为该程序创建一个新进程，提供一个私有虚拟地址空间和一个私有句柄表，因为私有，一个应用程序无法修改另一个应用程序的私有虚拟地址空间的数据；内核模式下，所有运行的代码都共享一个虚拟地址空间， 因此内核中驱动程序可能还会因为写入错误的地址空间导致其他驱动程序甚至系统出现错误。</p>
+<p>内核中包含了大部分操作系统的内部数据结构，所以用户模式下的应用程序在访问这些数据结构或调用内部Windows例程以执行特权操作的时候，必须先从用户模式切换到内核模式，这里就涉及到系统调用。</p>
+<p>x86 windows 使用 sysenter 实现系统调用。</p>
+<p>x64 windows 使用 <strong>syscall</strong> 实现系统调用。</p>
+<p>目前syscall已经成为了绕过AV/EDR所使用的主流方式，可以用它绕过一些敏感函数的调用监控(R3)。主流的AV/EDR都会对敏感函数进行HOOK，而syscall则可以用来绕过该类检测。</p>
+<p>不同操作系统版本之间syscall number不同。可以参考<a target="_blank" rel="noopener" href="https://j00ru.vexillium.org/syscalls/nt/64/">https://j00ru.vexillium.org/syscalls/nt/64/</a> </p>
+<p>使用syscall的前提：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">不使用GetModuleHandle找到ntdll的基址 </span><br><span class="line">解析DLL的导出表 </span><br><span class="line">查找syscall number </span><br><span class="line">执行syscall</span><br></pre></td></tr></table></figure>
+
+<h5 id="ntdll"><a href="#ntdll" class="headerlink" title="ntdll"></a>ntdll</h5><p>该网站解析了ntdll.dll的pe</p>
+<p><a target="_blank" rel="noopener" href="http://undocumented.ntinternals.net/">http://undocumented.ntinternals.net/</a></p>
+<p>在win10中，除了minimal和pico进程外，所有用户态的进程默认情况下都隐式链接到ntdll.dll</p>
+<p>一般情况下，ntdll.dll在内存中的第二个模块,kernel32.dll是第三个模块。然而有些杀软会改变内存中的模块顺序列表，因此我们需要先确定指向的内存模块是ntdll.dll。如果访问了错误的模块，很显然不会加载任何功能。</p>
+<p>可以简单的看几个ntdll.dll中的函数。注意到他们的调用.后面讲到地狱之门的时候会谈到这个调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov 	r10,rcx</span><br><span class="line">mov 	eax,xxh</span><br><span class="line">syscall</span><br></pre></td></tr></table></figure>
+
+<p>看几个ntdll.dll中的函数了解syscall的调用，如上文一样</p>
+<p><strong>ntCreateThread</strong></p>
+<p><img src="/2022/03/14/syscall/image-20220302172656771.png" alt="image-20220302172656771"></p>
+<p><strong>ntCreateProcess</strong></p>
+<p><img src="/2022/03/14/syscall/image-20220302172726585.png" alt="image-20220302172726585"></p>
+<p><strong>ntAllocateVirtualMemory</strong></p>
+<p><img src="/2022/03/14/syscall/image-20220302172844674.png" alt="image-20220302172844674"></p>
+<p>可以看到NT函数的调用都差不多，差别就在传入 eax 寄存器的值不同，这里存储的是系统调用号，基于 eax 所存储的值的不同，syscall 进入内核调用的内核函数也不同。</p>
+<h5 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h5><p>我们可以用代码来解析ntdll</p>
+<p>首先获取内存模块的基地址</p>
+<p><img src="/2022/03/14/syscall/image-20220303162154007.png" alt="image-20220303162154007"></p>
+<p>我们的目标是获得模块导出地址表。步骤如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.找到模块基地址 </span><br><span class="line">2.获取 IMAGE_DOS_HEADER 并检查 IMAGE_DOS_SIGNATURE 来验证dos头</span><br><span class="line">3.遍历 IMAGE_NT_HEADER  , IMAGE_FILE_HEADER , IMAGE_OPTIONAL_HEADER</span><br><span class="line">4.在IMAGE_OPTIONAL_HEADER中找到导出地址表，它在 IMAGE_DATA_DIRECTORY 中,我们将他类型转换为IMAGE_EXPORT_DIRECTORY </span><br></pre></td></tr></table></figure>
+
+<p>代码实现，参考cripsr师傅</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PBYTE ImageBase;</span><br><span class="line">    PIMAGE_DOS_HEADER Dos = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_NT_HEADERS Nt = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_FILE_HEADER File = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_OPTIONAL_HEADER Optional = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_EXPORT_DIRECTORY ExportTable = <span class="literal">NULL</span>;</span><br><span class="line"> </span><br><span class="line">    PPEB Peb = (PPEB)__readgsqword(<span class="number">0x60</span>);</span><br><span class="line">    PLDR_MODULE pLoadModule;</span><br><span class="line">    pLoadModule = (PLDR_MODULE)((PBYTE)Peb-&gt;LoaderData-&gt;InMemoryOrderModuleList.Flink - <span class="number">0x10</span>);</span><br><span class="line">    ImageBase = (PBYTE)pLoadModule-&gt;BaseAddress;</span><br><span class="line">    Dos = (PIMAGE_DOS_HEADER)ImageBase;</span><br><span class="line">    <span class="keyword">if</span> (Dos-&gt;e_magic != IMAGE_DOS_SIGNATURE)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    Nt = (PIMAGE_NT_HEADERS)((PBYTE)Dos + Dos-&gt;e_lfanew);</span><br><span class="line">    File = (PIMAGE_FILE_HEADER)(ImageBase + (Dos-&gt;e_lfanew + <span class="keyword">sizeof</span>(DWORD)));</span><br><span class="line">    Optional = (PIMAGE_OPTIONAL_HEADER)((PBYTE)File + <span class="keyword">sizeof</span>(IMAGE_FILE_HEADER));</span><br><span class="line">    ExportTable = (PIMAGE_EXPORT_DIRECTORY)(ImageBase + Optional-&gt;DataDirectory[<span class="number">0</span>].VirtualAddress);</span><br></pre></td></tr></table></figure>
+
+<p>当我们得到<code>NT_Header</code>时,由于PE头文件的数据结构已经给出，其前四个字节为一个DWORD类型的<code>Signature</code>，因此加上这四个字节就会得到<code>FileHeader</code>，然后在此基础上加上FileHeader数据结构所占大小最终得到<code>Optional</code>，只需要将其类型转为<code>_IMAGE_EXPORT_DIRECTORY</code>就得到了我们的导出地址表,再通过:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.FunctionNameAddressArray 一个包含函数名称的数组</span><br><span class="line">2.FunctionOrdinalAddressArray 充当函数寻址数组的索引</span><br><span class="line">3.FunctionAddressArray 一个包含函数地址的数组</span><br></pre></td></tr></table></figure>
+
+
+
+<p>得到ntdll的导出函数及地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">GetPeHeader</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PBYTE ImageBase;</span><br><span class="line">    PIMAGE_DOS_HEADER Dos = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_NT_HEADERS Nt = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_FILE_HEADER File = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_OPTIONAL_HEADER Optional = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_EXPORT_DIRECTORY ExportTable = <span class="literal">NULL</span>;</span><br><span class="line"> </span><br><span class="line">    PPEB Peb = (PPEB)__readgsqword(<span class="number">0x60</span>);</span><br><span class="line">    PLDR_MODULE pLoadModule;</span><br><span class="line">    <span class="comment">// NTDLL</span></span><br><span class="line">    pLoadModule = (PLDR_MODULE)((PBYTE)Peb-&gt;LoaderData-&gt;InMemoryOrderModuleList.Flink-&gt;Flink - <span class="number">0x10</span>);</span><br><span class="line">    ImageBase = (PBYTE)pLoadModule-&gt;BaseAddress;</span><br><span class="line"> </span><br><span class="line">    Dos = (PIMAGE_DOS_HEADER)ImageBase;</span><br><span class="line">    <span class="keyword">if</span> (Dos-&gt;e_magic != IMAGE_DOS_SIGNATURE)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    Nt = (PIMAGE_NT_HEADERS)((PBYTE)Dos + Dos-&gt;e_lfanew);</span><br><span class="line">    File = (PIMAGE_FILE_HEADER)(ImageBase + (Dos-&gt;e_lfanew + <span class="keyword">sizeof</span>(DWORD)));</span><br><span class="line">    Optional = (PIMAGE_OPTIONAL_HEADER)((PBYTE)File + <span class="keyword">sizeof</span>(IMAGE_FILE_HEADER));</span><br><span class="line">    ExportTable = (PIMAGE_EXPORT_DIRECTORY)(ImageBase + Optional-&gt;DataDirectory[<span class="number">0</span>].VirtualAddress);</span><br><span class="line"> </span><br><span class="line">    PDWORD pdwAddressOfFunctions = (PDWORD)((PBYTE)(ImageBase + ExportTable-&gt;AddressOfFunctions));</span><br><span class="line">    PDWORD pdwAddressOfNames = (PDWORD)((PBYTE)ImageBase + ExportTable-&gt;AddressOfNames);</span><br><span class="line">    PWORD pwAddressOfNameOrdinales = (PWORD)((PBYTE)ImageBase + ExportTable-&gt; AddressOfNameOrdinals);</span><br><span class="line">    <span class="keyword">for</span> (WORD cx = <span class="number">0</span>; cx &lt; ExportTable-&gt;NumberOfNames; cx++) </span><br><span class="line">    &#123;</span><br><span class="line">        PCHAR pczFunctionName = (PCHAR)((PBYTE)ImageBase + pdwAddressOfNames[cx]);</span><br><span class="line">        PVOID pFunctionAddress = (PBYTE)ImageBase + pdwAddressOfFunctions[pwAddressOfNameOrdinales[cx]];</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Function Name:%s\tFunction Address:%p\n&quot;</span>, pczFunctionName, pFunctionAddress);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2022/03/14/syscall/image-20220303165921255.png" alt="image-20220303165921255"></p>
+<h2 id="syscall项目"><a href="#syscall项目" class="headerlink" title="syscall项目"></a>syscall项目</h2><p>为什么有地狱之门</p>
+<p>在创建R3进程的时候，EDR会hook用户层的相关windows API调用，从而完成对进程动态行为的监控。比如，hook VirtualAlloc，监控内存分配。hook CreateProcess，监控进程创建。可以在用户层完成hook，也可以在内核层hook。用户层hook的好处是对性能的影响较小，相对于内核层hook更稳定，不容易导致系统蓝屏，所以很多EDR会选择在用户层hook，同时在内核层使用回调监控重要的内核api调用。一个进程分配了RWX属性的内存，或者修改了内存属性，将RW的内存修改为了RWX，由于RWX内存属性是shellcode或反射型DLL加载所用的内存属性，因此EDR会对申请的内存进行扫描，匹配到恶意软件的yara规则后，将会杀死恶意进程，并向控制中心发送告警。</p>
+<p>因此地狱之门出现了，为了避免在用户层被EDR hook的敏感函数检测到敏感行为，利用从ntdll中读取到的系统调用号进行系统直接调用来绕过敏感API函数的hook。主要来应对 EDR 对 Ring3 API 的 HOOK，不同版本的 Windows Ntxxx 函数的系统调用号不同，且调用时需要逆向各 API 的结构方便调用。</p>
+<p>网上也出了几个项目</p>
+<h5 id="Hell’s-Gate：地狱之门"><a href="#Hell’s-Gate：地狱之门" class="headerlink" title="Hell’s Gate：地狱之门"></a>Hell’s Gate：地狱之门</h5><p><a target="_blank" rel="noopener" href="https://github.com/am0nsec/HellsGate/">https://github.com/am0nsec/HellsGate/</a></p>
+<p>原理：通过直接读取进程第二个导入模块即NtDLL，解析结构然后遍历导出表，根据函数名Hash找到函数地址，将这个函数读取出来通过<code>0xb8</code>这个操作码来动态获取对应的系统调用号，从而绕过内存监控，在自己程序中执行了NTDLL的导出函数而不是直接通过<code>LoadLibrary</code>然后<code>GetProcAddress</code></p>
+<p>其中生成的宏汇编代码(MASM)来定义执行通过系统调用号调用NT函数的函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.data</span><br><span class="line">	wSystemCall DWORD 000h</span><br><span class="line"></span><br><span class="line">.code </span><br><span class="line">	HellsGate PROC</span><br><span class="line">		mov wSystemCall, 000h</span><br><span class="line">		mov wSystemCall, ecx</span><br><span class="line">		ret</span><br><span class="line">	HellsGate ENDP</span><br><span class="line"></span><br><span class="line">	HellDescent PROC</span><br><span class="line">		mov r10, rcx</span><br><span class="line">		mov eax, wSystemCall</span><br><span class="line"></span><br><span class="line">		syscall</span><br><span class="line">		ret</span><br><span class="line">	HellDescent ENDP</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这里执行payload</p>
+<p><img src="/2022/03/14/syscall/image-20220303172723877.png" alt="image-20220303172723877"></p>
+<h5 id="SysWhisoers2"><a href="#SysWhisoers2" class="headerlink" title="SysWhisoers2"></a>SysWhisoers2</h5><p><a target="_blank" rel="noopener" href="https://github.com/jthuraisamy/SysWhispers2">https://github.com/jthuraisamy/SysWhispers2</a></p>
+<p><img src="/2022/03/14/syscall/image-20220302180209698.png" alt="image-20220302180209698"></p>
+<p><code>SysWhisoers2</code>很方便，用python脚本生成需要的文件，通过包含头文件就可以syscall。</p>
+<p>Syswhispers2 相比于一代版本，不再需要指定 Windows 版本，也不依赖于以往的系统调用表，没有从磁盘读取 Ntdll.ll  无惧 Hook,这里仅仅获取 <code>Syscall Number</code>，进三环部分自己实现.</p>
+<p><code>SW2_PopulateSyscallList</code>函数其具体含义是先解析 Ntdll.dll 的 导出地址表 EAT，定位所有以 “Zw” 开头的函数，最后按地址从小到大进行排序。代码太长这里就不贴了，项目里有</p>
+<p>另一个函数是 <code>SW2_GetSyscallNumber</code>，这个函数循环遍历 <code>SW2_PopulateSyscallList</code>  的数组，如果 Hash 相等就返回 循环的值 作为 SyscallNumber。</p>
+<p><img src="/2022/03/14/syscall/image-20220304010508030.png" alt="image-20220304010508030"></p>
+<h5 id="Halo’s-Gate：光环之门"><a href="#Halo’s-Gate：光环之门" class="headerlink" title="Halo’s Gate：光环之门"></a>Halo’s Gate：光环之门</h5><p><a target="_blank" rel="noopener" href="https://github.com/boku7/AsmHalosGate">https://github.com/boku7/AsmHalosGate</a></p>
+<p>地狱之门实现了动态的系统调用，amazing，但也有一点缺点，如果访问的那块内存不是ntdll.dll呢，即ntdll.dll被修改了，Nt*函数被hook。这个时候地狱之门就会失效，这个时候出现了光环之门</p>
+<p>原理：EDR不可能HOOK全部的Nt*函数，总有一些不敏感的函数没有被HOOK，程序当中以STUB_SIZE(这个长度为32)上下循环遍历，找到没有被HOOK的STUB后获取其系统调用号再减去移动的步数，就是所要搜索的系统调用号。这种方式的优点是可以避免所要搜索的函数被hook之后，程序直接返回。</p>
+<h5 id="TartarusGate"><a href="#TartarusGate" class="headerlink" title="TartarusGate:"></a>TartarusGate:</h5><p><a target="_blank" rel="noopener" href="https://github.com/trickster0/TartarusGate">https://github.com/trickster0/TartarusGate</a></p>
+<p>这个项目的作者声称是对光环之门的加强，只是检测第一个字节和第四个字节是否是0xe9，来判断函数是否被hook，个人感觉意义并不是很大，在光环之门中已经实现了 遍历相邻的Nt*函数来搜索系统调用号，多出来的check字节，有点锦上添花。</p>
+<p><img src="/2022/03/14/syscall/image-20220303214153418.png" alt="image-20220303214153418"></p>
+<p>另外在asm中做了一些nop混淆，方便syscall</p>
+<p><img src="/2022/03/14/syscall/image-20220303213710095.png" alt="image-20220303213710095"></p>
+<p><img src="/2022/03/14/syscall/image-20220303213729361.png" alt="image-20220303213729361"></p>
+<h5 id="Spoofing-Gate：欺骗之门"><a href="#Spoofing-Gate：欺骗之门" class="headerlink" title="Spoofing-Gate：欺骗之门"></a>Spoofing-Gate：欺骗之门</h5><p><a target="_blank" rel="noopener" href="https://github.com/timwhitez/Spoofing-Gate">https://github.com/timwhitez/Spoofing-Gate</a></p>
+<p>主要原理是当使用halos gate/hells gate获取到sysid后 从ntdll中随机选择未用到的Nt api， 替换其sysid为获取到的sysid即可直接call。 在设计上面调用时加入了一个排除项可以输入[]string类型以避免api调用冲突， 内置的Nt api list已经排除了EDRs项目中被hook的api ，内置的Nt api list排除了部分可能影响到正常执行的api 返回的结构体实现了Revover()函数可以直接恢复原sysid 。缺点是必须修改ntdll，有两种方式：(NtProtect+memcpy/WriteProcessMemory) 作者选用的是后者，在写入前后会自动修改protect值</p>
+<h5 id="ParallelSyscalls"><a href="#ParallelSyscalls" class="headerlink" title="ParallelSyscalls"></a>ParallelSyscalls</h5><p><a target="_blank" rel="noopener" href="https://github.com/mdsecactivebreach/ParallelSyscalls">https://github.com/mdsecactivebreach/ParallelSyscalls</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.mdsec.co.uk/2022/01/edr-parallel-asis-through-analysis/">https://www.mdsec.co.uk/2022/01/edr-parallel-asis-through-analysis/</a></p>
+<p>该项目的亮点是使用syscall从磁盘读取ntdll.dll，最后一步利用 <code>LdrpThunkSignature</code> 恢复系统调用。还涉及到dll的并行加载，并行加载允许进程执行递归映射通过进程模块导入表导入的 DLL 的过程，而不是在单个线程上同步 ， 从而在初始应用程序启动期间提高性能。</p>
+<p><code>LdrpThunkSignature</code> 恢复系统调用实现代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">InitSyscallsFromLdrpThunkSignature</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    PPEB Peb = (PPEB)__readgsqword(<span class="number">0x60</span>);</span><br><span class="line">    PPEB_LDR_DATA Ldr = Peb-&gt;Ldr;</span><br><span class="line">    PLDR_DATA_TABLE_ENTRY NtdllLdrEntry = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (PLDR_DATA_TABLE_ENTRY LdrEntry = (PLDR_DATA_TABLE_ENTRY)Ldr-&gt;InLoadOrderModuleList.Flink;</span><br><span class="line">        LdrEntry-&gt;DllBase != <span class="literal">NULL</span>;</span><br><span class="line">        LdrEntry = (PLDR_DATA_TABLE_ENTRY)LdrEntry-&gt;InLoadOrderLinks.Flink)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (_wcsnicmp(LdrEntry-&gt;BaseDllName.Buffer, <span class="string">L&quot;ntdll.dll&quot;</span>, <span class="number">9</span>) == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// got ntdll</span></span><br><span class="line">            NtdllLdrEntry = LdrEntry;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (NtdllLdrEntry == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    PIMAGE_NT_HEADERS ImageNtHeaders = (PIMAGE_NT_HEADERS)((ULONG_PTR)NtdllLdrEntry-&gt;DllBase + ((PIMAGE_DOS_HEADER)NtdllLdrEntry-&gt;DllBase)-&gt;e_lfanew);</span><br><span class="line">    PIMAGE_SECTION_HEADER SectionHeader = (PIMAGE_SECTION_HEADER)((ULONG_PTR)&amp;ImageNtHeaders-&gt;OptionalHeader + ImageNtHeaders-&gt;FileHeader.SizeOfOptionalHeader);</span><br><span class="line"></span><br><span class="line">    ULONG_PTR DataSectionAddress = <span class="literal">NULL</span>;</span><br><span class="line">    DWORD DataSectionSize;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (WORD i = <span class="number">0</span>; i &lt; ImageNtHeaders-&gt;FileHeader.NumberOfSections; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">strcmp</span>((<span class="keyword">char</span>*)SectionHeader[i].Name, <span class="string">&quot;.data&quot;</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            DataSectionAddress = (ULONG_PTR)NtdllLdrEntry-&gt;DllBase + SectionHeader[i].VirtualAddress;</span><br><span class="line">            DataSectionSize = SectionHeader[i].Misc.VirtualSize;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    DWORD dwSyscallNo_NtOpenFile = <span class="number">0</span>, dwSyscallNo_NtCreateSection = <span class="number">0</span>, dwSyscallNo_NtMapViewOfSection = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!DataSectionAddress || DataSectionSize &lt; <span class="number">16</span> * <span class="number">5</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (UINT uiOffset = <span class="number">0</span>; uiOffset &lt; DataSectionSize - (<span class="number">16</span> * <span class="number">5</span>); uiOffset++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (*(DWORD*)(DataSectionAddress + uiOffset) == <span class="number">0xb8d18b4c</span> &amp;&amp;</span><br><span class="line">            *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">16</span>) == <span class="number">0xb8d18b4c</span> &amp;&amp;</span><br><span class="line">            *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">32</span>) == <span class="number">0xb8d18b4c</span> &amp;&amp;</span><br><span class="line">            *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">48</span>) == <span class="number">0xb8d18b4c</span> &amp;&amp;</span><br><span class="line">            *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">64</span>) == <span class="number">0xb8d18b4c</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            dwSyscallNo_NtOpenFile = *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">4</span>);</span><br><span class="line">            dwSyscallNo_NtCreateSection = *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">16</span> + <span class="number">4</span>);</span><br><span class="line">            dwSyscallNo_NtMapViewOfSection = *(DWORD*)(DataSectionAddress + uiOffset + <span class="number">64</span> + <span class="number">4</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!dwSyscallNo_NtOpenFile)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ULONG_PTR SyscallRegion = (ULONG_PTR)VirtualAlloc(<span class="literal">NULL</span>, <span class="number">3</span> * MAX_SYSCALL_STUB_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!SyscallRegion)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    NtOpenFile = (FUNC_NTOPENFILE)BuildSyscallStub(SyscallRegion, dwSyscallNo_NtOpenFile);</span><br><span class="line">    NtCreateSection = (FUNC_NTCREATESECTION)BuildSyscallStub(SyscallRegion + MAX_SYSCALL_STUB_SIZE, dwSyscallNo_NtCreateSection);</span><br><span class="line">    NtMapViewOfSection = (FUNC_NTMAPVIEWOFSECTION)BuildSyscallStub(SyscallRegion + (<span class="number">2</span>* MAX_SYSCALL_STUB_SIZE), dwSyscallNo_NtMapViewOfSection);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="GetSSN"><a href="#GetSSN" class="headerlink" title="GetSSN"></a>GetSSN</h5><p>这里还介绍一种更加方便简单和迅速的方法来发现SSN(syscall number),这种方法不需要unhook，不需要手动从代码存根中读取，也不需要加载NTDLL新副本，可以将它理解成为光环之门的延伸，试想当上下的邻函数都被Hook时，光环之门的做法是继续递归，在不断的寻找没有被Hook的邻函数，而在这里假设一种最坏的情况是所有的邻函数(指Nt*函数)都被Hook时，那最后将会向上递归到<code>SSN=0</code>的Nt函数。</p>
+<p>其实可以理解为系统调用的存根重新实现 + 动态 SSN 解析</p>
+<p>首先我们需要知道：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.实际上所有的Zw函数和Nt同名函数实际上是等价的</span><br><span class="line">2.系统调用号实际上是和Zw函数按照地址顺序的排列是一样的</span><br></pre></td></tr></table></figure>
+
+<p>因此我们就只需要遍历所有Zw函数，记录其函数名和函数地址，最后将其按照函数地址升序排列后，每个函数的SSN就是其对应的排列顺序</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">GetSSN</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt; Nt_Table;</span><br><span class="line">    PBYTE ImageBase;</span><br><span class="line">    PIMAGE_DOS_HEADER Dos = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_NT_HEADERS Nt = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_FILE_HEADER File = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_OPTIONAL_HEADER Optional = <span class="literal">NULL</span>;</span><br><span class="line">    PIMAGE_EXPORT_DIRECTORY ExportTable = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    PPEB Peb = (PPEB)__readgsqword(<span class="number">0x60</span>);</span><br><span class="line">    PLDR_MODULE pLoadModule;</span><br><span class="line">    <span class="comment">// NTDLL</span></span><br><span class="line">    pLoadModule = (PLDR_MODULE)((PBYTE)Peb-&gt;LoaderData-&gt;InMemoryOrderModuleList.Flink-&gt;Flink - <span class="number">0x10</span>);</span><br><span class="line">    ImageBase = (PBYTE)pLoadModule-&gt;BaseAddress;</span><br><span class="line"></span><br><span class="line">    Dos = (PIMAGE_DOS_HEADER)ImageBase;</span><br><span class="line">    <span class="keyword">if</span> (Dos-&gt;e_magic != IMAGE_DOS_SIGNATURE)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    Nt = (PIMAGE_NT_HEADERS)((PBYTE)Dos + Dos-&gt;e_lfanew);</span><br><span class="line">    File = (PIMAGE_FILE_HEADER)(ImageBase + (Dos-&gt;e_lfanew + <span class="keyword">sizeof</span>(DWORD)));</span><br><span class="line">    Optional = (PIMAGE_OPTIONAL_HEADER)((PBYTE)File + <span class="keyword">sizeof</span>(IMAGE_FILE_HEADER));</span><br><span class="line">    ExportTable = (PIMAGE_EXPORT_DIRECTORY)(ImageBase + Optional-&gt;DataDirectory[<span class="number">0</span>].VirtualAddress);</span><br><span class="line"></span><br><span class="line">    PDWORD pdwAddressOfFunctions = (PDWORD)((PBYTE)(ImageBase + ExportTable-&gt;AddressOfFunctions));</span><br><span class="line">    PDWORD pdwAddressOfNames = (PDWORD)((PBYTE)ImageBase + ExportTable-&gt;AddressOfNames);</span><br><span class="line">    PWORD pwAddressOfNameOrdinales = (PWORD)((PBYTE)ImageBase + ExportTable-&gt;AddressOfNameOrdinals);</span><br><span class="line">    <span class="keyword">for</span> (WORD cx = <span class="number">0</span>; cx &lt; ExportTable-&gt;NumberOfNames; cx++)</span><br><span class="line">    &#123;</span><br><span class="line">        PCHAR pczFunctionName = (PCHAR)((PBYTE)ImageBase + pdwAddressOfNames[cx]);</span><br><span class="line">        PVOID pFunctionAddress = (PBYTE)ImageBase + pdwAddressOfFunctions[pwAddressOfNameOrdinales[cx]];</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strncmp</span>((<span class="keyword">char</span>*)pczFunctionName, <span class="string">&quot;Zw&quot;</span>,<span class="number">2</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">           <span class="built_in">printf</span>(<span class="string">&quot;Function Name:%s\tFunction Address:%p\n&quot;</span>, pczFunctionName, pFunctionAddress);</span><br><span class="line">            Nt_Table[(<span class="keyword">int</span>)pFunctionAddress] = (<span class="built_in">string</span>)pczFunctionName;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">map</span>&lt;<span class="keyword">int</span>, <span class="built_in">string</span>&gt;::iterator iter = Nt_Table.begin(); iter != Nt_Table.end(); ++iter) &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;index:&quot;</span> &lt;&lt; index  &lt;&lt; <span class="string">&#x27; &#x27;</span> &lt;&lt; iter-&gt;second &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        index += <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="SysWhispers3"><a href="#SysWhispers3" class="headerlink" title="SysWhispers3"></a>SysWhispers3</h5><p><a target="_blank" rel="noopener" href="https://github.com/klezVirus/SysWhispers3">klezVirus/SysWhispers3：  AV/EDR通过直接系统调用规避。 (github.com)</a></p>
+<p>在做完之前的笔记不久，又出现了新的 SysWhisper3 ，重点解决了 SysWhisper2中syscall指令被查杀，syscall不是从ntdll发出这两个问题。</p>
+<p>这里可以与之前的项目比较，其中有个叫EGG的手段，先用垃圾指令替代syscall，在运行的时候从内存中找出来替换syscall。</p>
+<p>前面也提到了，可以用int2e来替换syscall指令，但AV也不是傻子，加一条规则就可以检测到。</p>
+<p>这里的egg hunt，使用“DB”来定义一个字节的汇编指令，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">NtAllocateVirtualMemory PROC</span><br><span class="line">  mov [rsp +8], rcx          ; Save registers.</span><br><span class="line">  mov [rsp+16], rdx</span><br><span class="line">  mov [rsp+24], r8</span><br><span class="line">  mov [rsp+32], r9</span><br><span class="line">  sub rsp, 28h</span><br><span class="line">  mov ecx, 003970B07h        ; Load function hash into ECX.</span><br><span class="line">  call SW2_GetSyscallNumber  ; Resolve function hash into syscall number.</span><br><span class="line">  add rsp, 28h</span><br><span class="line">  mov rcx, [rsp +8]          ; Restore registers.</span><br><span class="line">  mov rdx, [rsp+16]</span><br><span class="line">  mov r8, [rsp+24]</span><br><span class="line">  mov r9, [rsp+32]</span><br><span class="line">  mov r10, rcx</span><br><span class="line">  DB 77h                     ; &quot;w&quot;</span><br><span class="line">  DB 0h                      ; &quot;0&quot;</span><br><span class="line">  DB 0h                      ; &quot;0&quot;</span><br><span class="line">  DB 74h                     ; &quot;t&quot;</span><br><span class="line">  DB 77h                     ; &quot;w&quot;</span><br><span class="line">  DB 0h                      ; &quot;0&quot;</span><br><span class="line">  DB 0h                      ; &quot;0&quot;</span><br><span class="line">  DB 74h                     ; &quot;t&quot;</span><br><span class="line">  ret</span><br><span class="line">NtAllocateVirtualMemory ENDP</span><br></pre></td></tr></table></figure>
+
+<p>但是在实际使用中这种方式程序会出错，因为该函数只为了syscall的调用和返回提供了堆栈，没有释放，</p>
+<p>因此作者用下面的函数来进行转换</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FindAndReplace</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> egg[], <span class="keyword">unsigned</span> <span class="keyword">char</span> replace[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    ULONG64 startAddress = <span class="number">0</span>;</span><br><span class="line">    ULONG64 size = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    GetMainModuleInformation(&amp;startAddress, &amp;size);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (size &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[-] Error detecting main module size&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ULONG64 currentOffset = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span>* current = (<span class="keyword">unsigned</span> <span class="keyword">char</span>*)<span class="built_in">malloc</span>(<span class="number">8</span>*<span class="keyword">sizeof</span>(<span class="keyword">unsigned</span> <span class="keyword">char</span>*));</span><br><span class="line">    <span class="keyword">size_t</span> nBytesRead;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Starting search from: 0x%llu\n&quot;</span>, (ULONG64)startAddress + currentOffset);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (currentOffset &lt; size - <span class="number">8</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        currentOffset++;</span><br><span class="line">        LPVOID currentAddress = (LPVOID)(startAddress + currentOffset);</span><br><span class="line">        <span class="keyword">if</span>(DEBUG &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Searching at 0x%llu\n&quot;</span>, (ULONG64)currentAddress);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!ReadProcessMemory((HANDLE)((<span class="keyword">int</span>)<span class="number">-1</span>), currentAddress, current, <span class="number">8</span>, &amp;nBytesRead)) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[-] Error reading from memory\n&quot;</span>);</span><br><span class="line">            <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (nBytesRead != <span class="number">8</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[-] Error reading from memory\n&quot;</span>);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(DEBUG &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nBytesRead; i++)&#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;%02x &quot;</span>, current[i]);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">memcmp</span>(egg, current, <span class="number">8</span>) == <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Found at %llu\n&quot;</span>, (ULONG64)currentAddress);</span><br><span class="line">            WriteProcessMemory((HANDLE)((<span class="keyword">int</span>)<span class="number">-1</span>), currentAddress, replace, <span class="number">8</span>, &amp;nBytesRead);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Ended search at:   0x%llu\n&quot;</span>, (ULONG64)startAddress + currentOffset);</span><br><span class="line">    <span class="built_in">free</span>(current);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用demo</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> egg[] = &#123; <span class="number">0x77</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x74</span>, <span class="number">0x77</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x74</span> &#125;; </span><br><span class="line">    <span class="comment">// w00tw00t</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> replace[] = &#123; <span class="number">0x0f</span>, <span class="number">0x05</span>, <span class="number">0x90</span>, <span class="number">0x90</span>, <span class="number">0xC3</span>, <span class="number">0x90</span>, <span class="number">0xCC</span>, <span class="number">0xCC</span> &#125;; </span><br><span class="line">    <span class="comment">// syscall; nop; nop; ret; nop; int3; int3</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//####SELF_TAMPERING####</span></span><br><span class="line">    (egg, replace);</span><br><span class="line"></span><br><span class="line">    Inject();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然，这样还是被检测到。这是因为edr不仅检测syscall的字符，还检测syscall执行特定指令的位置。即如果合理的话，syscall本应在ntdll中调用。</p>
+<p>下图显示了当api调用syscall的正常流程。</p>
+<p><img src="/2022/03/14/syscall/image-20220310014525396.png" alt="image-20220310014525396"></p>
+<p>而当 SysWhispers 调用函数时，<code>syscall</code>指令直接在程序的主模块中执行，如图</p>
+<p><img src="/2022/03/14/syscall/image-20220310014618135.png" alt="image-20220310014618135"></p>
+<p>这个区别也是EDR检测的特征，即RIP指针指向的不同</p>
+<p>作者也提供了绕过方式，即<strong>在运行的时候从内存中动态找出替换syscall</strong>。</p>
+<p>实现逻辑：</p>
+<p>添加一个<code>ULONG64</code>字段来存储<code>syscall</code>指令绝对地址。有了这个集合，当<code>_SW2_SYSCALL_LIST</code>被填充时，计算 <code>syscall</code>指令的地址。在这种情况下，我们已经有了<code>ntdll.dll</code>基地址，SysWhispers 还从 DLL EAT（导出地址表）计算函数 RVA。最后**jmp syscall<address>**因此，唯一需要计算的是<code>syscall</code>指令的相对位置并进行一些数学运算。</address></p>
+<p>伪代码实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">function findOffset(HANDLE current_process, int64 start_address, int64 dllSize) -&gt; int64:</span><br><span class="line">  int64 offset = 0</span><br><span class="line">  bytes signature = &quot;\x0f\x05\x03&quot;</span><br><span class="line">  bytes currentbytes = &quot;&quot;</span><br><span class="line">  while currentbytes != signature:</span><br><span class="line">    offset++</span><br><span class="line">    if offset + 3 &gt; dllSize:</span><br><span class="line">      return INFINITE</span><br><span class="line">    ReadProcessMemory(current_process, start_address + offset, &amp;currentbytes, 3, nullptr)</span><br><span class="line">  return start_address + offset </span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="检测syscall"><a href="#检测syscall" class="headerlink" title="检测syscall"></a>检测syscall</h2><p>利用syscall的文章、项目很多，但检测syscall的却很少见，这里浅谈一下如何检测</p>
+<p>ntdll.dll中的系统调用都遵循代码结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov r10, rcx</span><br><span class="line">mov eax, *syscall number*</span><br><span class="line">syscall</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<p>如果仅仅根据特征码来检测，比如检测 <code>mov r10, rcx</code>，很显然不可行，很容易就被bypass，比如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov r11,rcx</span><br><span class="line">mov r10,r11</span><br></pre></td></tr></table></figure>
+
+<h5 id="磁盘检测"><a href="#磁盘检测" class="headerlink" title="磁盘检测"></a>磁盘检测</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump --disassemble -M intel Outflank-Dumpert.exe | grep &quot;syscall&quot;</span><br></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">140013438:   0f 05                   syscall</span><br><span class="line">140013443:   0f 05                   syscall</span><br><span class="line">14001344e:   0f 05                   syscall</span><br><span class="line">[truncated]</span><br><span class="line">14001356c:   0f 05                   syscall</span><br><span class="line">140013577:   0f 05                   syscall</span><br><span class="line">140013582:   0f 05                   syscall</span><br></pre></td></tr></table></figure>
+
+<h5 id="使用-Frida-检测直接系统调用"><a href="#使用-Frida-检测直接系统调用" class="headerlink" title="使用 Frida 检测直接系统调用"></a>使用 Frida 检测直接系统调用</h5><p>作用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.解决 NTDLL 的界限</span><br><span class="line">2.在 NtAcceptConnectPort 上放置一个钩子。这是第一个 Nt 函数，它将帮助我们验证即使在函数上放置了一个钩子，syscall也应该是完整的。</span><br><span class="line">3.向每个线程添加一个 Stalker，它将检查每条指令以查看它是否是syscall。如果是，那么我们将检查它是否在 NTDLL 的范围内。如果它在 NTDLL 之外，那么我们将对其附加一个标注，它将查看 EAX 寄存器并告诉我们系统调用号。然后我们将告警恶意syscall。</span><br></pre></td></tr></table></figure>
+
+<p>Stalker 是 Frida 的代码跟踪引擎，它允许我们跟踪给定线程的所有指令</p>
+<p>脚本源码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">var modules = Process.enumerateModules()</span><br><span class="line">var ntdll = modules[1]</span><br><span class="line"></span><br><span class="line">var ntdllBase = ntdll.base</span><br><span class="line">send(&quot;[*] Ntdll base: &quot; + ntdllBase)</span><br><span class="line">var ntdllOffset = ntdllBase.add(ntdll.size)</span><br><span class="line">send(&quot;[*] Ntdll end: &quot; + ntdllOffset)</span><br><span class="line"></span><br><span class="line">var pNtAcceptConnectPort = Module.findExportByName(&#x27;ntdll.dll&#x27;, &#x27;NtAcceptConnectPort&#x27;);</span><br><span class="line">Interceptor.attach(pNtAcceptConnectPort, &#123;</span><br><span class="line">    onEnter: function (args)&#123;&#125;</span><br><span class="line">&#125;)</span><br><span class="line">const mainThread = Process.enumerateThreads()[0];</span><br><span class="line">Process.enumerateThreads().map(t =&gt; &#123;</span><br><span class="line">Stalker.follow(t.id, &#123;</span><br><span class="line">  events: &#123;</span><br><span class="line">    call: false, // CALL instructions: yes please</span><br><span class="line">    // Other events:</span><br><span class="line">    ret: false, // RET instructions</span><br><span class="line">    exec: false, // all instructions: not recommended as it&#x27;s</span><br><span class="line">                 //                   a lot of data</span><br><span class="line">    block: false, // block executed: coarse execution trace</span><br><span class="line">    compile: false // block compiled: useful for coverage</span><br><span class="line">  &#125;,</span><br><span class="line">  onReceive(events) &#123;  </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  transform(iterator)&#123;</span><br><span class="line">      let instruction = iterator.next()</span><br><span class="line">      do&#123;</span><br><span class="line">        if(instruction.mnemonic == &quot;syscall&quot;)&#123;</span><br><span class="line">            var addrInt = instruction.address.toInt32()</span><br><span class="line">            //If the syscall is coming from somewhere outside the bounds of NTDLL</span><br><span class="line">            //then it may be malicious</span><br><span class="line">            if(addrInt &lt; ntdllBase.toInt32() || addrInt &gt; ntdllOffset.toInt32())&#123;</span><br><span class="line">                send(&quot;[+] Found a potentially malicious syscall&quot;)</span><br><span class="line">                iterator.putCallout(onMatch)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      iterator.keep()</span><br><span class="line">      &#125; while ((instruction = iterator.next()) !== null)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">function onMatch(context)&#123;</span><br><span class="line">    send(&quot;[+] Syscall number: &quot; + context.rax)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>syscall技术研究出来已经几年了，但也没有停滞不前，随着AV/EDR的增强，攻击技术自然也要进步，产出了很多地狱之门的变体，但万变不离其宗，深入理解原理才能更好的Bypass。</p>
+<p>参考链接：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">https://www.crisprx.top/archives/540</span><br><span class="line">https://www.anquanke.com/post/id/261582</span><br><span class="line">https://github.com/timwhitez/Spoofing-Gate		</span><br><span class="line">https://github.com/am0nsec/HellsGate/		</span><br><span class="line">https://github.com/jthuraisamy/SysWhispers2		</span><br><span class="line">https://www.mdsec.co.uk/2022/01/edr-parallel-asis-through-analysis/</span><br><span class="line">https://passthehashbrowns.github.io/detecting-direct-syscalls-with-frida</span><br><span class="line">https://klezvirus.github.io/RedTeaming/AV_Evasion/NoSysWhisper/</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PEB-Process-Envirorment-Block-Structure"><span class="toc-number">2.</span> <span class="toc-text">PEB(Process Envirorment Block Structure)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#syscall"><span class="toc-number">3.</span> <span class="toc-text">syscall</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ntdll"><span class="toc-number">3.0.0.2.</span> <span class="toc-text">ntdll</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.0.0.3.</span> <span class="toc-text">代码分析</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#syscall%E9%A1%B9%E7%9B%AE"><span class="toc-number">4.</span> <span class="toc-text">syscall项目</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Hell%E2%80%99s-Gate%EF%BC%9A%E5%9C%B0%E7%8B%B1%E4%B9%8B%E9%97%A8"><span class="toc-number">4.0.0.1.</span> <span class="toc-text">Hell’s Gate：地狱之门</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SysWhisoers2"><span class="toc-number">4.0.0.2.</span> <span class="toc-text">SysWhisoers2</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Halo%E2%80%99s-Gate%EF%BC%9A%E5%85%89%E7%8E%AF%E4%B9%8B%E9%97%A8"><span class="toc-number">4.0.0.3.</span> <span class="toc-text">Halo’s Gate：光环之门</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#TartarusGate"><span class="toc-number">4.0.0.4.</span> <span class="toc-text">TartarusGate:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Spoofing-Gate%EF%BC%9A%E6%AC%BA%E9%AA%97%E4%B9%8B%E9%97%A8"><span class="toc-number">4.0.0.5.</span> <span class="toc-text">Spoofing-Gate：欺骗之门</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ParallelSyscalls"><span class="toc-number">4.0.0.6.</span> <span class="toc-text">ParallelSyscalls</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#GetSSN"><span class="toc-number">4.0.0.7.</span> <span class="toc-text">GetSSN</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SysWhispers3"><span class="toc-number">4.0.0.8.</span> <span class="toc-text">SysWhispers3</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A3%80%E6%B5%8Bsyscall"><span class="toc-number">5.</span> <span class="toc-text">检测syscall</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E6%A3%80%E6%B5%8B"><span class="toc-number">5.0.0.1.</span> <span class="toc-text">磁盘检测</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-Frida-%E6%A3%80%E6%B5%8B%E7%9B%B4%E6%8E%A5%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">5.0.0.2.</span> <span class="toc-text">使用 Frida 检测直接系统调用</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/03/14/syscall/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/03/14/syscall/&text=syscall的前世今生"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/03/14/syscall/&is_video=false&description=syscall的前世今生"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=syscall的前世今生&body=Check out this article: https://0range-x.github.io/2022/03/14/syscall/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/03/14/syscall/&title=syscall的前世今生"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/03/14/syscall/&name=syscall的前世今生&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/03/14/syscall/&t=syscall的前世今生"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="前言有幸和漂亮鼠师傅聊了很多，感谢漂亮鼠师傅愿意花时间指导我。 最近搞的东西有些杂，因为在实习嘛，主要是针对移动端的测试，但对安卓逆向一窍不通的我，不学习点就很难搞下去，也没有打算一头钻到移动安全里，平时hw够用就可以的程度就可以。木马分析这块，emm，答应了别人要写，自己不学好怎么写出来给别人看，也不能落下。寒假本来打算把oscp考了，但我现在的水平不备考肯定是通过不了，需要付出的有点多emmm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="短期规划以及学习中存在的问题">
+<meta property="og:url" content="https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="前言有幸和漂亮鼠师傅聊了很多，感谢漂亮鼠师傅愿意花时间指导我。 最近搞的东西有些杂，因为在实习嘛，主要是针对移动端的测试，但对安卓逆向一窍不通的我，不学习点就很难搞下去，也没有打算一头钻到移动安全里，平时hw够用就可以的程度就可以。木马分析这块，emm，答应了别人要写，自己不学好怎么写出来给别人看，也不能落下。寒假本来打算把oscp考了，但我现在的水平不备考肯定是通过不了，需要付出的有点多emmm">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-12-03T09:34:10.000Z">
+<meta property="article:modified_time" content="2021-12-10T06:57:57.812Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="总结">
+<meta property="article:tag" content="吹水">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>短期规划以及学习中存在的问题</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/11/22/CVE-2020-1472/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&text=短期规划以及学习中存在的问题"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&is_video=false&description=短期规划以及学习中存在的问题"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=短期规划以及学习中存在的问题&body=Check out this article: https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&name=短期规划以及学习中存在的问题&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&t=短期规划以及学习中存在的问题"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92"><span class="toc-number">2.</span> <span class="toc-text">短期规划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">问题</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        短期规划以及学习中存在的问题
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-12-03T09:34:10.000Z" itemprop="datePublished">2021-12-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93/">个人总结</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%90%B9%E6%B0%B4/" rel="tag">吹水</a>, <a class="tag-link-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有幸和漂亮鼠师傅聊了很多，感谢漂亮鼠师傅愿意花时间指导我。</p>
+<p>最近搞的东西有些杂，因为在实习嘛，主要是针对移动端的测试，但对安卓逆向一窍不通的我，不学习点就很难搞下去，也没有打算一头钻到移动安全里，平时hw够用就可以的程度就可以。木马分析这块，emm，答应了别人要写，自己不学好怎么写出来给别人看，也不能落下。寒假本来打算把oscp考了，但我现在的水平不备考肯定是通过不了，需要付出的有点多emmmmm………………</p>
+<p>本来只打算寒假把精力放在oscp和木马分析上，但是跟着公司打hw的话，能够逆向app的某个功能点，对渗透的帮助是很大的，所以前几天请教了下leader，也给我指点了方向。今天在群里emo了一上午，感谢几位师傅的指点。</p>
+<p>综上: 得益于多位大佬师傅们的指点，对下一阶段的 todo_list 做一个规划。</p>
+<h2 id="短期规划"><a href="#短期规划" class="headerlink" title="短期规划"></a>短期规划</h2><p>先罗列一下在计划中的技术栈</p>
+<ul>
+<li>安卓逆向</li>
+<li>木马分析</li>
+<li>OSCP证书                                                                                                             </li>
+</ul>
+<p>算了，本来列举了很多项，想来想去删掉了，太长期的计划写上没有意义，现在来看，对我来说，两个月以内的计划是比较合适的。可以完成很多东西，这样接着继续下一阶段的目标。</p>
+<p>我对自己的职业定位是红队，肯定是离不开实战的。现在的情况是研究的多于实战的，重心有点偏离……总结一下，以当下的需求来决定学习路线。所以打算寒假把重心放在安卓逆向和 木马分析这两块上，中间跟着项目走。我学习都是以项目为驱动力，不一定要做出成果，但一定要有产出，所以一般都记录下来，写成文章(虽然很水)。如果仅仅是看视频，做笔记的话，没有形成自己的思考，效率很低。</p>
+<p>为什么学一下安卓逆向呢，确实是一个趋势，在实战中的帮助很大。在web端防护严格的情况下，app是个突破口，而在app校验严格的情况下，能够hook掉某个函数功能点的话，对实战的帮助很大。暑假实习的时候就遇到了这方面的需求，但当时需要学的东西更多，安卓逆向被放在了后面。现在既然有了需求，当然要再次提上日程。</p>
+<p>关于木马分析，现在看来对我的实战帮助也不是很大。最开始学的时候，只是因为自己想要去写木马，所以先分析别人的木马作为参考。其实现在木马分析对我的实战帮助也不是很大，总的来说更偏向研究一点，但既然答应了别人要写，总不能🕊了吧。我觉得双线程现在对我1核2g的大脑来说是天花板了。有一点压力，但完全能够接受，刚刚好。</p>
+<p>所以OSCP只能先放一放了，反正时间还多，不急不急…在等等…下次一定！下次一定！</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>很感谢漂亮鼠师傅指出我学习中存在的问题，我简单总结下。</p>
+<p>一方面是学习时间短，这一眼就可以看出来，基本功不扎实，很多基础性的东西犯了错。包括但不限于网络协议栈，操作系统，不能说学到精通吧，但我连基础知识都搞错。想了想，这些学起来很枯燥，纯理论性的东西，看完就忘，以前学的时候没有结合实战项目。现在看来，关于学习网络，如果要说实战的话，内网值得研究，但不是简单的日下来就完了，攻击永远比防守简单，我个人的想法是可以搭建一套内网靶场，在搭建的过程中，你需要考虑各种问题，从哪个口子可以进来，哪个口子封锁住了，所以这个过程中，不仅仅是吸收学习，而且可以运用， 相信效果不会差。这里仅仅就网络而言，其他也是一样，比如操作系统，就Windows而言，可以根据他的机制来思考为什么可以利用这个点打进去，拿到shell，此外，在熟悉Windows的机制后，也可以去做免杀，利用系统机制来规避杀软的查杀。学习其他技术也是一样，漂亮鼠师傅在一篇文章中有写到，以实际项目驱动来学习，过程如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">自我定位-&gt;设立项目-&gt;解构项目-&gt;完成第一个子项目-&gt;阶段性复盘-&gt;反思性学习-&gt;进行下一个子项目-&gt;循环直到完成目标项目-&gt;整体复盘和反思性学习-&gt;重新定位-&gt;设立新项目-&gt;循环</span><br></pre></td></tr></table></figure>
+
+
+
+<p>另一方面就是研究的文章都太浅，深度不够，只是停留在简单的复现，没有进一步的原理说明。这点我起初不自量力想要反驳hhhh，因为我写的几篇内网的笔记不仅仅是利用工具去复现，都是先阐明原理，但也仅仅是利用原理，更深层次的比如为什么会产生这个问题，是Windows的机制缺陷还是配置问题、信任问题 等等。这些我都没有考虑，究其原因，还是对他的底层实现不了解。说来惭愧，在域的学习中，连包都没抓过…….不仅仅是在域的学习过程中，包括平时的项目，也仅仅是整理下结果，ok，总结，结束。在项目结束后没有进一步的思考，比如说有没有哪一个点漏了啊，有没有可能让漏洞影响范围进一步扩大啊，都没有复盘过。包括考虑问题的角度，我是站在攻击者的角度来思考，只要这个洞我可以利用，打进去就行了，说白了就是个jb小子。反正现在有时间，还允许我多花时间继续深挖，真正工作了还能有自己的学习时间才是真的奢侈。所以，以后碰到问题，还是要多想想，挖的更深一点，可能有意想不到的收获。用漂亮鼠师傅的话说就是，站在整个系统生态上考虑问题。这应该是甲方考虑安全问题的角度吧，要让我现在完全做到也不现实。不过也提醒了我，思考问题更深一点，再深一点，学个通透。</p>
+<p>这应该不止是我一个人学习中遇到的问题，希望看到的师傅们也可以思考思考，我感觉挺多人会碰到这个问题的。</p>
+<p>上次小总结也大概是两个月前，个人感觉学一段时间回头看看，总结下挺好的，方向歪了也可以纠正回来，不至于一路偏到底。就写这么多吧，等熬过这段期末周考完试，开始下一阶段。这半个月估计都要用来复习了，希望不会被大家甩开太多。</p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92"><span class="toc-number">2.</span> <span class="toc-text">短期规划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">问题</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&text=短期规划以及学习中存在的问题"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&is_video=false&description=短期规划以及学习中存在的问题"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=短期规划以及学习中存在的问题&body=Check out this article: https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&title=短期规划以及学习中存在的问题"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&name=短期规划以及学习中存在的问题&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/&t=短期规划以及学习中存在的问题"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

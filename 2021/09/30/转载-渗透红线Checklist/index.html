@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="不是每个人都能按照严格的要求来做，毕竟要注意的地方太多，一定是要犯错才会有深刻的教训，因为人很贱，不犯错是不会改变的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="转载-渗透红线Checklist">
+<meta property="og:url" content="https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="不是每个人都能按照严格的要求来做，毕竟要注意的地方太多，一定是要犯错才会有深刻的教训，因为人很贱，不犯错是不会改变的。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-09-30T05:24:03.000Z">
+<meta property="article:modified_time" content="2021-11-04T16:17:08.113Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="总结">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>转载-渗透红线Checklist</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&text=转载-渗透红线Checklist"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&is_video=false&description=转载-渗透红线Checklist"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=转载-渗透红线Checklist&body=Check out this article: https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&name=转载-渗透红线Checklist&description=&lt;p&gt;不是每个人都能按照严格的要求来做，毕竟要注意的地方太多，一定是要犯错才会有深刻的教训，因为人很贱，不犯错是不会改变的。&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&t=转载-渗透红线Checklist"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%AF%87"><span class="toc-number">1.</span> <span class="toc-text">工具篇</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%84%8F%E8%AF%86%E7%AF%87"><span class="toc-number">2.</span> <span class="toc-text">安全意识篇</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9A%82%E6%9C%AA%E5%88%86%E7%B1%BB"><span class="toc-number">3.</span> <span class="toc-text">暂未分类</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        转载-渗透红线Checklist
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-09-30T05:24:03.000Z" itemprop="datePublished">2021-09-30</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%BD%AC%E8%BD%BD/">转载</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%80%BB%E7%BB%93/" rel="tag">总结</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>不是每个人都能按照严格的要求来做，毕竟要注意的地方太多，一定是要犯错才会有深刻的教训，因为人很贱，不犯错是不会改变的。</p>
+<span id="more"></span>
+
+<h3 id="工具篇"><a href="#工具篇" class="headerlink" title="工具篇"></a>工具篇</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">WebShell不能使用普通一句话木马，连接端使用加密流量，不使用普通中国菜刀。</span><br><span class="line">不使用默认冰蝎，已被安全厂商能够识别流量（使用默认，入口打点这么辛苦，连接一小时就被发现，并被清除封堵）</span><br><span class="line">上传工具到服务器中，不能使用默认名称，例如，frp、nc、lcx等。</span><br><span class="line">使用sqlmap要加–random-agent参数。</span><br><span class="line">nmap、zmap扫描要去除特征。</span><br><span class="line">不要相信工具的判断，工具测试一遍，手工测试一遍。</span><br><span class="line">sqlmap注入频率问题，使用–delay、–safe-url、–safe-freq | ID：SewellDinG提供</span><br><span class="line">Cobalt Strike的Beacon证书和特征，如果使用默认的将会被检测。</span><br><span class="line">Cobalt Strike使用域前置技术，伪装成白站域名，隐藏真实C2服务器IP；（默认启动的CS,基本被各厂商设备能识别到） | ID：SewellDinG提供</span><br><span class="line">在进行有可能导致管理员察觉的敏感操作时（如登录远程桌面等），根据目标所在地区，选择对应IP登录。（有些会提示异地登录提醒） ｜ID: evilAdan0s 提供</span><br><span class="line">时区选择非大陆，作业时间贴合时区 ID：hmoytx提供</span><br><span class="line">使用自己塔建的DNSlog，目前网上dnslog站点已被监控，只要请求了域名就会被监测到。 ｜ID: mx7krshell</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="安全意识篇"><a href="#安全意识篇" class="headerlink" title="安全意识篇"></a>安全意识篇</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">渗透工作电脑浏览器不能保存任何个人信息，防止被抓取信息。</span><br><span class="line">不随意修改管理员密码、后台密码。</span><br><span class="line">大文件需要打包分割下载。</span><br><span class="line">不使用国内VPS（阿里云、腾讯云）做CobaltStrike远控服务器。</span><br><span class="line">渗透项目结束后，不要继续进行测试。</span><br><span class="line">开发代码中不要留个人id，生成木马的时候不要在个人电脑生成，会带上电脑路径、电脑名称。</span><br><span class="line">永远用虚拟机操作，不要用真实机操作</span><br><span class="line">虚拟机快照，不必装杀软，完成项目后恢复一次快照</span><br><span class="line">电脑语言，用日语，英语，繁体字，不要用中文（看项目需要，一般用不上。）</span><br><span class="line">设置路由器只允许1723等其它VPN端口才能出网，一但VPN断开将自动断网，不然在扫描过程VPN断开会暴露真实IP地址（看项目需要，一般用不上。）</span><br><span class="line">从目标拖回来的任何文件都不要在有网的机器打开，要在专用脱网机打开。</span><br><span class="line">渗透物理机脱网（用于存储文件，信息等），网络流量从虚拟机搭建的网关走usb网卡+匿名线路（看项目需要，一般用不上。）</span><br><span class="line">注册网站需要验证码，使用接码平台。</span><br><span class="line">高管邮箱、运维人员邮箱，发现有VPN帐号或者重要系统登录地址，访问需谨慎，特别是登录需要下载控件，”安全登录控件.exe”等等</span><br><span class="line">Github收集目标信息时，需要特别关注项目更新时间节点，如果较为新的话，访问需谨，有可能是引诱攻击者进入沙箱。</span><br></pre></td></tr></table></figure>
+
+<h3 id="暂未分类"><a href="#暂未分类" class="headerlink" title="暂未分类"></a>暂未分类</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">多养一些仿大厂的域名，平时指向谷歌或者8.8.8.8，用的时候解析到自己服务器，不用的时候立马修改。（如果临时去注册域名或者短期内想要使用域名，会浪费很多时间在这上面，甚至能被安全设备检测，这是常有的事情，需要平时多储备，提升域名的可信度。） ｜ID：protonarm-ossr</span><br><span class="line">记住自己上传的木马，保留好地址，项目结束后一定要删除或者提交，避免项目结束忘记清除被防守方发现，这锅很难说得清的。</span><br><span class="line">在授权项目中，使用爬虫的过程中会做一些误操作，导致对网站不可逆的影响（爬取链接时，特别是已登录的状态下，爬取到delete页面会导致数据被删除） | ID: cangqingzhe提供</span><br><span class="line">清理日志时需要以文件覆盖的方式删除文件，防止数据恢复，或者仅删除指定ID的日志. | ID：zhuotougg</span><br><span class="line">一个团队，一定要团结一心，相互包容，互相帮助学习和进步，不要勾心斗角。否则这团队个人再厉害也是一盘散沙。</span><br><span class="line">所有浏览器升级到最新版本，禁止使用旧版谷歌浏览器 ｜ ID: 得闲饮茶</span><br><span class="line">有反蜜罐插件anti-honeypot，工具都是不可信的，防守方把靶标伪装成蜜罐 | ID：mx7krshell</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://github.com/EvilAnne/Violation_Pnetest">https://github.com/EvilAnne/Violation_Pnetest</a></p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%AF%87"><span class="toc-number">1.</span> <span class="toc-text">工具篇</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%84%8F%E8%AF%86%E7%AF%87"><span class="toc-number">2.</span> <span class="toc-text">安全意识篇</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9A%82%E6%9C%AA%E5%88%86%E7%B1%BB"><span class="toc-number">3.</span> <span class="toc-text">暂未分类</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&text=转载-渗透红线Checklist"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&is_video=false&description=转载-渗透红线Checklist"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=转载-渗透红线Checklist&body=Check out this article: https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&title=转载-渗透红线Checklist"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&name=转载-渗透红线Checklist&description=&lt;p&gt;不是每个人都能按照严格的要求来做，毕竟要注意的地方太多，一定是要犯错才会有深刻的教训，因为人很贱，不犯错是不会改变的。&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/&t=转载-渗透红线Checklist"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

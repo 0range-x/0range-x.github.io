@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="前言以前写过一篇介绍杀软原理的，这里再补充一下 免杀基础入门篇 (0range-x.github.io) 0x00 引擎介绍1.杀软属性 对于给定对象，检测是否包含恶意代码 能准确识别出恶意代码的类型，如：木马，后门，蠕虫等 对于寄生类恶意代码（宏病毒、感染型病毒等），可以从宿主对象中剥离恶意代码，并还原宿主对象数据  2.杀软引擎的构成一般来说，引擎通常由几个模块构成， 1.数据格式识别、分析模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅析杀软">
+<meta property="og:url" content="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="前言以前写过一篇介绍杀软原理的，这里再补充一下 免杀基础入门篇 (0range-x.github.io) 0x00 引擎介绍1.杀软属性 对于给定对象，检测是否包含恶意代码 能准确识别出恶意代码的类型，如：木马，后门，蠕虫等 对于寄生类恶意代码（宏病毒、感染型病毒等），可以从宿主对象中剥离恶意代码，并还原宿主对象数据  2.杀软引擎的构成一般来说，引擎通常由几个模块构成， 1.数据格式识别、分析模">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20211014111540437.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119164541263.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119113611084.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119113619125.png">
+<meta property="article:published_time" content="2022-03-31T03:13:10.000Z">
+<meta property="article:modified_time" content="2022-04-07T09:56:24.690Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="原理">
+<meta property="article:tag" content="杀软">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20211014111540437.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>浅析杀软</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/11/12/%E9%87%8D%E5%9B%9EPE%E7%BB%93%E6%9E%84/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/03/14/syscall/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&text=浅析杀软"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&is_video=false&description=浅析杀软"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=浅析杀软&body=Check out this article: https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&name=浅析杀软&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&t=浅析杀软"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">0x00 引擎介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9D%80%E8%BD%AF%E5%B1%9E%E6%80%A7"><span class="toc-number">2.1.</span> <span class="toc-text">1.杀软属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9D%80%E8%BD%AF%E5%BC%95%E6%93%8E%E7%9A%84%E6%9E%84%E6%88%90"><span class="toc-number">2.2.</span> <span class="toc-text">2.杀软引擎的构成</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%AF%86%E5%88%AB%E3%80%81%E5%88%86%E6%9E%90%E6%A8%A1%E5%9D%97"><span class="toc-number">2.2.1.</span> <span class="toc-text">1.数据格式识别、分析模块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8F%8D%E7%97%85%E6%AF%92%E7%89%B9%E5%BE%81%E5%BA%93"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.反病毒特征库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%89%AB%E6%8F%8F%E6%A0%B8%E5%BF%83"><span class="toc-number">2.2.3.</span> <span class="toc-text">3.扫描核心</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E9%9D%99%E6%80%81%E6%9F%A5%E6%9D%80"><span class="toc-number">3.</span> <span class="toc-text">0x01 静态查杀</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E7%89%B9%E5%BE%81%E7%A0%81%E8%AF%86%E5%88%AB"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">1.特征码识别:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E4%BA%91%E6%9F%A5%E6%9D%80"><span class="toc-number">3.0.0.2.</span> <span class="toc-text">2.云查杀:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E6%A0%A1%E9%AA%8C%E5%92%8C%E6%B3%95"><span class="toc-number">3.0.0.3.</span> <span class="toc-text">3.校验和法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E5%90%AF%E5%8F%91%E5%BC%8F%E6%89%AB%E6%8F%8F%EF%BC%9A"><span class="toc-number">3.0.0.4.</span> <span class="toc-text">4.启发式扫描：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#yara%E8%A7%84%E5%88%99%EF%BC%9A"><span class="toc-number">3.0.0.5.</span> <span class="toc-text">yara规则：</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E5%8A%A8%E6%80%81%E6%9F%A5%E6%9D%80%EF%BC%88%E4%B8%BB%E5%8A%A8%E9%98%B2%E5%BE%A1%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">0x02 动态查杀（主动防御）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9B%B8%E5%85%B3"><span class="toc-number">4.0.1.</span> <span class="toc-text">计算机相关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="toc-number">4.0.2.</span> <span class="toc-text">网络相关</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E8%A7%A3%E7%A0%81%E6%8A%80%E6%9C%AF-Decomposition"><span class="toc-number">5.</span> <span class="toc-text">0x03 解码技术(Decomposition)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-%E6%B2%99%E7%AE%B1%E8%84%B1%E5%A3%B3%E6%8A%80%E6%9C%AF-Generic-Unpacking"><span class="toc-number">6.</span> <span class="toc-text">0x04 沙箱脱壳技术(Generic Unpacking)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-%E6%A3%80%E6%B5%8B%E5%92%8C%E8%A7%84%E9%81%BF%E6%B2%99%E7%AE%B1-amp-amp-%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">7.</span> <span class="toc-text">0x05 检测和规避沙箱&amp;&amp;虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%A7%84%E9%81%BF%E6%B2%99%E7%AE%B1"><span class="toc-number">7.1.</span> <span class="toc-text">1. 规避沙箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A3%80%E6%B5%8B%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">7.2.</span> <span class="toc-text">2.检测虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.1.</span> <span class="toc-text">进程检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.2.</span> <span class="toc-text">注册表检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.3.</span> <span class="toc-text">磁盘文件检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MAC%E5%9C%B0%E5%9D%80%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.4.</span> <span class="toc-text">MAC地址检测</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%BE%AE%E6%AD%A5%E6%B2%99%E7%AE%B1"><span class="toc-number">7.3.</span> <span class="toc-text">3.微步沙箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-VT%E6%B2%99%E7%AE%B1"><span class="toc-number">7.4.</span> <span class="toc-text">4.VT沙箱</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06"><span class="toc-number">8.</span> <span class="toc-text">0x06</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-HW%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E6%9D%80%E8%BD%AF"><span class="toc-number">8.1.</span> <span class="toc-text">1.HW中遇到的杀软</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9D%80%E8%BD%AF%E5%88%86%E7%BB%84"><span class="toc-number">8.2.</span> <span class="toc-text">2.杀软分组</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E5%AF%B9%E6%8A%97%E7%BB%84%EF%BC%88%E4%B8%8A%E7%BA%BF%E5%B0%B1%E5%8F%AF%E4%BB%A5%E4%B9%B1%E6%90%9E%EF%BC%89"><span class="toc-number">8.2.0.1.</span> <span class="toc-text">静态对抗组（上线就可以乱搞）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A1%8C%E4%B8%BA%E5%AF%B9%E6%8A%97%E7%BB%84%EF%BC%88%E4%B8%8A%E7%BA%BF%E4%BA%86%E8%BF%98%E5%BF%85%E9%A1%BB%E6%B3%A8%E6%84%8F%E6%93%8D%E4%BD%9C%EF%BC%89"><span class="toc-number">8.2.0.2.</span> <span class="toc-text">行为对抗组（上线了还必须注意操作）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%9D%99%E6%80%81%E5%AF%B9%E6%8A%97%E7%BB%84"><span class="toc-number">8.3.</span> <span class="toc-text">3.静态对抗组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%A1%8C%E4%B8%BA%E5%AF%B9%E6%8A%97%E7%BB%84"><span class="toc-number">8.4.</span> <span class="toc-text">4.行为对抗组</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-eset"><span class="toc-number">8.4.1.</span> <span class="toc-text">1.eset</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8D%A1%E5%B7%B4%E6%96%AF%E5%9F%BA"><span class="toc-number">8.4.2.</span> <span class="toc-text">2.卡巴斯基</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%81%AB%E7%BB%92"><span class="toc-number">8.4.3.</span> <span class="toc-text">3.火绒</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-360"><span class="toc-number">8.4.4.</span> <span class="toc-text">4.360</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-windows-defender"><span class="toc-number">8.4.5.</span> <span class="toc-text"> 5.windows defender</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">9.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E5%BC%95%E6%93%8E-amp-%E4%BA%91%E5%BC%95%E6%93%8E"><span class="toc-number">9.1.</span> <span class="toc-text">本地引擎&amp;云引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%9F%E8%AE%A1%E5%BC%95%E6%93%8E%EF%BC%88%E5%90%AF%E5%8F%91%E5%BC%8F%E5%BC%95%E6%93%8E%EF%BC%89"><span class="toc-number">9.2.</span> <span class="toc-text">统计引擎（启发式引擎）</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        浅析杀软
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-03-31T03:13:10.000Z" itemprop="datePublished">2022-03-31</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%85%8D%E6%9D%80/">免杀</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%8E%9F%E7%90%86/" rel="tag">原理</a>, <a class="tag-link-link" href="/tags/%E6%9D%80%E8%BD%AF/" rel="tag">杀软</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>以前写过一篇介绍杀软原理的，这里再补充一下</p>
+<p><a href="https://0range-x.github.io/2021/10/28/%E5%85%8D%E6%9D%80%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E7%AF%87/">免杀基础入门篇 (0range-x.github.io)</a></p>
+<h2 id="0x00-引擎介绍"><a href="#0x00-引擎介绍" class="headerlink" title="0x00 引擎介绍"></a>0x00 引擎介绍</h2><h3 id="1-杀软属性"><a href="#1-杀软属性" class="headerlink" title="1.杀软属性"></a>1.杀软属性</h3><ol>
+<li>对于给定对象，检测是否包含恶意代码</li>
+<li>能准确识别出恶意代码的类型，如：木马，后门，蠕虫等</li>
+<li>对于寄生类恶意代码（宏病毒、感染型病毒等），可以从宿主对象中剥离恶意代码，并还原宿主对象数据</li>
+</ol>
+<h3 id="2-杀软引擎的构成"><a href="#2-杀软引擎的构成" class="headerlink" title="2.杀软引擎的构成"></a>2.杀软引擎的构成</h3><p>一般来说，引擎通常由几个模块构成，</p>
+<h4 id="1-数据格式识别、分析模块"><a href="#1-数据格式识别、分析模块" class="headerlink" title="1.数据格式识别、分析模块"></a>1.数据格式识别、分析模块</h4><p>负责对待扫描对象的格式进行识别和分析，为扫描核心提供足够的格式相关信息</p>
+<h4 id="2-反病毒特征库"><a href="#2-反病毒特征库" class="headerlink" title="2.反病毒特征库"></a>2.反病毒特征库</h4><p>由本地特征库和云特征库构成</p>
+<h4 id="3-扫描核心"><a href="#3-扫描核心" class="headerlink" title="3.扫描核心"></a>3.扫描核心</h4><p>负责整个反病毒引擎的扫描逻辑，不同的扫描技术也由扫描核心来调度。我的理解是扫描核心作为指挥官，根据不同的情况来调度不同的资源进行扫描。</p>
+<h2 id="0x01-静态查杀"><a href="#0x01-静态查杀" class="headerlink" title="0x01 静态查杀"></a>0x01 静态查杀</h2><h5 id="1-特征码识别"><a href="#1-特征码识别" class="headerlink" title="1.特征码识别:"></a>1.特征码识别:</h5><p>杀软有自己的病毒库，里面有很多样本，扫描时会抽取扫描对象的一段特征并与病毒库里作比较，如果匹配，那就会认为是病毒。抽取的代码要有适当长度，一方面维持特征代码的唯一性，另一方面又不要有太大的空间与时间的开销。如果一种病毒的特征代码增长一字节，要检测3000种病毒，增加的空间就是3000字节。在保持唯一性的前提下，尽量使特征代码长度短些，以减少空间与时间开销。</p>
+<p>主要扫描的有：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">哈希(全文哈希、分段哈希、局部敏感哈希等)</span><br><span class="line">文件名</span><br><span class="line">函数名</span><br><span class="line">关键代码(包括敏感字符串、api等 ps：有的api会被杀软hook)</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-云查杀"><a href="#2-云查杀" class="headerlink" title="2.云查杀:"></a>2.云查杀:</h5><p>云查杀的不同点在于它的病毒库是放在服务器端的，而不是本地客户端，意思是只要联网病毒库就会同步更新，这种病毒库更加强大。</p>
+<h5 id="3-校验和法"><a href="#3-校验和法" class="headerlink" title="3.校验和法"></a>3.校验和法</h5><p>根据正常文件的内容，计算其校验和，定期不定期的检查文件的校验是否与正常的校验和一样。其实本质还是特征码，万变不离其宗</p>
+<h5 id="4-启发式扫描："><a href="#4-启发式扫描：" class="headerlink" title="4.启发式扫描："></a>4.启发式扫描：</h5><p>但是面对未知的病毒，换个模样杀软就认不出了吗？所以安全厂商研究出了启发式算法</p>
+<p>启发式则是将一类病毒总结后，归纳其特征，其后的演变都为一类病毒，这就是启发式算法。具体启发式算法可以由杀软来定，比如可以使用机器学习把家族病毒聚类，或简单的通过使用通用型yara规则，例如文件大小小于100kb，且没有图标则可以识别为病毒，以此达到查杀病毒。</p>
+<h5 id="yara规则："><a href="#yara规则：" class="headerlink" title="yara规则："></a>yara规则：</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">rule PoisonIvy_Generic_3 &#123;</span><br><span class="line">    meta:</span><br><span class="line">        description = <span class="string">&quot;PoisonIvy RAT Generic Rule&quot;</span></span><br><span class="line">        license = <span class="string">&quot;https://creativecommons.org/licenses/by-nc/4.0/&quot;</span></span><br><span class="line">        author = <span class="string">&quot;Florian Roth&quot;</span></span><br><span class="line">        date = <span class="string">&quot;2015-05-14&quot;</span></span><br><span class="line">        hash = <span class="string">&quot;e1cbdf740785f97c93a0a7a01ef2614be792afcd&quot;</span></span><br><span class="line">    strings:</span><br><span class="line">        $k1 = <span class="string">&quot;Tiger324&#123;&quot;</span> fullword ascii</span><br><span class="line"></span><br><span class="line">        $s2 = <span class="string">&quot;WININET.dll&quot;</span> fullword ascii</span><br><span class="line">        $s3 = <span class="string">&quot;mscoree.dll&quot;</span> fullword wide</span><br><span class="line">        $s4 = <span class="string">&quot;WS2_32.dll&quot;</span> fullword</span><br><span class="line">        $s5 = <span class="string">&quot;Explorer.exe&quot;</span> fullword wide</span><br><span class="line">        $s6 = <span class="string">&quot;USER32.DLL&quot;</span></span><br><span class="line">        $s7 = <span class="string">&quot;CONOUT$&quot;</span></span><br><span class="line">        $s8 = <span class="string">&quot;login.asp&quot;</span></span><br><span class="line"></span><br><span class="line">        $h1 = <span class="string">&quot;HTTP/1.0&quot;</span></span><br><span class="line">        $h2 = <span class="string">&quot;POST&quot;</span></span><br><span class="line">        $h3 = <span class="string">&quot;login.asp&quot;</span></span><br><span class="line">        $h4 = <span class="string">&quot;check.asp&quot;</span></span><br><span class="line">        $h5 = <span class="string">&quot;result.asp&quot;</span></span><br><span class="line">        $h6 = <span class="string">&quot;upload.asp&quot;</span></span><br><span class="line">    condition:</span><br><span class="line">        <span class="built_in">uint16</span>(<span class="number">0</span>) == <span class="number">0x5a4d</span> <span class="keyword">and</span> filesize &lt; <span class="number">500</span>KB <span class="built_in"><span class="keyword">and</span></span></span><br><span class="line">            ( </span><br><span class="line">                $k1 <span class="keyword">or</span> all <span class="built_in">of</span> ($s*) <span class="keyword">or</span> all <span class="built_in">of</span> ($h*)</span><br><span class="line">            )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>简单分析下这段yara规则，标记了hash，最终的匹配规则是 <code>文件大小在500kb以内 并且满足 $k1/all $s/all $h 中的任意一条</code>，即被认定是病毒。这时候就可以根据破坏相应的规则，比如大小改为500kb+，不去调用相应的dll等来 bypass。</p>
+<h2 id="0x02-动态查杀（主动防御）"><a href="#0x02-动态查杀（主动防御）" class="headerlink" title="0x02 动态查杀（主动防御）"></a>0x02 动态查杀（主动防御）</h2><p>动态查杀指的是 程序在运行的过程中执行了某些敏感操作，导致杀软查杀。</p>
+<p>谈到动态查杀不得不提一个东西叫沙盒。</p>
+<p>沙盒：也叫启发式查杀，通过模拟计算机的环境执行目标文件再观察特征行为</p>
+<p>沙盒模拟的常见特征：</p>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>原因</th>
+<th>bypass</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内存较小</td>
+<td>不影响计算机正常运行</td>
+<td>检测计算机内存是不是很小(判断是否是真实计算机)</td>
+</tr>
+<tr>
+<td>时间较快</td>
+<td>沙盒内置的时间速度比现实世界要快，提高查杀速度，沙盒中的时间流逝很快</td>
+<td>c语言函数判断1s是否有1000ms/判断是否是utc时间</td>
+</tr>
+<tr>
+<td>进程或文件不完整</td>
+<td>减少杀毒软件运行时对计算机的消耗</td>
+<td>判断操作系统进程的个数/调用不可能存在的文件</td>
+</tr>
+<tr>
+<td>io设备缺失</td>
+<td>鼠标键盘等事件大部分沙盒都没有</td>
+<td>检测驱动 usb等/判断鼠标的移动速度等</td>
+</tr>
+</tbody></table>
+<p>其实主要就是找一台真实的计算机和沙盒的区别到底在哪，找到那些真实的计算机具有而模拟的计算机无法具有的特征，进行绕过即可，思路很简单，也很广，自己拓展会发现更多有意思的点。下面是两个反沙箱的项目，可以看看</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/nek0YanSu/CheckVM-Sandbox">https://github.com/nek0YanSu/CheckVM-Sandbox</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ZanderChang/anti-sandbox">https://github.com/ZanderChang/anti-sandbox</a></p>
+<p>下面说一下杀软监控动态查杀的点：</p>
+<h4 id="计算机相关"><a href="#计算机相关" class="headerlink" title="计算机相关"></a>计算机相关</h4><ol>
+<li><p>系统服务（指的是这些）如果有敏感服务操作的话，容易被监测到</p>
+<img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20211014111540437.png" alt="image-20211014111540437" style="zoom:50%;"></li>
+<li><p>注册表（键值） 修改注册表的行为一般都是敏感行为（高危添加用户、删除用户，没有十足把握bypass，还是算了）</p>
+</li>
+<li><p>组策略</p>
+</li>
+<li><p>防火墙</p>
+</li>
+<li><p>敏感程序（cmd powershell wmi psexec bitsadmin rundll 等）</p>
+</li>
+<li><p>各种 win32api</p>
+<p>这里强调一下，监控进程调用的api不止是api名字，还包括api的 调用顺序、调用源、参数等等 。 相应的bypass，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">用实现同样功能的api替换</span><br><span class="line">重写对应的api</span><br><span class="line">调用0环的api绕过3环杀软</span><br></pre></td></tr></table></figure>
+
+<p>等等，肯定不止这些， 说起来很容易，但具体实现需要很深的底层功底，起码对Windows操作系统的底层实现，win32api等很熟悉，这就需要内功。</p>
+</li>
+<li><p>文件夹</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">C:/windows/system32   </span><br><span class="line">C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup</span><br><span class="line">C:\tmp等敏感文件夹（cs、msf都会在tmp文件夹下生成一些东西）</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p><strong>绕过</strong>：<code>白加黑</code>  算是一个很好的方法，指的是利用Windows系统的一些白文件去执行相应的敏感操作，就不会触发杀软警告，想一想，有哪个普通的程序去执行添加用户的操作呢？</p>
+<p>说到底，白加黑解决的是 Windows里面 <code>信任与权限</code>的问题，Windows 都相信你，它一个杀软有什么办法，权限指的是你的权限是否比杀软的权限高，如果你在0环，杀软在3环，它也没有权限来管你。</p>
+<h4 id="网络相关"><a href="#网络相关" class="headerlink" title="网络相关"></a>网络相关</h4><p>1.<strong>流量特征</strong>: cobalt strike 的通信协议，是由 RSA 传输 AES 的密钥，AES的密钥加密后续通信，这也是c2的常规通信手法，但未经修改的profile 和证书，很容易被检测到。</p>
+<p>2.<strong>内容特征</strong>：data字段是否存在命令相关的关键词加密特征（payload是否通讯加密，明文传输就会被查杀）  </p>
+<p>3.<strong>结构特征</strong>: 是否存在已知远控的通讯结构（ cs 中 beacon 有 sleep）</p>
+<p>4.<strong>IP</strong> : 是否被情报系统标记为恶意</p>
+<p><strong>绕过</strong>:</p>
+<ul>
+<li>tcp分段：指的是数据包在传输过程中切分后以小段传输(效果也不错，但是网络连接不好很容易断掉)</li>
+<li>内容加密：针对传输的内容，比如那些执行命令的字符串等等，加密混淆，加密还是不要用简单的编码，你简单的base64编码一下，杀软、edr等还是可以检测到，最好用非对称加密</li>
+<li>使用合法证书 ： 这个自己找渠道获得吧……</li>
+</ul>
+<h2 id="0x03-解码技术-Decomposition"><a href="#0x03-解码技术-Decomposition" class="headerlink" title="0x03 解码技术(Decomposition)"></a>0x03 解码技术(Decomposition)</h2><p>当在当前扫描对象中没有扫描到恶意代码时，扫描核心需要对该对象进行分析，并进行子对象拆分，以便对拆分后的子对象进一步进行扫描。通常，解码技术包括</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.解压缩</span><br><span class="line">2.解安装包</span><br><span class="line">3.解复合文档</span><br><span class="line">4.其他数据解码</span><br><span class="line">5.可执行文件脱壳</span><br><span class="line">6............</span><br></pre></td></tr></table></figure>
+
+<p>文档分析模块：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">可执行文件：PE,elf,Mach-o,NE,LE,MZ,COM,DEX......</span><br><span class="line">脚本类型：HTML,JavaScript,VBScript, AutolT,BAT, PHP,Lisp......</span><br><span class="line">压缩包类型：ZIP,7-ZIP,RAR,Gzip,Bzip2,Tar,CAB,AJR......</span><br><span class="line">安装包类型：NSIS,SmartInstallMaker......</span><br><span class="line">复合文档类型：OLE,PDF,Office组件，office宏，SWF,MIME,MSO......</span><br><span class="line">其他数据类型：Windows快捷方式，Windows注册表文件</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="0x04-沙箱脱壳技术-Generic-Unpacking"><a href="#0x04-沙箱脱壳技术-Generic-Unpacking" class="headerlink" title="0x04 沙箱脱壳技术(Generic Unpacking)"></a>0x04 沙箱脱壳技术(Generic Unpacking)</h2><p>一般来说，杀软通过虚拟机动态脱壳的方式来处理壳的问题。对于公开壳，首先已经被加入特征库了，用的话基本是必被杀的，对于公开壳，基本是通过指导脱壳的方式来查杀，而对于未公开的包括自定义壳、代码混淆器等其他代码级对抗技术，均采用通用脱壳查杀。</p>
+<p><img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119164541263.png" alt="image-20220119164541263"></p>
+<p>ps: 动态调试脱壳一般都是手工利用od、windbg这类调试工具调试，杀软的沙箱做不到。</p>
+<h2 id="0x05-检测和规避沙箱-amp-amp-虚拟机"><a href="#0x05-检测和规避沙箱-amp-amp-虚拟机" class="headerlink" title="0x05 检测和规避沙箱&amp;&amp;虚拟机"></a>0x05 检测和规避沙箱&amp;&amp;虚拟机</h2><h3 id="1-规避沙箱"><a href="#1-规避沙箱" class="headerlink" title="1. 规避沙箱"></a>1. 规避沙箱</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>原因</th>
+<th>执行</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>延迟执行</td>
+<td>各类的沙箱检测的时候，运行时间一般都比较短，可以延迟等一会去执行我们的shellcode</td>
+<td>如：延迟30 ，45，60</td>
+</tr>
+<tr>
+<td>检测开机时间</td>
+<td>很多沙箱检测完了就会重启，可以用开机时间来判断是否为沙箱</td>
+<td>判断开机时间是否大于1小时</td>
+</tr>
+<tr>
+<td>检测物理内存</td>
+<td>现如今大多数PC机器都是4GB以上的机器，检测RAM是否大于4gb来判断</td>
+<td>判断内存是否大于4G</td>
+</tr>
+<tr>
+<td>检测CPU核心数</td>
+<td>很多PC机，都拥有4核心的CPU，很多沙箱和虚拟机为2GB</td>
+<td>判断CPU核心数，是否大于4</td>
+</tr>
+<tr>
+<td>用户模拟</td>
+<td>带入我们的参数才能够运行我们的程序</td>
+<td>判断是否有参数</td>
+</tr>
+<tr>
+<td>检测文件名</td>
+<td>很多沙箱基本都要改我们的文件名</td>
+<td>判断文件名是否被修改</td>
+</tr>
+<tr>
+<td>检测磁盘容量大小</td>
+<td>沙箱一般都很小，没办法长时间的运行消耗</td>
+<td>判断磁盘是否大于80G</td>
+</tr>
+<tr>
+<td>创建互斥体</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="2-检测虚拟机"><a href="#2-检测虚拟机" class="headerlink" title="2.检测虚拟机"></a>2.检测虚拟机</h3><h4 id="进程检测"><a href="#进程检测" class="headerlink" title="进程检测"></a>进程检测</h4><p>VMware</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Vmtoolsd.exe</span><br><span class="line">Vmwaretrat.exe</span><br><span class="line">Vmwareuser.exe</span><br><span class="line">Vmacthlp.exe</span><br></pre></td></tr></table></figure>
+
+
+
+<p>VirtualBox</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vboxservice.exe</span><br><span class="line">vboxtray.exe</span><br></pre></td></tr></table></figure>
+
+<p>parakkeks desktop</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">prl_tools.exe</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="注册表检测"><a href="#注册表检测" class="headerlink" title="注册表检测"></a>注册表检测</h4><p>通过读取主机具有虚拟机特性的注册表位置来判断是否处于虚拟机环境中。</p>
+<p>Vmware</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CLASSES_ROOTApplications\VMwareHostOpen.exe</span><br></pre></td></tr></table></figure>
+
+<p>VirtualBox</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCALMACHINE\SOFTWARE\Oracle\VirtualBox Guest Additions</span><br></pre></td></tr></table></figure>
+
+<p>注册表中能被检测出的位置很多，这里只是举个例子。 </p>
+<h4 id="磁盘文件检测"><a href="#磁盘文件检测" class="headerlink" title="磁盘文件检测"></a>磁盘文件检测</h4><p>VMware</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">C:\windows\system32\driversVmmouse.sys</span><br><span class="line">c:\windows\system32\drivers\vmtoolshook.dll</span><br><span class="line">c:\windows\system32\drivers\vmtray.exe</span><br><span class="line">c:\windows\system32\drivers\vmgfs.dll</span><br></pre></td></tr></table></figure>
+
+
+
+<p>VirtualBox</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">c:\windows\system32\drivers\VBoxMouse.sys</span><br><span class="line">c:\windows\system32\drivers\vboxguest.sys</span><br><span class="line">c:\windows\system32\vboxdisp.dll</span><br><span class="line">c:\windows\system32\vboxhook.dll</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="MAC地址检测"><a href="#MAC地址检测" class="headerlink" title="MAC地址检测"></a>MAC地址检测</h4><p>Vmware</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">00:05:69</span><br><span class="line">00:0c:29</span><br><span class="line">00:50:56</span><br></pre></td></tr></table></figure>
+
+<p>VirtualBox</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">08:00:27</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-微步沙箱"><a href="#3-微步沙箱" class="headerlink" title="3.微步沙箱"></a>3.微步沙箱</h3><p>进程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">process id: 1528 , process name : AcrylicService.exe  // DNS代理程序，用来检测DNS流量</span><br></pre></td></tr></table></figure>
+
+<p>壁纸</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\vbccsb\AppData\Roaming\Microsoft\Windows\Themes\TranscodedWallpaper.jpg  //路径</span><br><span class="line">1645643018  //壁纸文件的hash</span><br></pre></td></tr></table></figure>
+
+<p>用户名 ， 每次运行沙箱的用户名不变 ，都是vbccsb</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">主机名:VBCCSB-PC</span><br><span class="line">用户名:vbccsb_*</span><br><span class="line">进程:519e67c447b16520ceaa2b84a8d8fb2da94b8edab</span><br><span class="line">内网IP:192.168.122.192</span><br><span class="line">出口IP:106.75.3.131</span><br><span class="line"></span><br><span class="line">主机名:VBCCSB-PC</span><br><span class="line">用户名:vbccsb_*</span><br><span class="line">进程:123.exe</span><br><span class="line">内网IP:192.168.122.192</span><br><span class="line">出口IP:106.75.35.22</span><br></pre></td></tr></table></figure>
+
+<p>系统制作厂商和型号 ， 正常PC的系统制作厂商都是电脑的牌子 DELL、LENEVO、ASUS</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 微步</span><br><span class="line">System Manufacturer:       System manufacturer</span><br><span class="line">System Model:              System manufacturer</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 正常的制作厂商和型号，三星、ASUS </span><br><span class="line">System Manufacturer:       SAMSUNG</span><br><span class="line">System Model:              670Z5E</span><br><span class="line"></span><br><span class="line">System Manufacturer:       ASUS</span><br><span class="line">System Model:              P5E-VM DO</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-VT沙箱"><a href="#4-VT沙箱" class="headerlink" title="4.VT沙箱"></a>4.VT沙箱</h3><p>文件名，部分沙箱会将样本 Hash 重命名或者下载的样本都是以 HASH命名的文件，也可以通过这个特征检测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">676ef88e8c8772b4751605835cb3a8a5.exe</span><br></pre></td></tr></table></figure>
+
+<p>进程，部分沙箱也会开以下进程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AcrylicService.exe</span><br></pre></td></tr></table></figure>
+
+<p>性能 ，大多数沙箱的内存都小于4G</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">4.txt:Available Physical Memory: 560 MB</span><br><span class="line">5.txt:Available Physical Memory: 1,499 MB</span><br><span class="line">6.txt:Available Physical Memory: 915 MB</span><br><span class="line">7.txt:Available Physical Memory: 1,003 MB</span><br><span class="line">8.txt:Available Physical Memory: 5,228 MB</span><br><span class="line">9.txt:Available Physical Memory: 5,215 MB</span><br></pre></td></tr></table></figure>
+
+<p>语言 ， 国外沙箱的语言大多为英文</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">╰─# grep &#x27;System Locale&#x27; *.txt                                                                                             </span><br><span class="line">4.txt:System Locale:             en-us;English (United States)</span><br><span class="line">5.txt:System Locale:             en-us;English (United States)</span><br><span class="line">6.txt:System Locale:             en-us;English (United States)</span><br><span class="line">7.txt:System Locale:             en-us;English (United States)</span><br><span class="line">8.txt:System Locale:             en-us;English (United States)</span><br><span class="line">9.txt:System Locale:             en-us;English (United States)</span><br></pre></td></tr></table></figure>
+
+<p>时区 ，VT上的沙箱大多为国外时区，国内的时区为东八区</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">╰─# grep &#x27;Time Zone&#x27; *.txt    </span><br><span class="line">4.txt:Time Zone:                 (UTC-08:00) Pacific Time (US &amp; Canada)</span><br><span class="line">5.txt:Time Zone:                 (UTC+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna</span><br><span class="line">6.txt:Time Zone:                 (UTC-05:00) Eastern Time (US &amp; Canada)</span><br><span class="line">7.txt:Time Zone:                 (UTC+02:00) Athens, Bucharest</span><br><span class="line">8.txt:Time Zone:                 (UTC) Co-ordinated Universal Time</span><br><span class="line">9.txt:Time Zone:                 (UTC) Co-ordinated Universal Time</span><br></pre></td></tr></table></figure>
+
+<p>系统制作厂商和型号，部分沙箱的制作厂商为QEMU</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">╰─# grep &#x27;System Manufacturer&#x27; *.txt</span><br><span class="line">4.txt:System Manufacturer:       DELL</span><br><span class="line">5.txt:System Manufacturer:       Dell Inc.</span><br><span class="line">6.txt:System Manufacturer:       ASUS</span><br><span class="line">7.txt:System Manufacturer:       SAMSUNG</span><br><span class="line">8.txt:System Manufacturer:       QEMU</span><br><span class="line">9.txt:System Manufacturer:       QEMU</span><br><span class="line"></span><br><span class="line">╰─# grep &#x27;System Model&#x27; *.txt       </span><br><span class="line">4.txt:System Model:              Standard PC (i440FX + PIIX, 1996)</span><br><span class="line">5.txt:System Model:              OptiPlex 7010</span><br><span class="line">6.txt:System Model:              P5E-VM DO</span><br><span class="line">7.txt:System Model:              670Z5E</span><br><span class="line">8.txt:System Model:              Standard PC (i440FX + PIIX, 1996)</span><br><span class="line">9.txt:System Model:              Standard PC (i440FX + PIIX, 1996)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h2><h3 id="1-HW中遇到的杀软"><a href="#1-HW中遇到的杀软" class="headerlink" title="1.HW中遇到的杀软"></a>1.HW中遇到的杀软</h3><ul>
+<li>windows defender</li>
+<li>360全家桶</li>
+<li>火绒</li>
+<li>QQ管家</li>
+<li>阿里安骑士</li>
+<li>sangfor edr</li>
+<li>G01</li>
+<li>趋势科技</li>
+<li>麦咖啡 卡巴斯基</li>
+</ul>
+<h3 id="2-杀软分组"><a href="#2-杀软分组" class="headerlink" title="2.杀软分组"></a>2.杀软分组</h3><h5 id="静态对抗组（上线就可以乱搞）"><a href="#静态对抗组（上线就可以乱搞）" class="headerlink" title="静态对抗组（上线就可以乱搞）"></a>静态对抗组（上线就可以乱搞）</h5><ul>
+<li>sangfor edr</li>
+<li>麦咖啡</li>
+<li>阿里安骑士</li>
+<li>趋势科技</li>
+<li>QQ管家</li>
+<li>G01</li>
+</ul>
+<h5 id="行为对抗组（上线了还必须注意操作）"><a href="#行为对抗组（上线了还必须注意操作）" class="headerlink" title="行为对抗组（上线了还必须注意操作）"></a>行为对抗组（上线了还必须注意操作）</h5><ul>
+<li>windows defender</li>
+<li>360全家桶</li>
+<li>卡巴斯基</li>
+<li>eset</li>
+<li>火绒</li>
+</ul>
+<h3 id="3-静态对抗组"><a href="#3-静态对抗组" class="headerlink" title="3.静态对抗组"></a>3.静态对抗组</h3><ul>
+<li>sangfor edr：    静态查杀很强，不会查杀父进程，过了静态就可以乱来</li>
+<li>麦咖啡：  麦咖啡静态查杀也很强，没有行为查杀</li>
+<li>阿里安骑士：静态一般，但<strong>拦截高危cmd操作</strong></li>
+<li>趋势科技：<strong>监控恶意服务创建</strong>，行为检测基本无</li>
+<li>QQ管家：？</li>
+<li>G01：静态上传不管是exe还是dll都会被杀，有黑名单机制</li>
+</ul>
+<p><font color="RedOrange"><strong>tips：将程序后缀改为txt，可以在cmd下直接运行（cmd 会将任意内容开头为MZ的文件当作PE可执行文件尝试允许）</strong></font></p>
+<h3 id="4-行为对抗组"><a href="#4-行为对抗组" class="headerlink" title="4.行为对抗组"></a>4.行为对抗组</h3><h4 id="1-eset"><a href="#1-eset" class="headerlink" title="1.eset"></a><font color="Bittersweet">1.eset</font></h4><ul>
+<li><font color="Bittersweet">上线方面</font></li>
+</ul>
+<p><font color="Bittersweet">loader使用shellcode分离的方式</font></p>
+<ul>
+<li><font color="Bittersweet">操作方面</font></li>
+</ul>
+<p><font color="Bittersweet">不是企业版没碰到有拦截一些常规操作</font></p>
+<h4 id="2-卡巴斯基"><a href="#2-卡巴斯基" class="headerlink" title="2.卡巴斯基"></a><font color="Salmon">2.卡巴斯基</font></h4><p><font color="Salmon">内存扫描能力很强，默认的cs beacon会被检测</font></p>
+<ul>
+<li><font color="Salmon">上线方面</font></li>
+</ul>
+<p><font color="Salmon">修改cs的profile(可参考：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9224">https://xz.aliyun.com/t/9224</a>)</font></p>
+<ul>
+<li><font color="Salmon">操作方面</font></li>
+</ul>
+<p><font color="Salmon">常规操作是不拦截的</font></p>
+<h4 id="3-火绒"><a href="#3-火绒" class="headerlink" title="3.火绒"></a><font color="Peach">3.火绒</font></h4><ul>
+<li><font color="Peach">上线方面</font></li>
+</ul>
+<p><font color="Peach">没啥注意</font></p>
+<ul>
+<li><font color="Peach">操作方面</font></li>
+</ul>
+<p><font color="Peach">不要去做一些乱搞的配置，很容易绕过，不要随意使用提权工具</font></p>
+<p><font color="Peach">心跳不要过短</font></p>
+<h4 id="4-360"><a href="#4-360" class="headerlink" title="4.360"></a><font color="BrickRed">4.360</font></h4><ul>
+<li><font color="BrickRed">360核心防护</font></li>
+</ul>
+<p><font color="BrickRed">开启了核晶防护之后，需要操作是受限的，大部分的CMD命令是无法使用的，判断是否开启核晶防护，上传EXE执行提升拒绝访问，就算上线了，becaon下运行cmd命令提示拒绝访问</font></p>
+<ul>
+<li><font color="BrickRed">上线方面</font></li>
+</ul>
+<p><font color="BrickRed">如果有核晶防护，DLL白加黑解决上线问题（项目推荐：<a target="_blank" rel="noopener" href="https://github.com/marpie/signed-loaders%EF%BC%89%EF%BC%8C%E9%81%BF%E5%85%8D%E4%BD%BF%E7%94%A8%E8%BF%9B%E7%A8%8B%E6%B3%A8%E5%85%A5%E7%9A%84%E6%96%B9%E5%BC%8F%E5%8A%A0%E8%BD%BDshellcode">https://github.com/marpie/signed-loaders），避免使用进程注入的方式加载shellcode</a></font></p>
+<ul>
+<li><font color="BrickRed">操作方面</font></li>
+</ul>
+<p><font color="BrickRed">即便有system权限也没办法实现CMD命令注入，就上传我们自己写好的代码进行注入，或者用bof插件进行相关的替代</font></p>
+<h4 id="5-windows-defender"><a href="#5-windows-defender" class="headerlink" title=" 5.windows defender"></a><font color="each"> 5.windows defender</font></h4><ul>
+<li><font color="each">上线方面</font></li>
+</ul>
+<p><font color="each">针对cs,不要使用stager shellcode ，使用stage shellcode 上线是要立刻被干掉的，用stageless的shellcode。</font></p>
+<ul>
+<li><font color="each">操作方面</font></li>
+</ul>
+<p><font color="each">如果出发恶意行为，如提权之类的，会关联到loader程序，上线后可以注入到另外的进程去操作，<br>使用cs内置的execute-assembly 可能会导致beacon掉线，原因：C#的程序本身是不免杀的，会经过ASMI的扫描</font></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="本地引擎-amp-云引擎"><a href="#本地引擎-amp-云引擎" class="headerlink" title="本地引擎&amp;云引擎"></a>本地引擎&amp;云引擎</h3><p>目前，国内软件大多数都是采用OEM引擎(自研本地引擎)+云引擎，以云引擎为主，OEM引擎为辅。因为本地引擎需要投入的成本太大，包括但不限于启发式扫描、虚拟沙盒在内的核心技术存在较高技术门槛。而对于云引擎，只需要解决样本采集和云端样本自动分析平台即可。</p>
+<p>云引擎由于可以实时同步云端的计算结果，所以实时性较高。但由于网络带宽的限制，在有限的扫描时间内,云引擎只能在本地提取高度抽象的数据特征发送到云端进行匹配,所以一般云引擎会选择哈希类特征(通常是全文哈希)。而哈希类特征的检出能力与样本基本是1:1的关系，即一条哈希特征通常只能检出一个样本，所以恶意代码的快速迭代对云端的样本收集能力、分析处理能力以及云端平台的运营成本来说，都是不小的挑战。</p>
+<p>而对于本地引擎,引擎本身技术能力的发展可以放大特征与样本之间的比例,即用少量的特征检出更多的样本。</p>
+<p>且引擎抗干扰能力越强,给恶意代码制造者进行免杀设定的技术门槛越高,相应的有效检出时效越长。</p>
+<p>另外,本地弓|擎的核心技术可以被应用于云端自动分析平台,所以本地引擎技术的发展对云端的计算结果也有着积极的促进作用。</p>
+<h3 id="统计引擎（启发式引擎）"><a href="#统计引擎（启发式引擎）" class="headerlink" title="统计引擎（启发式引擎）"></a>统计引擎（启发式引擎）</h3><p>这些引擎本质上都是基于统计学算法,通过对海量样本以固定方法抽取特征,并对特征进行统计、分析，进而产生计算模型。依照计算模型对待扫描样本进行分类，进而推测样本是否属于恶意分类。</p>
+<p>感觉这类启发式引擎和机器学习很相似，但是要注意一点，归根结底还是对特征的统计、分析、扫描。</p>
+<p><img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119113611084.png" alt="image-20220119113611084"></p>
+<p><img src="/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/image-20220119113619125.png" alt="image-20220119113619125"></p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%BC%95%E6%93%8E%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">0x00 引擎介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9D%80%E8%BD%AF%E5%B1%9E%E6%80%A7"><span class="toc-number">2.1.</span> <span class="toc-text">1.杀软属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9D%80%E8%BD%AF%E5%BC%95%E6%93%8E%E7%9A%84%E6%9E%84%E6%88%90"><span class="toc-number">2.2.</span> <span class="toc-text">2.杀软引擎的构成</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F%E8%AF%86%E5%88%AB%E3%80%81%E5%88%86%E6%9E%90%E6%A8%A1%E5%9D%97"><span class="toc-number">2.2.1.</span> <span class="toc-text">1.数据格式识别、分析模块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8F%8D%E7%97%85%E6%AF%92%E7%89%B9%E5%BE%81%E5%BA%93"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.反病毒特征库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%89%AB%E6%8F%8F%E6%A0%B8%E5%BF%83"><span class="toc-number">2.2.3.</span> <span class="toc-text">3.扫描核心</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E9%9D%99%E6%80%81%E6%9F%A5%E6%9D%80"><span class="toc-number">3.</span> <span class="toc-text">0x01 静态查杀</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E7%89%B9%E5%BE%81%E7%A0%81%E8%AF%86%E5%88%AB"><span class="toc-number">3.0.0.1.</span> <span class="toc-text">1.特征码识别:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E4%BA%91%E6%9F%A5%E6%9D%80"><span class="toc-number">3.0.0.2.</span> <span class="toc-text">2.云查杀:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E6%A0%A1%E9%AA%8C%E5%92%8C%E6%B3%95"><span class="toc-number">3.0.0.3.</span> <span class="toc-text">3.校验和法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E5%90%AF%E5%8F%91%E5%BC%8F%E6%89%AB%E6%8F%8F%EF%BC%9A"><span class="toc-number">3.0.0.4.</span> <span class="toc-text">4.启发式扫描：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#yara%E8%A7%84%E5%88%99%EF%BC%9A"><span class="toc-number">3.0.0.5.</span> <span class="toc-text">yara规则：</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E5%8A%A8%E6%80%81%E6%9F%A5%E6%9D%80%EF%BC%88%E4%B8%BB%E5%8A%A8%E9%98%B2%E5%BE%A1%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">0x02 动态查杀（主动防御）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9B%B8%E5%85%B3"><span class="toc-number">4.0.1.</span> <span class="toc-text">计算机相关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3"><span class="toc-number">4.0.2.</span> <span class="toc-text">网络相关</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E8%A7%A3%E7%A0%81%E6%8A%80%E6%9C%AF-Decomposition"><span class="toc-number">5.</span> <span class="toc-text">0x03 解码技术(Decomposition)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-%E6%B2%99%E7%AE%B1%E8%84%B1%E5%A3%B3%E6%8A%80%E6%9C%AF-Generic-Unpacking"><span class="toc-number">6.</span> <span class="toc-text">0x04 沙箱脱壳技术(Generic Unpacking)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-%E6%A3%80%E6%B5%8B%E5%92%8C%E8%A7%84%E9%81%BF%E6%B2%99%E7%AE%B1-amp-amp-%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">7.</span> <span class="toc-text">0x05 检测和规避沙箱&amp;&amp;虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%A7%84%E9%81%BF%E6%B2%99%E7%AE%B1"><span class="toc-number">7.1.</span> <span class="toc-text">1. 规避沙箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%A3%80%E6%B5%8B%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-number">7.2.</span> <span class="toc-text">2.检测虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.1.</span> <span class="toc-text">进程检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.2.</span> <span class="toc-text">注册表检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E6%96%87%E4%BB%B6%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.3.</span> <span class="toc-text">磁盘文件检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MAC%E5%9C%B0%E5%9D%80%E6%A3%80%E6%B5%8B"><span class="toc-number">7.2.4.</span> <span class="toc-text">MAC地址检测</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%BE%AE%E6%AD%A5%E6%B2%99%E7%AE%B1"><span class="toc-number">7.3.</span> <span class="toc-text">3.微步沙箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-VT%E6%B2%99%E7%AE%B1"><span class="toc-number">7.4.</span> <span class="toc-text">4.VT沙箱</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06"><span class="toc-number">8.</span> <span class="toc-text">0x06</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-HW%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E6%9D%80%E8%BD%AF"><span class="toc-number">8.1.</span> <span class="toc-text">1.HW中遇到的杀软</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9D%80%E8%BD%AF%E5%88%86%E7%BB%84"><span class="toc-number">8.2.</span> <span class="toc-text">2.杀软分组</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E5%AF%B9%E6%8A%97%E7%BB%84%EF%BC%88%E4%B8%8A%E7%BA%BF%E5%B0%B1%E5%8F%AF%E4%BB%A5%E4%B9%B1%E6%90%9E%EF%BC%89"><span class="toc-number">8.2.0.1.</span> <span class="toc-text">静态对抗组（上线就可以乱搞）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A1%8C%E4%B8%BA%E5%AF%B9%E6%8A%97%E7%BB%84%EF%BC%88%E4%B8%8A%E7%BA%BF%E4%BA%86%E8%BF%98%E5%BF%85%E9%A1%BB%E6%B3%A8%E6%84%8F%E6%93%8D%E4%BD%9C%EF%BC%89"><span class="toc-number">8.2.0.2.</span> <span class="toc-text">行为对抗组（上线了还必须注意操作）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%9D%99%E6%80%81%E5%AF%B9%E6%8A%97%E7%BB%84"><span class="toc-number">8.3.</span> <span class="toc-text">3.静态对抗组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%A1%8C%E4%B8%BA%E5%AF%B9%E6%8A%97%E7%BB%84"><span class="toc-number">8.4.</span> <span class="toc-text">4.行为对抗组</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-eset"><span class="toc-number">8.4.1.</span> <span class="toc-text">1.eset</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8D%A1%E5%B7%B4%E6%96%AF%E5%9F%BA"><span class="toc-number">8.4.2.</span> <span class="toc-text">2.卡巴斯基</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%81%AB%E7%BB%92"><span class="toc-number">8.4.3.</span> <span class="toc-text">3.火绒</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-360"><span class="toc-number">8.4.4.</span> <span class="toc-text">4.360</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-windows-defender"><span class="toc-number">8.4.5.</span> <span class="toc-text"> 5.windows defender</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">9.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E5%BC%95%E6%93%8E-amp-%E4%BA%91%E5%BC%95%E6%93%8E"><span class="toc-number">9.1.</span> <span class="toc-text">本地引擎&amp;云引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%9F%E8%AE%A1%E5%BC%95%E6%93%8E%EF%BC%88%E5%90%AF%E5%8F%91%E5%BC%8F%E5%BC%95%E6%93%8E%EF%BC%89"><span class="toc-number">9.2.</span> <span class="toc-text">统计引擎（启发式引擎）</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&text=浅析杀软"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&is_video=false&description=浅析杀软"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=浅析杀软&body=Check out this article: https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&title=浅析杀软"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&name=浅析杀软&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/03/31/%E6%B5%85%E6%9E%90%E6%9D%80%E8%BD%AF/&t=浅析杀软"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="漏洞简介影响范围：全版本的Windows服务器 漏洞危害：允许任意域成员提权为域管权限 利用条件： 12341.域控没有打KB3011780补丁2.一台域用户的权限3.域用户的用户名、密码&#x2F;hash、SID4.域名和域控的IP  利用工具： kekeo                    下载地址：https:&#x2F;&#x2F;github.com&#x2F;gentilkiwi&#x2F;kekeo&#x2F; PyKEY 工具包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MS14-068原理浅析">
+<meta property="og:url" content="https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="漏洞简介影响范围：全版本的Windows服务器 漏洞危害：允许任意域成员提权为域管权限 利用条件： 12341.域控没有打KB3011780补丁2.一台域用户的权限3.域用户的用户名、密码&#x2F;hash、SID4.域名和域控的IP  利用工具： kekeo                    下载地址：https:&#x2F;&#x2F;github.com&#x2F;gentilkiwi&#x2F;kekeo&#x2F; PyKEY 工具包">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103321890.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103535675.png">
+<meta property="article:published_time" content="2021-09-25T01:26:23.000Z">
+<meta property="article:modified_time" content="2021-12-03T18:04:36.156Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="原理剖析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103321890.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>MS14-068原理浅析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/09/28/%E8%BD%AC%E8%BD%BD-%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E6%94%BB%E9%98%B2%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83%E5%92%8C%E7%BB%8F%E9%AA%8C/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/09/23/%E5%A5%87%E5%AE%89%E4%BF%A1%E6%B8%97%E9%80%8F%E5%B2%97%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&text=MS14-068原理浅析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&is_video=false&description=MS14-068原理浅析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=MS14-068原理浅析&body=Check out this article: https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&name=MS14-068原理浅析&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&t=MS14-068原理浅析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">漏洞简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">漏洞原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%B8%89%E4%B8%AA%E6%88%90%E5%9B%A0%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">漏洞三个成因：</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        MS14-068原理浅析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-09-25T01:26:23.000Z" itemprop="datePublished">2021-09-25</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91/">内网</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/" rel="tag">原理剖析</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h3><p>影响范围：全版本的Windows服务器</p>
+<p>漏洞危害：允许任意域成员提权为域管权限</p>
+<p>利用条件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.域控没有打KB3011780补丁</span><br><span class="line">2.一台域用户的权限</span><br><span class="line">3.域用户的用户名、密码/hash、SID</span><br><span class="line">4.域名和域控的IP</span><br></pre></td></tr></table></figure>
+
+<p>利用工具：</p>
+<p>kekeo                    下载地址：<a target="_blank" rel="noopener" href="https://github.com/gentilkiwi/kekeo/">https://github.com/gentilkiwi/kekeo/</a></p>
+<p>PyKEY 工具包       下载地址：<a target="_blank" rel="noopener" href="https://github.com/mubix/pykek">https://github.com/mubix/pykek</a></p>
+<p>Ms14-068.exe     下载地址:<a target="_blank" rel="noopener" href="https://github.com/abatchy17/WindowsExploits/tree/master/MS14-068">https://github.com/abatchy17/WindowsExploits/tree/master/MS14-068</a></p>
+<p>mimikatz              下载地址:<a target="_blank" rel="noopener" href="https://github.com/gentilkiwi/mimikatz/releases/">https://github.com/gentilkiwi/mimikatz/releases/</a></p>
+<p>msf中的模块        use auxiliary/admin/kerberos/ms14_068_kerberos_checksum</p>
+<p>cs中的插件</p>
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>主要是由于Kerberos协议中的认证问题。这里对Kerberos协议不作深入探讨。</p>
+<p>下图是Kerberos协议的认证流程图</p>
+<p><img src="/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103321890.png" alt="image-20210925103321890"></p>
+<p>搭配这张图更容易理解</p>
+<p><img src="/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/image-20210925103535675.png" alt="image-20210925103535675"></p>
+<p>Kerberos认证流程大致是这样</p>
+<ol>
+<li><p>AS_REQ:    client向KDC的AS请求AS_REQ，请求时带上自己的凭据：client的hash加密的时间戳以及其他一些信息</p>
+</li>
+<li><p>AS_REP:    AS收到信息，去询问AD是否有这个用户，有就拿出NTLM-hash对AS_REQ请求中加密的时间戳进行解密，解密成功，就会返回用krbtgt hash加密的TGT票据，TGT里面包含PAC，PAC包含client的sid，client所在的组</p>
+</li>
+<li><p>TGS_REQ:  Client凭借TGT票据向KDC中的TGS发起针对特定服务的TGS_REQ请求</p>
+</li>
+<li><p>TGS_REP:  TGS使用krbtgt hash解密，结果正确，返回 Server hash加密的TGS票据（这一步没有验证client有没有访问服务的权限，只要TGT正确，就返回TGS票据）</p>
+</li>
+<li><p>AP_REQ:   Client拿着TGS票据去请求服务</p>
+</li>
+<li><p>AP_REP:  server使用自身的hash解密TGS。解密成功，server会拿着PAC去询问DC，该用户是否具有访问权限，DC拿到PAC后解密，获取client的sid以及所在的组信息，再根据该服务的ACL，判断client是否具有访问server的权限。通过认证后server 将返回最终的AP_REP并与client建立通信 (有些服务并没有验证PAC这一步，这也是白银票据能成功的前提，因为就算拥有用户hash，可以制作TGS，也不能制作PAC，PAC当然也验证不成功，但是有些服务不去验证PAC，这是白银票据成功的前提)</p>
+</li>
+</ol>
+<p>至此，Kerberos协议认证基本结束。只是大概讲一下认证流程，很多细节认证没有讲。</p>
+<p>关键来了，第4步中没有验证client是否具有访问server的权限，在上述认证流程中，只要用户的hash正确，就可以拿到TGT，继而拿到TGS去访问服务。就是说上面的认证只解决了“Who am I”的问题，而没有解决 “ What can I do” 的问题</p>
+<p>因此微软引进了 PAC</p>
+<p>PAC包含Client的User的SID、Group的SID。PAC决定了Client的组属性，即决定了Client的权限PAC为了保证自身的合法性，还包含2个签名，Key为krbtgt的NTLM hash，签名的内容除了User SID、Group SID外，还有其他部分PAC作为TGT的一部分，是加密的，key为krbtgt的NTLM hash。Client向KDC的AS模块发起认证请求，AS返回TGT时，会根据Client所在的组，生成PAC，包含Client的User SID、Group SID，以及用于确保PAC不被篡改的2个签名</p>
+<p>PAC 是用来验证 Client 的访问权限的，它会被放在 TGT 里发送给 Client，然后由 Client 发送给 TGS。但也恰恰是这个 PAC 造成了 MS14-068 这个漏洞。</p>
+<p>更多关于PAC的介绍参考链接：</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/previous-versions/aa302203(v=msdn.10)#security-considerations">https://docs.microsoft.com/en-us/previous-versions/aa302203(v=msdn.10)#security-considerations</a></p>
+<p>该漏洞是位于 kdcsvc.dll 域控制器的密钥分发中心（KDC）服务中的 Windows 漏洞，<strong>它允许经过身份验证的用户在其获得的票证 TGT 中插入任意的PAC</strong> 。</p>
+<h4 id="漏洞三个成因："><a href="#漏洞三个成因：" class="headerlink" title="漏洞三个成因："></a>漏洞三个成因：</h4><ol>
+<li><p>KDC对PAC进行验证时，对于PAC尾部的签名算法，虽然原理上规定必须是带有Key的签名算法才可以，但微软在实现上，却允许任意签名算法，只要客户端指定任意签名算法，KDC服务器就会使用指定的算法进行签名验证。因此伪造的任意内容都可以是合法的，直接加上内容的MD5值作为签名即可</p>
+</li>
+<li><p> PAC没有被放在TGT中，放在其它地方。KDC在仍然能够正确解析出没有放在TGT中的PAC信息，PAC必须是密文，经过Key加密的KDC会从Authenticator中取出来subkey，把PAC信息解密并利用客户端设定的签名算法验证签名</p>
+</li>
+<li><p>KDC验证缺少PAC的TGT成功后，再验证不在TGT中 的PAC的合法性。如果2个均验证成功，KDC把PAC中的User SID、Group SID取出来，重新使用进行签名，签名算法和密钥与设置inclue-pac标志位为TRUE时一模一样。将新产生的PAC加入到解密后的TGT中，再重新加密制作全新的TGT发送给Client，不是TGS</p>
+</li>
+</ol>
+<p>至此，漏洞的原理大致了解，普通用户可以通过改变 PAC 的 TGT 来伪造票据获得管理员权限。</p>
+<p>编写exp脚本的话无非就是按照这个思路，当然，我是废物，不会写exp，这里就画个大饼。</p>
+<p><strong>生成一张TGT票据（此时没有伪造的PAC，为了给伪造的PAC腾出位置），伪造PAC，向TGS请求，此时返回的TGS票据（ST）里面就含有伪造的PAC</strong></p>
+<p>简单分析到这，以后再补充.</p>
+<p>如果哪里有错误，请大佬与我邮箱联系。</p>
+<p>Peace</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">漏洞简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">漏洞原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%B8%89%E4%B8%AA%E6%88%90%E5%9B%A0%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">漏洞三个成因：</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&text=MS14-068原理浅析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&is_video=false&description=MS14-068原理浅析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=MS14-068原理浅析&body=Check out this article: https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&title=MS14-068原理浅析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&name=MS14-068原理浅析&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/25/MS14-068%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90/&t=MS14-068原理浅析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

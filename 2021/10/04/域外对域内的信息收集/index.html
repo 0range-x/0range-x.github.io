@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="很多时候为了避免在目标机器产生太大的动静，或者被AV检测到，经常通过socks代理在本地进行信息收集，但会产生大量的socks流量，容易被edr检测到。 0x01 通过 kerbrute 枚举下载地址：https:&#x2F;&#x2F;github.com&#x2F;ropnop&#x2F;kerbrute 原理:  通过模拟 AS_REQ 向 KDC 请求，如果 KDC 返回的是 KRB5KDC_ERR_C_PRINCIPAL_">
+<meta property="og:type" content="article">
+<meta property="og:title" content="域外对域内的信息收集">
+<meta property="og:url" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="很多时候为了避免在目标机器产生太大的动静，或者被AV检测到，经常通过socks代理在本地进行信息收集，但会产生大量的socks流量，容易被edr检测到。 0x01 通过 kerbrute 枚举下载地址：https:&#x2F;&#x2F;github.com&#x2F;ropnop&#x2F;kerbrute 原理:  通过模拟 AS_REQ 向 KDC 请求，如果 KDC 返回的是 KRB5KDC_ERR_C_PRINCIPAL_">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004151523096.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004110918710.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004164912444.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004163921268.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004164431707.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004164750101.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004165056877.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004165302903.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004165730301.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170237773.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170432612.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170729013.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170848717.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004171247026.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004191448383.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004205940107.png">
+<meta property="article:published_time" content="2021-10-04T15:37:50.000Z">
+<meta property="article:modified_time" content="2021-12-03T18:05:15.043Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="信息收集">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004151523096.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>域外对域内的信息收集</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/10/10/%E6%9C%80%E8%BF%91%E7%9A%84%E4%B8%80%E4%BA%9B%E6%80%BB%E7%BB%93%E5%8F%8A%E6%9C%AA%E6%9D%A5%E7%9A%84%E8%AE%A1%E5%88%92/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&text=域外对域内的信息收集"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&is_video=false&description=域外对域内的信息收集"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域外对域内的信息收集&body=Check out this article: https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&name=域外对域内的信息收集&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&t=域外对域内的信息收集"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E9%80%9A%E8%BF%87-kerbrute-%E6%9E%9A%E4%B8%BE"><span class="toc-number">1.</span> <span class="toc-text">0x01 通过 kerbrute 枚举</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-ADfind-%E6%90%9C%E9%9B%86%E5%9F%9F%E5%86%85%E5%90%84%E7%B1%BB%E4%BF%A1%E6%81%AF"><span class="toc-number">2.</span> <span class="toc-text">0x02 ADfind 搜集域内各类信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%9F%9F%E5%86%85%E7%94%A8%E6%88%B7%E5%88%97%E8%A1%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.1.</span> <span class="toc-text">获取域内用户列表信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BB%84%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.2.</span> <span class="toc-text">查询组信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%AE%8C%E6%95%B4OU%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.3.</span> <span class="toc-text">获取完整OU信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9A-OU-%E4%B8%8B%E7%9A%84%E2%BD%A4%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.4.</span> <span class="toc-text">获取指定 OU 下的⽤户信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9AOU%E4%B8%8B%E7%9A%84%E7%94%A8%E6%88%B7%E7%BB%84%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.5.</span> <span class="toc-text">获取指定OU下的用户组信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9AOU%E4%B8%8B%E7%9A%84%E6%9C%BA%E5%99%A8%E5%90%8D%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.6.</span> <span class="toc-text">获取指定OU下的机器名信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%AE%8C%E6%95%B4%E6%9C%BA%E5%99%A8%E5%88%97%E8%A1%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.7.</span> <span class="toc-text">获取完整机器列表信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%BA%E5%99%A8%E8%B4%A6%E6%88%B7%EF%BC%89"><span class="toc-number">2.0.8.</span> <span class="toc-text">查询域内非约束委派（机器账户）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%8D%E5%8A%A1%E8%B4%A6%E6%88%B7%EF%BC%89"><span class="toc-number">2.0.9.</span> <span class="toc-text">查询域内非约束委派（服务账户）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%BA%E5%99%A8%E8%B4%A6%E6%88%B7%EF%BC%89"><span class="toc-number">2.0.10.</span> <span class="toc-text">查询域内约束委派（机器账户）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%8D%E5%8A%A1%E8%B4%A6%E6%88%B7"><span class="toc-number">2.0.11.</span> <span class="toc-text">查询域内约束委派（服务账户)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.0.12.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-Ad-Explorer-%E5%9B%BE%E5%BD%A2%E5%8C%96%E6%9F%A5%E7%9C%8B%E5%9F%9F%E5%86%85%E5%90%84%E7%B1%BB%E4%BF%A1%E6%81%AF"><span class="toc-number">3.</span> <span class="toc-text">通过 Ad Explorer 图形化查看域内各类信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        域外对域内的信息收集
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-10-04T15:37:50.000Z" itemprop="datePublished">2021-10-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91/">内网</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" rel="tag">信息收集</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>  很多时候为了避免在目标机器产生太大的动静，或者被AV检测到，经常通过socks代理在本地进行信息收集，但会产生大量的socks流量，容易被edr检测到。</p>
+<h3 id="0x01-通过-kerbrute-枚举"><a href="#0x01-通过-kerbrute-枚举" class="headerlink" title="0x01 通过 kerbrute 枚举"></a>0x01 通过 kerbrute 枚举</h3><p>下载地址：<a target="_blank" rel="noopener" href="https://github.com/ropnop/kerbrute">https://github.com/ropnop/kerbrute</a></p>
+<p>原理: </p>
+<p>通过模拟 <code>AS_REQ</code> 向 <code>KDC</code> 请求，如果 <code>KDC</code> 返回的是 <code>KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN</code> 错误的话， 则说明该域⽤户不存在，如果 <code>KDC</code> 返回并提示 <code>KRB5KDC_ERR_PREAUTH_REQUIRED (预身份验证)</code>，那么就说明该域⽤户是存在的</p>
+<p>主要利用了 <code>Kerberos</code> 协议的预身份验证，预身份验证指的是 <code>client</code> 在发出票证之前已通过 KDC 的身份验证。</p>
+<p>kerbrute的语法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kerbrute.exe userenum -d 域名 字典.txt --dc 域控IP</span><br><span class="line">kerbrute_windows_386.exe userenum -d sun.com user.txt --dc 192.168.138.138</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004151523096.png" alt="image-20211004151523096"></p>
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004110918710.png" alt="image-20211004110918710"></p>
+<h3 id="0x02-ADfind-搜集域内各类信息"><a href="#0x02-ADfind-搜集域内各类信息" class="headerlink" title="0x02 ADfind 搜集域内各类信息"></a>0x02 ADfind 搜集域内各类信息</h3><p>下载地址：<a target="_blank" rel="noopener" href="https://www.softpedia.com/get/Programming/Other-Programming-Files/AdFind.shtml">https://www.softpedia.com/get/Programming/Other-Programming-Files/AdFind.shtml</a></p>
+<p>各种cs插件已经集成了此工具，z1等等。当然已经被AV杀烂了</p>
+<p>使用方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -help</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">AdFind V01<span class="number">.52</span><span class="number">.00</span><span class="function">cpp Joe <span class="title">Richards</span> <span class="params">(support@joeware.net)</span> January 2020</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">-help         Basic help.</span></span><br><span class="line"><span class="function">-?            Basic help.</span></span><br><span class="line"><span class="function">-??           Advanced/Expert help.</span></span><br><span class="line"><span class="function">-????         Shortcut help.</span></span><br><span class="line"><span class="function">-sc?          Shortcut help.</span></span><br><span class="line"><span class="function">-meta?        Metadata help.</span></span><br><span class="line"><span class="function">-regex?       Regular Expressions help.</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">Usage:</span></span><br><span class="line"><span class="function"> AdFind [switches] [-b basedn] [-f filter] [attr list]</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">   basedn        RFC <span class="number">2253</span> DN to base search from.</span></span><br><span class="line"><span class="function">                 If no base specified, defaults to default NC.</span></span><br><span class="line"><span class="function">                 Base DN can also be specified as a SID, GUID, or IID.</span></span><br><span class="line"><span class="function">   filter        RFC <span class="number">2254</span> LDAP filter.</span></span><br><span class="line"><span class="function">                 If no filter specified, defaults to objectclass=</span>*.</span><br><span class="line">   attr list     List of specific attributes to <span class="keyword">return</span>, <span class="keyword">if</span> nothing specified</span><br><span class="line">                 returns <span class="string">&#x27;default&#x27;</span> attributes, aka * set.</span><br><span class="line"></span><br><span class="line">  Switches: (designated by - <span class="keyword">or</span> /)</span><br><span class="line"></span><br><span class="line">           [CONNECTION OPTIONS]</span><br><span class="line">   -h host:port  Host <span class="keyword">and</span> port to use. If <span class="keyword">not</span> specified uses port <span class="number">389</span> on</span><br><span class="line">                 <span class="keyword">default</span> LDAP server. Localhost can be specified as <span class="string">&#x27;.&#x27;</span>.</span><br><span class="line">                 Port can also be specified via -p <span class="keyword">and</span> -gc.</span><br><span class="line">                 IPv6 IP address w/ port is specified [address]:port</span><br><span class="line">   -gc           Search Global <span class="built_in">Catalog</span> (port <span class="number">3268</span>).</span><br><span class="line">   -p port       Alternate method to specify port to connect to.</span><br><span class="line"></span><br><span class="line">           [QUERY OPTIONS]</span><br><span class="line">   -s scope      Scope of search. Base, One[Level], Sub[tree].</span><br><span class="line">   -t xxx        Timeout value <span class="keyword">for</span> query, <span class="keyword">default</span> <span class="number">120</span> seconds.</span><br><span class="line"></span><br><span class="line">           [OUTPUT OPTIONS]</span><br><span class="line">   -c            Object count only.</span><br><span class="line">   -dn           Object DN<span class="number">&#x27;</span>s only.</span><br><span class="line">   -appver       Output AdFind versioning info.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  Notes:</span><br><span class="line">    o This tool was written with simple US ASCII in mind. UNICODE <span class="keyword">and</span> special</span><br><span class="line">      ASCII characters such as characters with umlauts <span class="keyword">or</span> graphics may <span class="keyword">not</span></span><br><span class="line">      be output correctly due to how the command prompt handles those</span><br><span class="line">      characters. If you see <span class="keyword">this</span> occurring, redirect the output to a text file</span><br><span class="line">      with the command prompt redirection <span class="built_in">symbol</span> (&gt;) <span class="keyword">and</span> it is possible the</span><br><span class="line">      program will give the desired output.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  Ex1:</span><br><span class="line">    adfind -b dc=joehome,dc=net -f <span class="string">&quot;objectcategory=computer&quot;</span></span><br><span class="line">      Find all computer objects in joehome.net <span class="keyword">and</span> displays all attributes</span><br><span class="line"></span><br><span class="line">  Ex2:</span><br><span class="line">    adfind -b dc=joehome,dc=net -f <span class="string">&quot;objectcategory=computer&quot;</span> cn createTimeStamp</span><br><span class="line">      Find all computer objects in joehome.net <span class="keyword">and</span> displays cn <span class="keyword">and</span> createTimeStamp</span><br><span class="line"></span><br><span class="line">  Ex3:</span><br><span class="line">    adfind -h .:<span class="number">50000</span> -b cn=ab -f <span class="string">&quot;objectcategory=person&quot;</span></span><br><span class="line">      Find all person objects on cn=ab container of local ADAM instance</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"> This software is Freeware. Use at your own risk.</span><br><span class="line"> I <span class="keyword">do</span> <span class="keyword">not</span> warrant <span class="keyword">this</span> software to be fit <span class="keyword">for</span> any purpose <span class="keyword">or</span> use <span class="keyword">and</span></span><br><span class="line"> I <span class="keyword">do</span> <span class="keyword">not</span> guarantee that it will <span class="keyword">not</span> damage <span class="keyword">or</span> destroy your system.</span><br><span class="line"> Contact support@joeware.net via email <span class="keyword">for</span> licensing information to package</span><br><span class="line"> <span class="keyword">this</span> utility in commercial products.</span><br><span class="line"></span><br><span class="line"> See full Warranty documentation <span class="keyword">or</span> download the latest version</span><br><span class="line"> on http:<span class="comment">//www.joeware.net.</span></span><br><span class="line"></span><br><span class="line"> If you have improvement ideas, bugs, <span class="keyword">or</span> just wish to say Hi, I</span><br><span class="line"> receive email <span class="number">24</span>x7 <span class="keyword">and</span> read it in a semi-regular timeframe.</span><br><span class="line"> You can usually find me at support@joeware.net</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以下靶场使用的是 saulGoodman 师傅搭建的靶场，在操作过程中可能会因为靶场问题出现一点意外情况，本文仅展示方法。</p>
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004164912444.png" alt="image-20211004164912444"></p>
+<p>这里获取到了 web-2012 机器的控制权限，并成功提权抓到了密码，接下来就通过抓到的⽤户去对域内进⾏枚举信息搜集。</p>
+<h5 id="获取域内用户列表信息"><a href="#获取域内用户列表信息" class="headerlink" title="获取域内用户列表信息"></a>获取域内用户列表信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b dc=redteam,dc=com -f &quot;objectcategory=user&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004163921268.png" alt="image-20211004163921268"></p>
+<h5 id="查询组信息"><a href="#查询组信息" class="headerlink" title="查询组信息"></a>查询组信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b dc=redteam,dc=com -f &quot;objectcategory=group&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004164431707.png" alt="image-20211004164431707"></p>
+<h5 id="获取完整OU信息"><a href="#获取完整OU信息" class="headerlink" title="获取完整OU信息"></a>获取完整OU信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -default -f</span><br><span class="line">&quot;objectcategory=organizationalUnit&quot; name whenCreated</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004164750101.png" alt="image-20211004164750101"></p>
+<h5 id="获取指定-OU-下的⽤户信息"><a href="#获取指定-OU-下的⽤户信息" class="headerlink" title="获取指定 OU 下的⽤户信息"></a>获取指定 OU 下的⽤户信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 &quot;OU=内⽹安全组,DC=redteam,DC=com&quot; -s subtree -f &quot;(objectcategory=user)&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004165056877.png" alt="image-20211004165056877"></p>
+<h5 id="获取指定OU下的用户组信息"><a href="#获取指定OU下的用户组信息" class="headerlink" title="获取指定OU下的用户组信息"></a>获取指定OU下的用户组信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 &quot;OU=渗透攻击红队,DC=redteam,DC=com&quot; -s subtree -f &quot;(objectcategory=group)&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004165302903.png" alt="image-20211004165302903"></p>
+<h5 id="获取指定OU下的机器名信息"><a href="#获取指定OU下的机器名信息" class="headerlink" title="获取指定OU下的机器名信息"></a>获取指定OU下的机器名信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 &quot;OU=内网安全组,DC=redteam,DC=com&quot; -s subtree -f &quot;(objectcategory=computer)&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004165730301.png" alt="image-20211004165730301"></p>
+<h5 id="获取完整机器列表信息"><a href="#获取完整机器列表信息" class="headerlink" title="获取完整机器列表信息"></a>获取完整机器列表信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b dc=redteam,dc=com -f &quot;objectcategory=computer&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170237773.png" alt="image-20211004170237773"></p>
+<h5 id="查询域内非约束委派（机器账户）"><a href="#查询域内非约束委派（机器账户）" class="headerlink" title="查询域内非约束委派（机器账户）"></a>查询域内非约束委派（机器账户）</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b &quot;DC=redteam,DC=com&quot; -f &quot;(&amp;(samAccountType=805306369) (userAccountControl:1.2.840.113556.1.4.803:=524288))&quot; cn distinguishedName</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170432612.png" alt="image-20211004170432612"></p>
+<h5 id="查询域内非约束委派（服务账户）"><a href="#查询域内非约束委派（服务账户）" class="headerlink" title="查询域内非约束委派（服务账户）"></a>查询域内非约束委派（服务账户）</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adfind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b &quot;DC=redteam,DC=com&quot; -f &quot;(&amp;(samAccountType=805306368) (userAccountControl:1.2.840.113556.1.4.803:=524288))&quot; cn distinguishedName</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170729013.png" alt="image-20211004170729013"></p>
+<h5 id="查询域内约束委派（机器账户）"><a href="#查询域内约束委派（机器账户）" class="headerlink" title="查询域内约束委派（机器账户）"></a>查询域内约束委派（机器账户）</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adFind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b &quot;DC=redteam,DC=com&quot; -f &quot;(&amp;(samAccountType=805306368)(msds-allowedtodelegateto=*))&quot; msDS-AllowedToDelegateTo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004170848717.png" alt="image-20211004170848717"></p>
+<h5 id="查询域内约束委派（服务账户"><a href="#查询域内约束委派（服务账户" class="headerlink" title="查询域内约束委派（服务账户)"></a>查询域内约束委派（服务账户)</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adFind.exe -h 10.10.10.10 -u redteam\saulgoodman -up Saul!@#456 -b &quot;DC=redteam,DC=com&quot; -f &quot;(&amp;(objectCategory=computer)(objectClass=computer)(userAccountControl:1.2.840.113556.1.4.803:=16777216))&quot; msDS-AllowedToDelegateTo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004171247026.png" alt="image-20211004171247026"></p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p><code>Adfind</code> 这款工具主要是基于 <code>LDAP协议</code> 来进行信息收集，帮助更快认识域的组成结构。</p>
+<p>几个常见的 LDAP 端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">389/LDAP</span><br><span class="line">636/LDAP SSL</span><br><span class="line">3268/LDAP GC</span><br><span class="line">3269/LDAP GC SSL</span><br></pre></td></tr></table></figure>
+
+<p>AD 与 LDAP 的关系：LDAP 是⼀种⽤来访问 AD 数据库的⽬录服务协议，AD DS 会通过 LDAP 名称路径来表示对象在 AD 数据库中的位置，以便⽤它来访问 AD 数据库内的对象。LDAP 的名称路径包括有 DN、RDN。</p>
+<h3 id="通过-Ad-Explorer-图形化查看域内各类信息"><a href="#通过-Ad-Explorer-图形化查看域内各类信息" class="headerlink" title="通过 Ad Explorer 图形化查看域内各类信息"></a>通过 Ad Explorer 图形化查看域内各类信息</h3><p>AD Explorer是独⽴的可执⾏⽂件，⽆需安装就可以使⽤。使⽤前⾸先需要⼀个域帐户（任何⼀个域帐户都可以 ），可以利⽤该账户与域控制器通信并⽤它枚举域。它能够列出域组织架构，⽤户帐户，计算机帐户等。它可以 帮助你寻找特权⽤户和数据库服务器等敏感⽬标。</p>
+<p>Ad Explorer 下载地址：<a target="_blank" rel="noopener" href="http://live.sysinternals.com/">http://live.sysinternals.com/</a></p>
+<p>在拥有域成员账号和域控IP的情况下，可以查看域内信息</p>
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004191448383.png" alt="image-20211004191448383"></p>
+<p><img src="/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/image-20211004205940107.png" alt="image-20211004205940107"></p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>核心就是在拿下一台域内主机后，开socks代理，主要目的是为了规避杀软，同样的可以使用 nmap、fscan、nbtscan 等端口扫描工具来进行信息收集，结合一下，根据域内成员结构、端口开放服务、各个网段等各种突破口 制定详细的进攻计划。</p>
+<p>Peace</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E9%80%9A%E8%BF%87-kerbrute-%E6%9E%9A%E4%B8%BE"><span class="toc-number">1.</span> <span class="toc-text">0x01 通过 kerbrute 枚举</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-ADfind-%E6%90%9C%E9%9B%86%E5%9F%9F%E5%86%85%E5%90%84%E7%B1%BB%E4%BF%A1%E6%81%AF"><span class="toc-number">2.</span> <span class="toc-text">0x02 ADfind 搜集域内各类信息</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%9F%9F%E5%86%85%E7%94%A8%E6%88%B7%E5%88%97%E8%A1%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.1.</span> <span class="toc-text">获取域内用户列表信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BB%84%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.2.</span> <span class="toc-text">查询组信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%AE%8C%E6%95%B4OU%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.3.</span> <span class="toc-text">获取完整OU信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9A-OU-%E4%B8%8B%E7%9A%84%E2%BD%A4%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.4.</span> <span class="toc-text">获取指定 OU 下的⽤户信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9AOU%E4%B8%8B%E7%9A%84%E7%94%A8%E6%88%B7%E7%BB%84%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.5.</span> <span class="toc-text">获取指定OU下的用户组信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%8C%87%E5%AE%9AOU%E4%B8%8B%E7%9A%84%E6%9C%BA%E5%99%A8%E5%90%8D%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.6.</span> <span class="toc-text">获取指定OU下的机器名信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%AE%8C%E6%95%B4%E6%9C%BA%E5%99%A8%E5%88%97%E8%A1%A8%E4%BF%A1%E6%81%AF"><span class="toc-number">2.0.7.</span> <span class="toc-text">获取完整机器列表信息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%BA%E5%99%A8%E8%B4%A6%E6%88%B7%EF%BC%89"><span class="toc-number">2.0.8.</span> <span class="toc-text">查询域内非约束委派（机器账户）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%8D%E5%8A%A1%E8%B4%A6%E6%88%B7%EF%BC%89"><span class="toc-number">2.0.9.</span> <span class="toc-text">查询域内非约束委派（服务账户）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%BA%E5%99%A8%E8%B4%A6%E6%88%B7%EF%BC%89"><span class="toc-number">2.0.10.</span> <span class="toc-text">查询域内约束委派（机器账户）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%EF%BC%88%E6%9C%8D%E5%8A%A1%E8%B4%A6%E6%88%B7"><span class="toc-number">2.0.11.</span> <span class="toc-text">查询域内约束委派（服务账户)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.0.12.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-Ad-Explorer-%E5%9B%BE%E5%BD%A2%E5%8C%96%E6%9F%A5%E7%9C%8B%E5%9F%9F%E5%86%85%E5%90%84%E7%B1%BB%E4%BF%A1%E6%81%AF"><span class="toc-number">3.</span> <span class="toc-text">通过 Ad Explorer 图形化查看域内各类信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&text=域外对域内的信息收集"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&is_video=false&description=域外对域内的信息收集"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域外对域内的信息收集&body=Check out this article: https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&title=域外对域内的信息收集"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&name=域外对域内的信息收集&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/10/04/%E5%9F%9F%E5%A4%96%E5%AF%B9%E5%9F%9F%E5%86%85%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/&t=域外对域内的信息收集"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

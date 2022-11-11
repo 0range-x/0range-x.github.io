@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;809">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次IDA分析恶意DLL文件">
+<meta property="og:url" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;809">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015133537658.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015131534620.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015133446713.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016100029604.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016100845892.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016100917422.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016101846526.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016102747030.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016105841737.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016111139289.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016111223853.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016112449612.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016112549484.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114127422.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114608893.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114646468.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114708879.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016115942699.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016115958950.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016120034950.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016122237140.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123356166.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123432861.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123516965.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123850968.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123935860.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016124439180.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016152924271.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016160830165.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016161822937.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016162717540.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016171726054.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016172714890.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016173136985.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016173912607.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016174334431.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016174743509.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016175043943.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016183846582.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016184326470.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016184715151.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103401333.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103550428.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103602010.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103635493.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017104627152.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017104803555.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105328465.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105348609.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105645298.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105852977.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017111714716.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017112652130.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017120533291.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017120630212.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017121841865.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017122002778.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017122125015.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017145730535.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017151029376.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017151048294.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017152038722.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017152312343.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017152836872.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017153549370.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017154654565.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017160806610.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017161309277.png">
+<meta property="article:published_time" content="2021-10-30T15:37:10.000Z">
+<meta property="article:modified_time" content="2021-10-30T15:42:37.343Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="木马">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015133537658.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>记一次IDA分析恶意DLL文件</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&text=记一次IDA分析恶意DLL文件"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&is_video=false&description=记一次IDA分析恶意DLL文件"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次IDA分析恶意DLL文件&body=Check out this article: https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&name=记一次IDA分析恶意DLL文件&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/809&#34;&gt;https://forum.butian.net/share/809&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&t=记一次IDA分析恶意DLL文件"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-Dllmain-%E7%9A%84%E5%9C%B0%E5%9D%80%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">0x01 Dllmain 的地址是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E4%BD%BF%E7%94%A8imports%E7%AA%97%E5%8F%A3%E5%B9%B6%E6%B5%8F%E8%A7%88%E5%88%B0-gethostbyname%EF%BC%8C%E5%AF%BC%E5%85%A5%E5%87%BD%E6%95%B0%E5%AE%9A%E4%BD%8D%E5%88%B0%E4%BB%80%E4%B9%88%E5%9C%B0%E5%9D%80%EF%BC%9F"><span class="toc-number">1.2.</span> <span class="toc-text">0x02 使用imports窗口并浏览到 gethostbyname，导入函数定位到什么地址？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E6%9C%89%E5%A4%9A%E5%B0%91%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E4%BA%86gethostbyname"><span class="toc-number">1.3.</span> <span class="toc-text">0x03 有多少函数调用了gethostbyname</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-%E5%B0%86%E7%B2%BE%E5%8A%9B%E9%9B%86%E4%B8%AD%E5%9C%A8%E4%BD%8D%E4%BA%8E-0x10001757-%E5%A4%84%E7%9A%84%E5%AF%B9-gethostbyname%E7%9A%84%E8%B0%83%E7%94%A8%EF%BC%8C%E4%BD%A0%E8%83%BD%E6%89%BE%E5%87%BA%E5%93%AA%E4%B8%AADNS%E8%AF%B7%E6%B1%82%E5%B0%86%E8%A2%AB%E8%A7%A6%E5%8F%91%E5%90%97%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">0x04 将精力集中在位于 0x10001757 处的对 gethostbyname的调用，你能找出哪个DNS请求将被触发吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x05-IDA-pro-%E8%AF%86%E5%88%AB%E4%BA%86%E5%9C%A8-0x10001656-%E5%A4%84%E7%9A%84%E5%AD%90%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%A4%9A%E5%B0%91%E4%B8%AA%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%EF%BC%9F"><span class="toc-number">1.5.</span> <span class="toc-text">0x05 IDA pro 识别了在 0x10001656 处的子过程中的多少个局部变量？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x06-IDA-Pro-%E8%AF%86%E5%88%AB%E4%BA%86%E5%9C%A8-0x10001656-%E5%A4%84%E7%9A%84%E5%AD%90%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%A4%9A%E5%B0%91%E5%8F%82%E6%95%B0%EF%BC%9F"><span class="toc-number">1.6.</span> <span class="toc-text">0x06 IDA Pro 识别了在 0x10001656 处的子过程中的多少参数？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x07-%E4%BD%BF%E7%94%A8string%E7%AA%97%E5%8F%A3%EF%BC%8C%E6%9D%A5%E5%9C%A8%E5%8F%8D%E6%B1%87%E7%BC%96%E4%B8%AD%E5%AE%9A%E4%BD%8D%E5%AD%97%E7%AC%A6%E4%B8%B2-cmd-exe-c%E3%80%82%E5%AE%83%E4%BD%8D%E4%BA%8E%E5%93%AA%EF%BC%9F"><span class="toc-number">1.7.</span> <span class="toc-text">0x07 使用string窗口，来在反汇编中定位字符串\cmd.exe &#x2F;c。它位于哪？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x08-%E5%9C%A8%E5%BC%95%E7%94%A8-cmd-exe-c-%E7%9A%84%E4%BB%A3%E7%A0%81%E6%89%80%E5%9C%A8%E7%9A%84%E5%8C%BA%E5%9F%9F%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.8.</span> <span class="toc-text">0x08 在引用 \cmd.exe &#x2F;c 的代码所在的区域发生了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x09-%E5%9C%A8%E5%90%8C%E6%A0%B7%E7%9A%84%E5%8C%BA%E5%9F%9F%EF%BC%8C%E5%9C%A80x100101c8%E5%A4%84%EF%BC%8C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%A5%BD%E5%83%8Fdword-1008E5C4%E6%98%AF%E4%B8%80%E4%B8%AA%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%EF%BC%8C%E5%AE%83%E5%B8%AE%E5%8A%A9%E5%86%B3%E5%AE%9A%E8%B5%B0%E5%93%AA%E6%9D%A1%E8%B7%AF%E5%BE%84%E3%80%82%E9%82%A3%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E6%98%AF%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AEdword-1008E5C4%E7%9A%84%E5%91%A2%EF%BC%9F%EF%BC%88%E6%8F%90%E7%A4%BA%EF%BC%9A%E4%BD%BF%E7%94%A8dword-1008E5C4%E7%9A%84%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8%E3%80%82%EF%BC%89"><span class="toc-number">1.9.</span> <span class="toc-text">0x09 在同样的区域，在0x100101c8处，看起来好像dword_1008E5C4是一个全局变量，它帮助决定走哪条路径。那恶意代码是如何设置dword_1008E5C4的呢？（提示：使用dword_1008E5C4的交叉引用。）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0A-%E5%9C%A8%E4%BD%8D%E4%BA%8E0x1000FF58%E5%A4%84%E7%9A%84%E5%AD%90%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%87%A0%E7%99%BE%E8%A1%8C%E6%8C%87%E4%BB%A4%E4%B8%AD%EF%BC%8C%E4%B8%80%E7%B3%BB%E5%88%97%E4%BD%BF%E7%94%A8memcmp%E6%9D%A5%E6%AF%94%E8%BE%83%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%AF%94%E8%BE%83%E3%80%82%E5%A6%82%E6%9E%9C%E5%AF%B9robotword%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%AF%94%E8%BE%83%E6%98%AF%E6%88%90%E5%8A%9F%E7%9A%84%EF%BC%88%E5%BD%93memcmp%E8%BF%94%E5%9B%9E0%EF%BC%89%EF%BC%8C%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.10.</span> <span class="toc-text">0x0A 在位于0x1000FF58处的子过程中的几百行指令中，一系列使用memcmp来比较字符串的比较。如果对robotword的字符串比较是成功的（当memcmp返回0），会发生什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0B-PSLIST%E5%AF%BC%E5%87%BA%E5%87%BD%E6%95%B0%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.11.</span> <span class="toc-text">0x0B  PSLIST导出函数做了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0C-%E4%BD%BF%E7%94%A8%E5%9B%BE%E6%A8%A1%E5%BC%8F%E6%9D%A5%E7%BB%98%E5%88%B6%E5%87%BA%E5%AF%B9sub-10004E79%E7%9A%84%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8%E5%9B%BE%E3%80%82%E5%BD%93%E8%BF%9B%E5%85%A5%E8%BF%99%E4%B8%AA%E5%87%BD%E6%95%B0%E6%97%B6%EF%BC%8C%E5%93%AA%E4%B8%AAAPI%E5%87%BD%E6%95%B0%E5%8F%AF%E8%83%BD%E8%A2%AB%E8%B0%83%E7%94%A8%EF%BC%9F%E4%BB%85%E4%BB%85%E5%9F%BA%E4%BA%8E%E8%BF%99%E4%BA%9BAPI%E5%87%BD%E6%95%B0%EF%BC%8C%E4%BD%A0%E4%BC%9A%E5%A6%82%E4%BD%95%E9%87%8D%E5%91%BD%E5%90%8D%E8%BF%99%E4%B8%AA%E5%87%BD%E6%95%B0%EF%BC%9F"><span class="toc-number">1.12.</span> <span class="toc-text">0x0C 使用图模式来绘制出对sub_10004E79的交叉引用图。当进入这个函数时，哪个API函数可能被调用？仅仅基于这些API函数，你会如何重命名这个函数？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0D-DllMain%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8%E4%BA%86%E5%A4%9A%E5%B0%91%E4%B8%AAWindows-API%EF%BC%9F%E5%A4%9A%E5%B0%91%E4%B8%AA%E5%9C%A8%E6%B7%B1%E5%BA%A6%E4%B8%BA2%E7%9A%84%E6%97%B6%E5%80%99%E8%A2%AB%E8%B0%83%E7%94%A8"><span class="toc-number">1.13.</span> <span class="toc-text">0x0D DllMain直接调用了多少个Windows API？多少个在深度为2的时候被调用?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0E-%E5%9C%A80x10001358%E5%A4%84%EF%BC%8C%E6%9C%89%E4%B8%80%E4%B8%AA%E5%AF%B9Sleep%EF%BC%88%E4%B8%80%E4%B8%AA%E4%BD%BF%E7%94%A8%E4%B8%80%E4%B8%AA%E5%8C%85%E5%90%AB%E8%A6%81%E7%9D%A1%E7%9C%A0%E7%9A%84%E6%AF%AB%E7%A7%92%E6%95%B0%E7%9A%84%E5%8F%82%E6%95%B0%E7%9A%84API%E5%87%BD%E6%95%B0%EF%BC%89%E7%9A%84%E8%B0%83%E7%94%A8%E3%80%82%E9%A1%BA%E7%9D%80%E4%BB%A3%E7%A0%81%E5%BE%80%E5%90%8E%E7%9C%8B%EF%BC%8C%E5%A6%82%E6%9E%9C%E8%BF%99%E6%AE%B5%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%EF%BC%8C%E8%BF%99%E4%B8%AA%E7%A8%8B%E5%BA%8F%E4%BC%9A%E7%9D%A1%E7%9C%A0%E5%A4%9A%E4%B9%85%EF%BC%9F"><span class="toc-number">1.14.</span> <span class="toc-text">0x0E 在0x10001358处，有一个对Sleep（一个使用一个包含要睡眠的毫秒数的参数的API函数）的调用。顺着代码往后看，如果这段代码执行，这个程序会睡眠多久？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0F-%E5%9C%A80x10001701%E5%A4%84%E6%98%AF%E4%B8%80%E4%B8%AA%E5%AF%B9socket%E7%9A%84%E8%B0%83%E7%94%A8%E3%80%82%E5%AE%83%E7%9A%843%E4%B8%AA%E5%8F%82%E6%95%B0%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.15.</span> <span class="toc-text">0x0F 在0x10001701处是一个对socket的调用。它的3个参数是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x10-%E4%BD%BF%E7%94%A8MSDN%E9%A1%B5%E9%9D%A2%E7%9A%84socket%E5%92%8CIDA-pro%E4%B8%AD%E7%9A%84%E5%91%BD%E5%90%8D%E7%AC%A6%E5%8F%B7%E5%B8%B8%E9%87%8F%EF%BC%8C%E4%BD%A0%E8%83%BD%E4%BD%BF%E5%8F%82%E6%95%B0%E6%9B%B4%E5%8A%A0%E6%9C%89%E6%84%8F%E4%B9%89%E5%90%97%EF%BC%9F%E5%9C%A8%E4%BD%A0%E5%BA%94%E7%94%A8%E4%BF%AE%E6%94%B9%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8F%82%E6%95%B0%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.16.</span> <span class="toc-text">0x10 使用MSDN页面的socket和IDA pro中的命名符号常量，你能使参数更加有意义吗？在你应用修改之后，参数是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x11-%E6%90%9C%E7%B4%A2in%E6%8C%87%E4%BB%A4%EF%BC%88opcode-0xED%EF%BC%89%E7%9A%84%E4%BD%BF%E7%94%A8%E3%80%82%E8%BF%99%E4%B8%AA%E6%8C%87%E4%BB%A4%E5%92%8C%E4%B8%80%E4%B8%AA%E9%AD%94%E6%9C%AF%E5%AD%97%E7%AC%A6%E4%B8%B2VMXh%E7%94%A8%E6%9D%A5%E8%BF%9B%E8%A1%8CVMware%E7%9A%84%E6%A3%80%E6%B5%8B%E3%80%82-%E5%9C%A8%E8%BF%99%E4%B8%AA%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E4%B8%AD%E8%A2%AB%E4%BD%BF%E7%94%A8%E4%BA%86%E5%90%97%EF%BC%9F%E4%BD%BF%E7%94%A8%E5%AF%B9%E6%89%A7%E8%A1%8Cin%E6%8C%87%E4%BB%A4%E5%87%BD%E6%95%B0%E7%9A%84%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8%EF%BC%8C%E8%83%BD%E5%8F%91%E7%8E%B0%E8%BF%9B%E4%B8%80%E6%AD%A5%E6%A3%80%E6%B5%8BVMware%E7%9A%84%E8%AF%81%E6%8D%AE%E5%90%97%EF%BC%9F"><span class="toc-number">1.17.</span> <span class="toc-text">0x11 搜索in指令（opcode 0xED）的使用。这个指令和一个魔术字符串VMXh用来进行VMware的检测。 在这个恶意代码中被使用了吗？使用对执行in指令函数的交叉引用，能发现进一步检测VMware的证据吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x12-%E5%B0%86%E4%BD%A0%E7%9A%84%E5%85%89%E6%A0%87%E8%B7%B3%E8%BD%AC%E5%88%B00x1001D988%E5%A4%84%EF%BC%8C%E4%BD%A0%E5%8F%91%E7%8E%B0%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.18.</span> <span class="toc-text">0x12 将你的光标跳转到0x1001D988处，你发现了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x13-%E5%A6%82%E6%9E%9C%E4%BD%A0%E5%AE%89%E8%A3%85%E4%BA%86IDA-Python%E6%8F%92%E4%BB%B6%EF%BC%88%E5%8C%85%E8%A3%B9IDA-Pro%E7%9A%84%E5%95%86%E4%B8%9A%E7%89%88%E6%9C%AC%E7%9A%84%E6%8F%92%E4%BB%B6%EF%BC%89%EF%BC%8C%E8%BF%90%E8%A1%8CLab05-01-py%EF%BC%8C%E4%B8%80%E4%B8%AA%E6%9C%AC%E4%B9%A6%E4%B8%AD%E9%9A%8F%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BE%9B%E7%9A%84IDA-Pro-Python%E8%84%9A%E6%9C%AC%EF%BC%8C%EF%BC%88%E7%A1%AE%E5%AE%9A%E5%85%89%E6%A0%87%E6%98%AF%E5%9C%A80x1001D988%E5%A4%84%E3%80%82%EF%BC%89%E5%9C%A8%E4%BD%A0%E8%BF%90%E8%A1%8C%E8%BF%99%E4%B8%AA%E8%84%9A%E6%9C%AC%E5%90%8E%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.19.</span> <span class="toc-text">0x13 如果你安装了IDA Python插件（包裹IDA Pro的商业版本的插件），运行Lab05-01.py，一个本书中随恶意代码提供的IDA Pro Python脚本，（确定光标是在0x1001D988处。）在你运行这个脚本后发生了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.20.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        记一次IDA分析恶意DLL文件
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-10-30T15:37:10.000Z" itemprop="datePublished">2021-10-30</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%9C%A8%E9%A9%AC/" rel="tag">木马</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>本文首发于奇安信攻防社区，原文链接：<a target="_blank" rel="noopener" href="https://forum.butian.net/share/809">https://forum.butian.net/share/809</a></p>
+<span id="more"></span>
+
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>本文主要是通过IDA对一个恶意dll样本进行分析，来熟悉IDA的基本操作，也可以了解到一些恶意样本的底层逻辑。</p>
+<h3 id="0x01-Dllmain-的地址是什么？"><a href="#0x01-Dllmain-的地址是什么？" class="headerlink" title="0x01 Dllmain 的地址是什么？"></a>0x01 Dllmain 的地址是什么？</h3><p>BInary file: 二进制文件</p>
+<p>选Binary file这个选项 是因为恶意代码有时候会带有shellcode、其他数据、加密参数，甚至在正常的PE文件中带有其他exe可执行文件，并且当包含这些附加数据的恶意代码在Windows上运行或者被加载到IDA 时，它不会被加载到内存中。因此，当加载一个包含shellcode的原始二进制文件时，应当将这个文件作为二进制文件加载并且反汇编。</p>
+<p>但是这里切记刚开始就选portable 模式，不要选Binary FIle，我刚开始就选的Binary File，怎么也找不到入口点，具体原因还未知……<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015133537658.png" alt="image-20211015133537658"></p>
+<p>就像下面一样</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015131534620.png" alt="image-20211015131534620">
+
+
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211015133446713.png" alt="image-20211015133446713">
+
+
+
+<p>跳转到 <code>1000D02E</code>处，这里 开始执行汇编指令的地方才是 dllmain 函数的入口点，虽然前面这个地址也有很多行，但都是注释，并没有实际含义。</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016100029604.png" alt="image-20211016100029604">
+
+
+
+<p>切忌分析前面的那一段，因为所有从 <code>DllEntryPoint</code> 到 <code>Dllmain</code> 之间执行的代码一般是由编译器生成的。</p>
+<h3 id="0x02-使用imports窗口并浏览到-gethostbyname，导入函数定位到什么地址？"><a href="#0x02-使用imports窗口并浏览到-gethostbyname，导入函数定位到什么地址？" class="headerlink" title="0x02 使用imports窗口并浏览到 gethostbyname，导入函数定位到什么地址？"></a>0x02 使用imports窗口并浏览到 gethostbyname，导入函数定位到什么地址？</h3><p>首先定位下这个函数，</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016100845892.png" alt="image-20211016100845892">
+
+
+
+<p>最终定位的地址就是 <code>idata</code> 区段的 <code>100163CC</code> 处</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016100917422.png" alt="image-20211016100917422">
+
+
+
+<h3 id="0x03-有多少函数调用了gethostbyname"><a href="#0x03-有多少函数调用了gethostbyname" class="headerlink" title="0x03 有多少函数调用了gethostbyname"></a>0x03 有多少函数调用了gethostbyname</h3><p>右键该函数名， <code>Jump to xref to operated</code> </p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016101846526.png" alt="image-20211016101846526">
+
+
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016102747030.png" alt="image-20211016102747030">
+
+
+
+<p><code>Type</code> 中的 <code>r</code> 是 read，读取的意思，函数首先要被cpu读取，才能够被调用， <code>Type</code>中的<code>p</code>是被调用的引用</p>
+<p>这里就是5个函数一共调用了9次<code>gethostbyname</code>函数</p>
+<h3 id="0x04-将精力集中在位于-0x10001757-处的对-gethostbyname的调用，你能找出哪个DNS请求将被触发吗？"><a href="#0x04-将精力集中在位于-0x10001757-处的对-gethostbyname的调用，你能找出哪个DNS请求将被触发吗？" class="headerlink" title="0x04 将精力集中在位于 0x10001757 处的对 gethostbyname的调用，你能找出哪个DNS请求将被触发吗？"></a>0x04 将精力集中在位于 <code>0x10001757</code> 处的对 <code>gethostbyname</code>的调用，你能找出哪个DNS请求将被触发吗？</h3><p>首先 g 跳转到 <code>0x10001757</code> 这个地址</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016105841737.png" alt="image-20211016105841737">
+
+
+
+<p>简单分析下这段汇编</p>
+<p>首先， 将 <code>off_10019040</code> 赋值给 <code>eax</code> 寄存器，接着 地址位 + 0Dh(转换为10进制就是13)，就是将地址往后偏移 13 位，然后<code>push</code> 入栈，接着 <code>call</code> 调用 <code>gethostbyname</code> 参数。</p>
+<p>大概流程是这样，要找 被触发的dns请求，就一个个分析地址吧。先拿<code>10019040</code> 开刀，</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016111139289.png" alt="image-20211016111139289">
+
+
+
+<p>找到了一串字符串，跳转到这里看一看，找到完整的字符串 <code>pics.praticalmalwareanalysis.com</code></p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016111223853.png" alt="image-20211016111223853">
+
+<p>所以，<code>off_10019040</code> 是一个字符串指针，指向字符串的 <code>[This is RDO]pics.praticalmalwareanalysis.com</code> 的第一个字符，然后<code>add 0Dh</code> 后，偏移13位，指向字符p，最后 <code>push</code>入栈的值是 <code>pics.praticalmalwareanalysis.com</code></p>
+<h3 id="0x05-IDA-pro-识别了在-0x10001656-处的子过程中的多少个局部变量？"><a href="#0x05-IDA-pro-识别了在-0x10001656-处的子过程中的多少个局部变量？" class="headerlink" title="0x05 IDA pro 识别了在 0x10001656 处的子过程中的多少个局部变量？"></a>0x05 IDA pro 识别了在 <code>0x10001656</code> 处的子过程中的多少个局部变量？</h3><p>还是先跳转到这里，</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016112449612.png" alt="image-20211016112449612">
+
+
+
+<p>数一数，一共24个局部变量。</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016112549484.png" alt="image-20211016112549484">
+
+
+
+<h3 id="0x06-IDA-Pro-识别了在-0x10001656-处的子过程中的多少参数？"><a href="#0x06-IDA-Pro-识别了在-0x10001656-处的子过程中的多少参数？" class="headerlink" title="0x06 IDA Pro 识别了在 0x10001656 处的子过程中的多少参数？"></a>0x06 IDA Pro 识别了在 <code>0x10001656</code> 处的子过程中的多少参数？</h3><p>首先搞清楚参数的定义： 参数是调用这个函数的函数传递给被调用函数的值</p>
+<p>很明显，这里只传入了一个 <code>LPVOID</code>类型的参数 <code>lpThreadParameter</code></p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114127422.png" alt="image-20211016114127422">
+
+
+
+<h3 id="0x07-使用string窗口，来在反汇编中定位字符串-cmd-exe-c。它位于哪？"><a href="#0x07-使用string窗口，来在反汇编中定位字符串-cmd-exe-c。它位于哪？" class="headerlink" title="0x07 使用string窗口，来在反汇编中定位字符串\cmd.exe /c。它位于哪？"></a>0x07 使用string窗口，来在反汇编中定位字符串\cmd.exe /c。它位于哪？</h3><p>string 窗口： <code>shift+f12</code></p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114608893.png" alt="image-20211016114608893">
+
+<p>定位 cmd.exe 的地址</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114646468.png" alt="image-20211016114646468">
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016114708879.png" alt="image-20211016114708879">
+
+<p>定位到地址： <code>xdoors_d:10095834</code>处</p>
+<h3 id="0x08-在引用-cmd-exe-c-的代码所在的区域发生了什么？"><a href="#0x08-在引用-cmd-exe-c-的代码所在的区域发生了什么？" class="headerlink" title="0x08 在引用 \cmd.exe /c 的代码所在的区域发生了什么？"></a>0x08 在引用 <code>\cmd.exe /c</code> 的代码所在的区域发生了什么？</h3><p>首先查找 <code>cmd.exe</code> 的引用源，</p>
+<p>右键</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016115942699.png" alt="image-20211016115942699">
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016115958950.png" alt="image-20211016115958950">
+
+
+
+<p>下面就分析下这段汇编</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016120034950.png" alt="image-20211016120034950">
+
+<p>首先第一眼看到的是将 <code>\\cmd.exe /c</code> 字符串 <code>push</code> 入栈， </p>
+<p>点击字符串，跳转</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016122237140.png" alt="image-20211016122237140">
+
+<p>看到这些字符串， <code>Hi… Welcome… Machine Uptime… Machine IdleTime…Encrype Magic… Remote Shell Session…</code></p>
+<p>大概也能猜到这是一个获取机器信息的远程shell会话</p>
+<p>定位一下字符串的地址，看到还有 <code>language /robotwork /mbase /mhost</code>等等，获取的都是一些系统信息</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123356166.png" alt="image-20211016123356166">
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123432861.png" alt="image-20211016123432861">
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123516965.png" alt="image-20211016123516965">
+
+
+
+<h3 id="0x09-在同样的区域，在0x100101c8处，看起来好像dword-1008E5C4是一个全局变量，它帮助决定走哪条路径。那恶意代码是如何设置dword-1008E5C4的呢？（提示：使用dword-1008E5C4的交叉引用。）"><a href="#0x09-在同样的区域，在0x100101c8处，看起来好像dword-1008E5C4是一个全局变量，它帮助决定走哪条路径。那恶意代码是如何设置dword-1008E5C4的呢？（提示：使用dword-1008E5C4的交叉引用。）" class="headerlink" title="0x09 在同样的区域，在0x100101c8处，看起来好像dword_1008E5C4是一个全局变量，它帮助决定走哪条路径。那恶意代码是如何设置dword_1008E5C4的呢？（提示：使用dword_1008E5C4的交叉引用。）"></a>0x09 在同样的区域，在0x100101c8处，看起来好像dword_1008E5C4是一个全局变量，它帮助决定走哪条路径。那恶意代码是如何设置dword_1008E5C4的呢？（提示：使用dword_1008E5C4的交叉引用。）</h3><p>老惯例，先跳，</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123850968.png" alt="image-20211016123850968">
+
+<p>接着右键查看下交叉引用,或者 <code>ctrl + x</code></p>
+<p>3个指令，两个 <code>cmp</code>, 只有第一个 <code>mov</code> 指令改变了该地址值</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016123935860.png" alt="image-20211016123935860">
+
+
+
+<p>跳：</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016124439180.png" alt="image-20211016124439180">
+
+<p>来看一下这条指令的前后都做了些什么。</p>
+<p>在<code>mov</code>之前 <code>call sub_10003695</code>   ,那就先看这个函数地址到底返回了什么东西。</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016152924271.png" alt="image-20211016152924271">
+
+<p>先根据几个字符串猜测一下吧，<code>VersionInformation/ dwOsVersionInfoSize/ Getversion/ dwPlatformId </code> 首先猜测跟操作系统的版本信息有关。</p>
+<p>比较关键的几步操作就是： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">xor eax eax:	将eax清零，此前eax中存放的是 GetVersionExA 的返回值	</span><br><span class="line"></span><br><span class="line">cmp:			将 ebp+VersionInformation.dwPlatformId 的值与2进行比较（VER_PLATFORM_WIN32_NT等于2的话，代表的系统为Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003, Windows XP, or Windows 2000）</span><br><span class="line"></span><br><span class="line">setz  al:		当ZF标志被设定时，AL寄存器设为1</span><br></pre></td></tr></table></figure>
+
+<p>刚刚我们 <code>cmp</code>了两个数，所以如果两个数相同，ZF=1，然后setz，AL被设置为1，反之不相同的话，AL被设置为0(AL是 <code>eax</code>的低8位，对应的AH是<code>eax</code>的高8位)，一般来说执行上面命令的都是这几种机器，所以一般情况下 AL 会被设置为1，接着<code>ret</code>返回<code>eax</code>的值。</p>
+<p>所以<code>ret eax</code>最后的结果通常会被设置为1,即 <code>sub_10003694</code>的返回值是1，接着<code>mov dword_1008E5C4, eax</code>,最后<code>dword_1008E5C4</code>全局变量的值也是1。</p>
+<h3 id="0x0A-在位于0x1000FF58处的子过程中的几百行指令中，一系列使用memcmp来比较字符串的比较。如果对robotword的字符串比较是成功的（当memcmp返回0），会发生什么？"><a href="#0x0A-在位于0x1000FF58处的子过程中的几百行指令中，一系列使用memcmp来比较字符串的比较。如果对robotword的字符串比较是成功的（当memcmp返回0），会发生什么？" class="headerlink" title="0x0A 在位于0x1000FF58处的子过程中的几百行指令中，一系列使用memcmp来比较字符串的比较。如果对robotword的字符串比较是成功的（当memcmp返回0），会发生什么？"></a>0x0A 在位于0x1000FF58处的子过程中的几百行指令中，一系列使用memcmp来比较字符串的比较。如果对robotword的字符串比较是成功的（当memcmp返回0），会发生什么？</h3><p><code>0x1000FF58</code>处的远程shell函数从<code>0x1000FF58</code>开始包含一系列<code>memcmp</code>函数</p>
+<p>跳：</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016160830165.png" alt="image-20211016160830165">
+
+<p>往下找 <code>memcpy</code> 函数，看到前面 <code>aQuit 和 eax</code> 被 <code>push</code>入栈，所以这里<code>memcpy</code>这两个值</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016161822937.png" alt="image-20211016161822937">
+
+
+
+<p>接下来找<code>robotwork</code>,</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016162717540.png" alt="image-20211016162717540">
+
+<p>如果<code>eax</code>和 <code>robotwork</code>相同，返回0，<code>0Ch</code>是<code>12d</code>，也是<code>4(字节)*3(个)</code>，因为<code>push</code>后面跟的是立即数，所以一个数占<code>4</code>字节，然后<code>offset</code>也是<code>4</code>个字节，所以，一开始的<code>push 9</code>，和后面的两次<code>push</code>，加起来一共是3次，所以这里回收了这3个一共12字节的空间</p>
+<p><code>test eax,eax</code>  按位与操作，接着如果 <code>eax</code>为0，则<code>ZF</code>置为<code>1</code>，<code>JnZ</code>跳转，<code>eax</code>为<code>0</code>说明前面的<code>memcmp</code>比较的结果是相同，也就是如果前面两个数相同，则<code>JZ</code>跳转，<code>JNZ</code>不跳转</p>
+<p><code>push [ebp+s]</code>: 栈中，<code>esp</code>是栈顶指针，<code>ebp</code>是栈基址，<code>esp</code>地址减小，栈空间增大；<code>ebp</code>增加，<code>ebp</code>将向栈底偏移 。所以这里是将<code>ebp</code>向下s的指针地址压栈.</p>
+<p>然后<code>call sub_100052A2</code>， 来看下这个地址。</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016171726054.png" alt="image-20211016171726054">
+
+
+
+<p>看样子是进行socket通信的函数，</p>
+<p>仔细看下这个函数的代码，可以看到它获取了注册表的一些信息。</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016172714890.png" alt="image-20211016172714890">
+
+
+
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016173136985.png" alt="image-20211016173136985">
+
+
+
+<p>书上说应该是这两个键值：</p>
+<p><code>SOFTWARE\Microsoft\Windows\CurrentVersion\WorkTime</code></p>
+<p><code>SOFTWARE\Microsoft\Windows\CurrentVersion\WorkTimes</code></p>
+<p>我在我的计算机上去对应的注册表目录找，并没有找到这两个键值，猜测可能是以前的Windows版本</p>
+<h3 id="0x0B-PSLIST导出函数做了什么？"><a href="#0x0B-PSLIST导出函数做了什么？" class="headerlink" title="0x0B  PSLIST导出函数做了什么？"></a>0x0B  PSLIST导出函数做了什么？</h3><p>打开导出表</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016173912607.png" alt="image-20211016173912607">
+
+<p>可以看到这个函数有两条执行路径，判断的条件是由<code>sub_100036C3</code>决定的</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016174334431.png" alt="image-20211016174334431">
+
+<p>来看下 <code>sub_100036C3</code>函数</p>
+<img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016174743509.png" alt="image-20211016174743509" style="zoom:;">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">call    ds:GetVersionExA ; 调用函数查看系统版本</span><br><span class="line">cmp     [ebp+VersionInformation.dwPlatformId], 2 ; 这个我们上面说过，如果等于2，是那些windows版本</span><br><span class="line">                                                 ; 包括`Windows 7, Windows Server 2008, Windows Vista, Windows Server 2003, Windows XP, or Windows 2000`</span><br><span class="line">jnz     short loc_100036FA ; 如果不想等，则跳转结束</span><br><span class="line">cmp     [ebp+VersionInformation.dwMajorVersion], 5 ; 5代表特殊版本的windows</span><br><span class="line">jb      short loc_100036FA ; 无符号比较，如果[ebp+VersionInformation.dwMajorVersion]小于5跳转</span><br><span class="line">push    1</span><br><span class="line">pop     eax</span><br><span class="line">leave                   ; High Level Procedure Exit</span><br><span class="line">retn</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>cmp   [ebp+VersionInformation.dwMajorVersion], 5 </code> 中的5是下面的5</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016175043943.png" alt="image-20211016175043943"></p>
+<p>如果是过低的版本，就直接跳转结束，如果是符合要求的版本，则返回 1</p>
+<p>然后就是比较跳转，如果<code>eax</code>为<code>0</code>，<code>test</code>之后，<code>ZF</code>为<code>1</code>，然后<code>JZ</code>跳转</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016183846582.png" alt="image-20211016183846582"></p>
+<p>如果<code>eax</code>不为<code>0</code>，<code>ZF</code>不为<code>0</code>，然后<code>JZ</code>不跳转，也就是如果版本符合要求，就不跳转（跳转之后是直接结束），<code>ZF</code> 置为0</p>
+<p>如果是不跳转的话，push了一个字符串进去，然后调用<code>strlen</code>返回字符串的长度在<code>eax</code>中，然后<code>test eax, eax</code></p>
+<p>如果<code>eax</code>为0<code>ZF</code>置为1，<code>JNZ</code>不跳转<br>反之如果不为<code>0</code>，<code>JNZ</code>跳转</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016184326470.png" alt="image-20211016184326470"></p>
+<p>假设<code>eax</code>为0，<code>JNZ</code>不跳转，我们走一下这条线</p>
+<p><code>call sub_10006518 </code></p>
+<p>可以看到这个地址调用的一个函数 <code>CreateToolhelp32Snapshot</code></p>
+<p><code>CreateToolhelp32Snapshot函数为指定的进程、进程使用的堆[HEAP]、模块[MODULE]、线程[THREAD]）建立一个快照[snapshot]。</code></p>
+<p>简单来说这个函数用来获取进程列表。通过<code>send</code> 将进程列表通过 <code>socket</code> 发送。但是我没有找到 <code>send</code> 函数………..</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211016184715151.png" alt="image-20211016184715151"></p>
+<h3 id="0x0C-使用图模式来绘制出对sub-10004E79的交叉引用图。当进入这个函数时，哪个API函数可能被调用？仅仅基于这些API函数，你会如何重命名这个函数？"><a href="#0x0C-使用图模式来绘制出对sub-10004E79的交叉引用图。当进入这个函数时，哪个API函数可能被调用？仅仅基于这些API函数，你会如何重命名这个函数？" class="headerlink" title="0x0C 使用图模式来绘制出对sub_10004E79的交叉引用图。当进入这个函数时，哪个API函数可能被调用？仅仅基于这些API函数，你会如何重命名这个函数？"></a>0x0C 使用图模式来绘制出对sub_10004E79的交叉引用图。当进入这个函数时，哪个API函数可能被调用？仅仅基于这些API函数，你会如何重命名这个函数？</h3><p>首先跳： <code>sub_10004E79</code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103401333.png" alt="image-20211017103401333"></p>
+<p>使用图模式绘制交叉引用图</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103550428.png" alt="image-20211017103550428"></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103602010.png" alt="image-20211017103602010"></p>
+<p>默认选项，可以看到交叉引用图</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017103635493.png" alt="image-20211017103635493"></p>
+<p>可以看出<code>sub_10004E79</code>函数调用的有<code>GetSystemDefaultLangID</code>、<code>sprintf</code>、<code>sub_100038EE</code>、<code>strlen</code>，而<code>sub_100038EE</code>调用了<code>send</code>、<code>malloc</code>、<code>free</code>、<code>__imp_strlen</code>，然后<code>GetSystemDefaultLangID</code>是获取系统的默认语言的函数，<code>send</code>是通过<code>socket</code>发送信息的函数。因此可以右键函数名，重命名为 <code>send_languageId</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps: 这种快速分析是一种获得对二进制文件高层次视图的好方法，在分析二进制文件时非常有用</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="0x0D-DllMain直接调用了多少个Windows-API？多少个在深度为2的时候被调用"><a href="#0x0D-DllMain直接调用了多少个Windows-API？多少个在深度为2的时候被调用" class="headerlink" title="0x0D DllMain直接调用了多少个Windows API？多少个在深度为2的时候被调用?"></a>0x0D DllMain直接调用了多少个Windows API？多少个在深度为2的时候被调用?</h3><p>有两种思路：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.逐一查看Dllmain函数的代码，在代码中看api调用</span><br><span class="line">2.利用交叉引用图</span><br></pre></td></tr></table></figure>
+
+<p>先定位到 <code>Dllmain</code>的位置</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017104627152.png" alt="image-20211017104627152"></p>
+<p>像前文一样，打开交叉引用图</p>
+<p>默认配置后会…一言难尽……</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017104803555.png" alt="image-20211017104803555"></p>
+<p>这里修改下<code>Recursion depth(递归深度)</code>，改为1</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105328465.png" alt="image-20211017105328465"></p>
+<p>如下就是<code>Dllamin</code>所调用的api函数</p>
+<p><code>strncpy</code>、<code>_strnicmp</code>、<code>CreateThread</code>、<code>strlen</code></p>
+<p>但是很明显没有显示完全，省略了很多，可以把<code>Recursion depth</code>设置为2</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105348609.png" alt="image-20211017105348609"></p>
+<p>也是一个很大的图啊…放大看吧，太多了，这里就不一一列举了</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105645298.png" alt="image-20211017105645298"></p>
+<h3 id="0x0E-在0x10001358处，有一个对Sleep（一个使用一个包含要睡眠的毫秒数的参数的API函数）的调用。顺着代码往后看，如果这段代码执行，这个程序会睡眠多久？"><a href="#0x0E-在0x10001358处，有一个对Sleep（一个使用一个包含要睡眠的毫秒数的参数的API函数）的调用。顺着代码往后看，如果这段代码执行，这个程序会睡眠多久？" class="headerlink" title="0x0E 在0x10001358处，有一个对Sleep（一个使用一个包含要睡眠的毫秒数的参数的API函数）的调用。顺着代码往后看，如果这段代码执行，这个程序会睡眠多久？"></a>0x0E 在0x10001358处，有一个对Sleep（一个使用一个包含要睡眠的毫秒数的参数的API函数）的调用。顺着代码往后看，如果这段代码执行，这个程序会睡眠多久？</h3><p>先跳后看</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017105852977.png" alt="image-20211017105852977"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">.text:10001341                 mov     eax, off_10019020 ; &quot;[This is CTI]30&quot;</span><br><span class="line">.text:10001346                 add     eax, 0Dh</span><br><span class="line">.text:10001349                 push    eax             ; String</span><br><span class="line">.text:1000134A                 call    ds:atoi</span><br><span class="line">.text:10001350                 imul    eax, 3E8h</span><br><span class="line">.text:10001356                 pop     ecx</span><br><span class="line">.text:10001357                 push    eax             ; dwMilliseconds</span><br><span class="line">.text:10001358                 call    ds:Sleep</span><br><span class="line">.text:1000135E                 xor     ebp, ebp</span><br><span class="line">.text:10001360                 jmp     loc_100010B4</span><br><span class="line">.text:10001360 sub_10001074    endp</span><br></pre></td></tr></table></figure>
+
+<p>从注释<code>[This is CTI]30</code>中可以猜测，睡眠30s</p>
+<p>分析下这段汇编代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">将 off_10019020 放入寄存器中，向后偏移 0Dh(13d),push eax 入栈，调用 ds:atoi 函数，接着 eax 的值乘 3E8h，  pop ecx 出栈， 再将eax push 入栈， 调用 sleep ，然后 清零 ebp， jmp到loc_100010B4。</span><br><span class="line">很明显，sleep 函数的参数是 eax，跟踪下eax，首先是从off_10019020这里传进来，接着做atoi函数的参数，然后atoi函数的返回值再乘3E8h，push入栈，作为sleep的参数</span><br></pre></td></tr></table></figure>
+
+<p>跳 <code>off_10019020</code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017111714716.png" alt="image-20211017111714716"></p>
+<p>偏移 <code>0Dh</code>后恰好是3，所以入栈的指针指向 3，传进去的值是30，<code>atoi</code>函数是将char函数转化为int型，接着乘 <code>3E8h（1000）</code>，所以<code>push</code>入栈的值是3w，而 <code>slepp</code>函数在Windows里的单位是毫秒，在Linux里的单位是s，所以这里<code>sleep</code>了30s，与最初的猜测也是一致的。</p>
+<h3 id="0x0F-在0x10001701处是一个对socket的调用。它的3个参数是什么？"><a href="#0x0F-在0x10001701处是一个对socket的调用。它的3个参数是什么？" class="headerlink" title="0x0F 在0x10001701处是一个对socket的调用。它的3个参数是什么？"></a>0x0F 在0x10001701处是一个对socket的调用。它的3个参数是什么？</h3><p>跳：</p>
+<p>看到在 <code>call ds:socket</code>之前，<code>push</code> 了 6/1/2  3个参数</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017112652130.png" alt="image-20211017112652130"></p>
+<p>右键单击每个数，选择符号变量</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017120533291.png" alt="image-20211017120533291"></p>
+<p>这里列举了ida为这个特定值找到所有的对应常量。</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017120630212.png" alt="image-20211017120630212"></p>
+<p>socket函数的原型:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SOCKET socket(int af, int type, int protocol);</span><br></pre></td></tr></table></figure>
+
+<p>而常见的创建套接字的参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);  //创建TCP套接字</span><br></pre></td></tr></table></figure>
+
+<p>根据入栈规则，先进后出，先找2. 根据注释可以猜测，找对应的<code>AF</code>，所以 <code>2</code>处传递的参数就是 <code>AF_INET</code></p>
+<p>接着看1处的参数，在<code>socket</code>中对应的是<code>type</code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017121841865.png" alt="image-20211017121841865"></p>
+<p>最后找6，对应的是<code>protocol</code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017122002778.png" alt="image-20211017122002778"></p>
+<p>所以整个socket函数的传参是这个顺序</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017122125015.png" alt="image-20211017122125015"></p>
+<p>这三个参数大致含义:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AF_INET 用于连接连接对象是IPv4时（对应的IPv6用的是 AF_INET6)</span><br><span class="line">SOCK_STREAM 用于连接方式使用TCP时候（对应的UDP对应的是SOCK_DGRAM）</span><br><span class="line">IPPROTO_TCP 用于继续指明传输的方式是TCP（对应的UDP是IPPROTO_UDP）</span><br></pre></td></tr></table></figure>
+
+<p>因此这个 <code>socket</code>会被配置为基于IPV4 的TCP连接（常被用于HTTP）</p>
+<p>关于<code>socket</code>函数的更多资料可以去 <code>MSDN</code> 上查</p>
+<h3 id="0x10-使用MSDN页面的socket和IDA-pro中的命名符号常量，你能使参数更加有意义吗？在你应用修改之后，参数是什么？"><a href="#0x10-使用MSDN页面的socket和IDA-pro中的命名符号常量，你能使参数更加有意义吗？在你应用修改之后，参数是什么？" class="headerlink" title="0x10 使用MSDN页面的socket和IDA pro中的命名符号常量，你能使参数更加有意义吗？在你应用修改之后，参数是什么？"></a>0x10 使用MSDN页面的socket和IDA pro中的命名符号常量，你能使参数更加有意义吗？在你应用修改之后，参数是什么？</h3><p>emmm,修改的过程就是上文分析的过程吧……</p>
+<p>这里附上链接：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-socket">socket function (winsock2.h) - Win32 apps | Microsoft Docs</a></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017145730535.png" alt="image-20211017145730535"></p>
+<h3 id="0x11-搜索in指令（opcode-0xED）的使用。这个指令和一个魔术字符串VMXh用来进行VMware的检测。-在这个恶意代码中被使用了吗？使用对执行in指令函数的交叉引用，能发现进一步检测VMware的证据吗？"><a href="#0x11-搜索in指令（opcode-0xED）的使用。这个指令和一个魔术字符串VMXh用来进行VMware的检测。-在这个恶意代码中被使用了吗？使用对执行in指令函数的交叉引用，能发现进一步检测VMware的证据吗？" class="headerlink" title="0x11 搜索in指令（opcode 0xED）的使用。这个指令和一个魔术字符串VMXh用来进行VMware的检测。 在这个恶意代码中被使用了吗？使用对执行in指令函数的交叉引用，能发现进一步检测VMware的证据吗？"></a>0x11 搜索in指令（opcode 0xED）的使用。这个指令和一个魔术字符串VMXh用来进行VMware的检测。 在这个恶意代码中被使用了吗？使用对执行in指令函数的交叉引用，能发现进一步检测VMware的证据吗？</h3><p>搜索 <code>in</code> 指令的话，通过选择菜单的 <code>Search-&gt;Text</code>，然后输入<code>in</code> （或者<code> Search -&gt; Sequence of Bytes</code>，然后搜索 <code>in</code> 指令的 opcode,也就是ED）。</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017151029376.png" alt="image-20211017151029376"></p>
+<p>这里的选项建议全部勾选上，不然会产生一堆无用信息。</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017151048294.png" alt="image-20211017151048294"></p>
+<p>如果无法快速定位到有用的信息的话，就一个个点开试。直接找<code>in</code>指令，</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017152038722.png" alt="image-20211017152038722"></p>
+<p>定位到这里，<code>in</code>指令在的位置是 <code>0x100061c7</code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017152312343.png" alt="image-20211017152312343"></p>
+<p>在 <code>0x100061c7</code>处的<code>mov</code>指令将 <code>0x564D5868</code>赋值给 <code>eax</code>。右键可以看到它相当于 ASCII 字符串 <code>VMXh</code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017152836872.png" alt="image-20211017152836872"></p>
+<p>书上说在<code>交叉引用</code>中可以看到 <code>Found VIrtual MAchine</code> 字符串，但是我没找到……</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017153549370.png" alt="image-20211017153549370"></p>
+<h3 id="0x12-将你的光标跳转到0x1001D988处，你发现了什么？"><a href="#0x12-将你的光标跳转到0x1001D988处，你发现了什么？" class="headerlink" title="0x12 将你的光标跳转到0x1001D988处，你发现了什么？"></a>0x12 将你的光标跳转到0x1001D988处，你发现了什么？</h3><p>先跳：</p>
+<p>看到是一些巴拉巴拉字符，不具有可读性。</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017154654565.png" alt="image-20211017154654565"></p>
+<h3 id="0x13-如果你安装了IDA-Python插件（包裹IDA-Pro的商业版本的插件），运行Lab05-01-py，一个本书中随恶意代码提供的IDA-Pro-Python脚本，（确定光标是在0x1001D988处。）在你运行这个脚本后发生了什么？"><a href="#0x13-如果你安装了IDA-Python插件（包裹IDA-Pro的商业版本的插件），运行Lab05-01-py，一个本书中随恶意代码提供的IDA-Pro-Python脚本，（确定光标是在0x1001D988处。）在你运行这个脚本后发生了什么？" class="headerlink" title="0x13 如果你安装了IDA Python插件（包裹IDA Pro的商业版本的插件），运行Lab05-01.py，一个本书中随恶意代码提供的IDA Pro Python脚本，（确定光标是在0x1001D988处。）在你运行这个脚本后发生了什么？"></a>0x13 如果你安装了IDA Python插件（包裹IDA Pro的商业版本的插件），运行Lab05-01.py，一个本书中随恶意代码提供的IDA Pro Python脚本，（确定光标是在0x1001D988处。）在你运行这个脚本后发生了什么？</h3><p>大概可以看到这个脚本实现的是解密的操作，通过异或。</p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017160806610.png" alt="image-20211017160806610"></p>
+<p>加载脚本后，字符串 <code>xdoor is this backdoor </code></p>
+<p><img src="/2021/10/30/ida%E5%88%86%E6%9E%90dll/image-20211017161309277.png" alt="image-20211017161309277"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>分析恶意样本的过程是比较枯燥的，地址需要来回跳转，逻辑性要求比较高，还需要对底层汇编很熟悉，笔者是第一次使用ida分析恶意样本，学到了很多，也了解到很多不足，长路慢慢~</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-Dllmain-%E7%9A%84%E5%9C%B0%E5%9D%80%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">0x01 Dllmain 的地址是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E4%BD%BF%E7%94%A8imports%E7%AA%97%E5%8F%A3%E5%B9%B6%E6%B5%8F%E8%A7%88%E5%88%B0-gethostbyname%EF%BC%8C%E5%AF%BC%E5%85%A5%E5%87%BD%E6%95%B0%E5%AE%9A%E4%BD%8D%E5%88%B0%E4%BB%80%E4%B9%88%E5%9C%B0%E5%9D%80%EF%BC%9F"><span class="toc-number">1.2.</span> <span class="toc-text">0x02 使用imports窗口并浏览到 gethostbyname，导入函数定位到什么地址？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E6%9C%89%E5%A4%9A%E5%B0%91%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E4%BA%86gethostbyname"><span class="toc-number">1.3.</span> <span class="toc-text">0x03 有多少函数调用了gethostbyname</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-%E5%B0%86%E7%B2%BE%E5%8A%9B%E9%9B%86%E4%B8%AD%E5%9C%A8%E4%BD%8D%E4%BA%8E-0x10001757-%E5%A4%84%E7%9A%84%E5%AF%B9-gethostbyname%E7%9A%84%E8%B0%83%E7%94%A8%EF%BC%8C%E4%BD%A0%E8%83%BD%E6%89%BE%E5%87%BA%E5%93%AA%E4%B8%AADNS%E8%AF%B7%E6%B1%82%E5%B0%86%E8%A2%AB%E8%A7%A6%E5%8F%91%E5%90%97%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">0x04 将精力集中在位于 0x10001757 处的对 gethostbyname的调用，你能找出哪个DNS请求将被触发吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x05-IDA-pro-%E8%AF%86%E5%88%AB%E4%BA%86%E5%9C%A8-0x10001656-%E5%A4%84%E7%9A%84%E5%AD%90%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%A4%9A%E5%B0%91%E4%B8%AA%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%EF%BC%9F"><span class="toc-number">1.5.</span> <span class="toc-text">0x05 IDA pro 识别了在 0x10001656 处的子过程中的多少个局部变量？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x06-IDA-Pro-%E8%AF%86%E5%88%AB%E4%BA%86%E5%9C%A8-0x10001656-%E5%A4%84%E7%9A%84%E5%AD%90%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%A4%9A%E5%B0%91%E5%8F%82%E6%95%B0%EF%BC%9F"><span class="toc-number">1.6.</span> <span class="toc-text">0x06 IDA Pro 识别了在 0x10001656 处的子过程中的多少参数？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x07-%E4%BD%BF%E7%94%A8string%E7%AA%97%E5%8F%A3%EF%BC%8C%E6%9D%A5%E5%9C%A8%E5%8F%8D%E6%B1%87%E7%BC%96%E4%B8%AD%E5%AE%9A%E4%BD%8D%E5%AD%97%E7%AC%A6%E4%B8%B2-cmd-exe-c%E3%80%82%E5%AE%83%E4%BD%8D%E4%BA%8E%E5%93%AA%EF%BC%9F"><span class="toc-number">1.7.</span> <span class="toc-text">0x07 使用string窗口，来在反汇编中定位字符串\cmd.exe &#x2F;c。它位于哪？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x08-%E5%9C%A8%E5%BC%95%E7%94%A8-cmd-exe-c-%E7%9A%84%E4%BB%A3%E7%A0%81%E6%89%80%E5%9C%A8%E7%9A%84%E5%8C%BA%E5%9F%9F%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.8.</span> <span class="toc-text">0x08 在引用 \cmd.exe &#x2F;c 的代码所在的区域发生了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x09-%E5%9C%A8%E5%90%8C%E6%A0%B7%E7%9A%84%E5%8C%BA%E5%9F%9F%EF%BC%8C%E5%9C%A80x100101c8%E5%A4%84%EF%BC%8C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%A5%BD%E5%83%8Fdword-1008E5C4%E6%98%AF%E4%B8%80%E4%B8%AA%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%EF%BC%8C%E5%AE%83%E5%B8%AE%E5%8A%A9%E5%86%B3%E5%AE%9A%E8%B5%B0%E5%93%AA%E6%9D%A1%E8%B7%AF%E5%BE%84%E3%80%82%E9%82%A3%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E6%98%AF%E5%A6%82%E4%BD%95%E8%AE%BE%E7%BD%AEdword-1008E5C4%E7%9A%84%E5%91%A2%EF%BC%9F%EF%BC%88%E6%8F%90%E7%A4%BA%EF%BC%9A%E4%BD%BF%E7%94%A8dword-1008E5C4%E7%9A%84%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8%E3%80%82%EF%BC%89"><span class="toc-number">1.9.</span> <span class="toc-text">0x09 在同样的区域，在0x100101c8处，看起来好像dword_1008E5C4是一个全局变量，它帮助决定走哪条路径。那恶意代码是如何设置dword_1008E5C4的呢？（提示：使用dword_1008E5C4的交叉引用。）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0A-%E5%9C%A8%E4%BD%8D%E4%BA%8E0x1000FF58%E5%A4%84%E7%9A%84%E5%AD%90%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%87%A0%E7%99%BE%E8%A1%8C%E6%8C%87%E4%BB%A4%E4%B8%AD%EF%BC%8C%E4%B8%80%E7%B3%BB%E5%88%97%E4%BD%BF%E7%94%A8memcmp%E6%9D%A5%E6%AF%94%E8%BE%83%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%AF%94%E8%BE%83%E3%80%82%E5%A6%82%E6%9E%9C%E5%AF%B9robotword%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%AF%94%E8%BE%83%E6%98%AF%E6%88%90%E5%8A%9F%E7%9A%84%EF%BC%88%E5%BD%93memcmp%E8%BF%94%E5%9B%9E0%EF%BC%89%EF%BC%8C%E4%BC%9A%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.10.</span> <span class="toc-text">0x0A 在位于0x1000FF58处的子过程中的几百行指令中，一系列使用memcmp来比较字符串的比较。如果对robotword的字符串比较是成功的（当memcmp返回0），会发生什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0B-PSLIST%E5%AF%BC%E5%87%BA%E5%87%BD%E6%95%B0%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.11.</span> <span class="toc-text">0x0B  PSLIST导出函数做了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0C-%E4%BD%BF%E7%94%A8%E5%9B%BE%E6%A8%A1%E5%BC%8F%E6%9D%A5%E7%BB%98%E5%88%B6%E5%87%BA%E5%AF%B9sub-10004E79%E7%9A%84%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8%E5%9B%BE%E3%80%82%E5%BD%93%E8%BF%9B%E5%85%A5%E8%BF%99%E4%B8%AA%E5%87%BD%E6%95%B0%E6%97%B6%EF%BC%8C%E5%93%AA%E4%B8%AAAPI%E5%87%BD%E6%95%B0%E5%8F%AF%E8%83%BD%E8%A2%AB%E8%B0%83%E7%94%A8%EF%BC%9F%E4%BB%85%E4%BB%85%E5%9F%BA%E4%BA%8E%E8%BF%99%E4%BA%9BAPI%E5%87%BD%E6%95%B0%EF%BC%8C%E4%BD%A0%E4%BC%9A%E5%A6%82%E4%BD%95%E9%87%8D%E5%91%BD%E5%90%8D%E8%BF%99%E4%B8%AA%E5%87%BD%E6%95%B0%EF%BC%9F"><span class="toc-number">1.12.</span> <span class="toc-text">0x0C 使用图模式来绘制出对sub_10004E79的交叉引用图。当进入这个函数时，哪个API函数可能被调用？仅仅基于这些API函数，你会如何重命名这个函数？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0D-DllMain%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8%E4%BA%86%E5%A4%9A%E5%B0%91%E4%B8%AAWindows-API%EF%BC%9F%E5%A4%9A%E5%B0%91%E4%B8%AA%E5%9C%A8%E6%B7%B1%E5%BA%A6%E4%B8%BA2%E7%9A%84%E6%97%B6%E5%80%99%E8%A2%AB%E8%B0%83%E7%94%A8"><span class="toc-number">1.13.</span> <span class="toc-text">0x0D DllMain直接调用了多少个Windows API？多少个在深度为2的时候被调用?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0E-%E5%9C%A80x10001358%E5%A4%84%EF%BC%8C%E6%9C%89%E4%B8%80%E4%B8%AA%E5%AF%B9Sleep%EF%BC%88%E4%B8%80%E4%B8%AA%E4%BD%BF%E7%94%A8%E4%B8%80%E4%B8%AA%E5%8C%85%E5%90%AB%E8%A6%81%E7%9D%A1%E7%9C%A0%E7%9A%84%E6%AF%AB%E7%A7%92%E6%95%B0%E7%9A%84%E5%8F%82%E6%95%B0%E7%9A%84API%E5%87%BD%E6%95%B0%EF%BC%89%E7%9A%84%E8%B0%83%E7%94%A8%E3%80%82%E9%A1%BA%E7%9D%80%E4%BB%A3%E7%A0%81%E5%BE%80%E5%90%8E%E7%9C%8B%EF%BC%8C%E5%A6%82%E6%9E%9C%E8%BF%99%E6%AE%B5%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%EF%BC%8C%E8%BF%99%E4%B8%AA%E7%A8%8B%E5%BA%8F%E4%BC%9A%E7%9D%A1%E7%9C%A0%E5%A4%9A%E4%B9%85%EF%BC%9F"><span class="toc-number">1.14.</span> <span class="toc-text">0x0E 在0x10001358处，有一个对Sleep（一个使用一个包含要睡眠的毫秒数的参数的API函数）的调用。顺着代码往后看，如果这段代码执行，这个程序会睡眠多久？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x0F-%E5%9C%A80x10001701%E5%A4%84%E6%98%AF%E4%B8%80%E4%B8%AA%E5%AF%B9socket%E7%9A%84%E8%B0%83%E7%94%A8%E3%80%82%E5%AE%83%E7%9A%843%E4%B8%AA%E5%8F%82%E6%95%B0%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.15.</span> <span class="toc-text">0x0F 在0x10001701处是一个对socket的调用。它的3个参数是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x10-%E4%BD%BF%E7%94%A8MSDN%E9%A1%B5%E9%9D%A2%E7%9A%84socket%E5%92%8CIDA-pro%E4%B8%AD%E7%9A%84%E5%91%BD%E5%90%8D%E7%AC%A6%E5%8F%B7%E5%B8%B8%E9%87%8F%EF%BC%8C%E4%BD%A0%E8%83%BD%E4%BD%BF%E5%8F%82%E6%95%B0%E6%9B%B4%E5%8A%A0%E6%9C%89%E6%84%8F%E4%B9%89%E5%90%97%EF%BC%9F%E5%9C%A8%E4%BD%A0%E5%BA%94%E7%94%A8%E4%BF%AE%E6%94%B9%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8F%82%E6%95%B0%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.16.</span> <span class="toc-text">0x10 使用MSDN页面的socket和IDA pro中的命名符号常量，你能使参数更加有意义吗？在你应用修改之后，参数是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x11-%E6%90%9C%E7%B4%A2in%E6%8C%87%E4%BB%A4%EF%BC%88opcode-0xED%EF%BC%89%E7%9A%84%E4%BD%BF%E7%94%A8%E3%80%82%E8%BF%99%E4%B8%AA%E6%8C%87%E4%BB%A4%E5%92%8C%E4%B8%80%E4%B8%AA%E9%AD%94%E6%9C%AF%E5%AD%97%E7%AC%A6%E4%B8%B2VMXh%E7%94%A8%E6%9D%A5%E8%BF%9B%E8%A1%8CVMware%E7%9A%84%E6%A3%80%E6%B5%8B%E3%80%82-%E5%9C%A8%E8%BF%99%E4%B8%AA%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E4%B8%AD%E8%A2%AB%E4%BD%BF%E7%94%A8%E4%BA%86%E5%90%97%EF%BC%9F%E4%BD%BF%E7%94%A8%E5%AF%B9%E6%89%A7%E8%A1%8Cin%E6%8C%87%E4%BB%A4%E5%87%BD%E6%95%B0%E7%9A%84%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8%EF%BC%8C%E8%83%BD%E5%8F%91%E7%8E%B0%E8%BF%9B%E4%B8%80%E6%AD%A5%E6%A3%80%E6%B5%8BVMware%E7%9A%84%E8%AF%81%E6%8D%AE%E5%90%97%EF%BC%9F"><span class="toc-number">1.17.</span> <span class="toc-text">0x11 搜索in指令（opcode 0xED）的使用。这个指令和一个魔术字符串VMXh用来进行VMware的检测。 在这个恶意代码中被使用了吗？使用对执行in指令函数的交叉引用，能发现进一步检测VMware的证据吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x12-%E5%B0%86%E4%BD%A0%E7%9A%84%E5%85%89%E6%A0%87%E8%B7%B3%E8%BD%AC%E5%88%B00x1001D988%E5%A4%84%EF%BC%8C%E4%BD%A0%E5%8F%91%E7%8E%B0%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.18.</span> <span class="toc-text">0x12 将你的光标跳转到0x1001D988处，你发现了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x13-%E5%A6%82%E6%9E%9C%E4%BD%A0%E5%AE%89%E8%A3%85%E4%BA%86IDA-Python%E6%8F%92%E4%BB%B6%EF%BC%88%E5%8C%85%E8%A3%B9IDA-Pro%E7%9A%84%E5%95%86%E4%B8%9A%E7%89%88%E6%9C%AC%E7%9A%84%E6%8F%92%E4%BB%B6%EF%BC%89%EF%BC%8C%E8%BF%90%E8%A1%8CLab05-01-py%EF%BC%8C%E4%B8%80%E4%B8%AA%E6%9C%AC%E4%B9%A6%E4%B8%AD%E9%9A%8F%E6%81%B6%E6%84%8F%E4%BB%A3%E7%A0%81%E6%8F%90%E4%BE%9B%E7%9A%84IDA-Pro-Python%E8%84%9A%E6%9C%AC%EF%BC%8C%EF%BC%88%E7%A1%AE%E5%AE%9A%E5%85%89%E6%A0%87%E6%98%AF%E5%9C%A80x1001D988%E5%A4%84%E3%80%82%EF%BC%89%E5%9C%A8%E4%BD%A0%E8%BF%90%E8%A1%8C%E8%BF%99%E4%B8%AA%E8%84%9A%E6%9C%AC%E5%90%8E%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.19.</span> <span class="toc-text">0x13 如果你安装了IDA Python插件（包裹IDA Pro的商业版本的插件），运行Lab05-01.py，一个本书中随恶意代码提供的IDA Pro Python脚本，（确定光标是在0x1001D988处。）在你运行这个脚本后发生了什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.20.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&text=记一次IDA分析恶意DLL文件"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&is_video=false&description=记一次IDA分析恶意DLL文件"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记一次IDA分析恶意DLL文件&body=Check out this article: https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&title=记一次IDA分析恶意DLL文件"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&name=记一次IDA分析恶意DLL文件&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/809&#34;&gt;https://forum.butian.net/share/809&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/10/30/ida%E5%88%86%E6%9E%90dll/&t=记一次IDA分析恶意DLL文件"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

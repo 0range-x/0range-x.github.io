@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="前言微软提供了很多dll，被木马经常使用的也有很多，没有必要全部记下来，碰到了去查 msdn 就好了，但是有时候官方文档机翻过比较晦涩难懂，所以本文主要列举了常用的dll&#x2F;api 以及对应的功能，希望对大家有所帮助，就当一篇索引吧。 DLLKernel32.dllKernel32.dll 包括 Windows操作系统最基本的功能，比如文件系统、设备访问、进程、线程、内存、错误处理等。这些功能基本上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="木马常用dll&#x2F;api函数">
+<meta property="og:url" content="https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="前言微软提供了很多dll，被木马经常使用的也有很多，没有必要全部记下来，碰到了去查 msdn 就好了，但是有时候官方文档机翻过比较晦涩难懂，所以本文主要列举了常用的dll&#x2F;api 以及对应的功能，希望对大家有所帮助，就当一篇索引吧。 DLLKernel32.dllKernel32.dll 包括 Windows操作系统最基本的功能，比如文件系统、设备访问、进程、线程、内存、错误处理等。这些功能基本上">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/image-20211201011746162.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/image-20211201094859848.png">
+<meta property="article:published_time" content="2021-12-19T06:52:10.000Z">
+<meta property="article:modified_time" content="2021-12-19T06:52:58.872Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="检索">
+<meta property="article:tag" content="辅助文档">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/image-20211201011746162.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>木马常用dll/api函数</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/12/28/shellcode%E9%9A%90%E5%86%99RGB%E8%BF%87%E6%9F%9060%E6%9F%90%E7%BB%92/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/12/10/%E5%8A%A0%E5%AF%86%E5%90%8E%E9%97%A8%E7%9A%84%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&text=木马常用dll/api函数"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&is_video=false&description=木马常用dll/api函数"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=木马常用dll/api函数&body=Check out this article: https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&name=木马常用dll/api函数&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&t=木马常用dll/api函数"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL"><span class="toc-number">2.</span> <span class="toc-text">DLL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kernel32-dll"><span class="toc-number">2.1.</span> <span class="toc-text">Kernel32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WS2-32-dll"><span class="toc-number">2.2.</span> <span class="toc-text">WS2_32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wininet-dll"><span class="toc-number">2.3.</span> <span class="toc-text">Wininet.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Urlmon-dll"><span class="toc-number">2.4.</span> <span class="toc-text">Urlmon.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Advapi32-dll"><span class="toc-number">2.5.</span> <span class="toc-text">Advapi32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User32-dll"><span class="toc-number">2.6.</span> <span class="toc-text">User32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ntdll-dll"><span class="toc-number">2.7.</span> <span class="toc-text">Ntdll.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell32-dll"><span class="toc-number">2.8.</span> <span class="toc-text">Shell32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rpccrt4-dll"><span class="toc-number">2.9.</span> <span class="toc-text">Rpccrt4.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Crypt32-dll"><span class="toc-number">2.10.</span> <span class="toc-text">Crypt32.dll</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API"><span class="toc-number">3.</span> <span class="toc-text">API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">文件类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateFile"><span class="toc-number">3.1.1.</span> <span class="toc-text">CreateFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateFileMapping"><span class="toc-number">3.1.2.</span> <span class="toc-text">CreateFileMapping</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenFile"><span class="toc-number">3.1.3.</span> <span class="toc-text">OpenFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FindFirstFile-FindNextFile"><span class="toc-number">3.1.4.</span> <span class="toc-text">FindFirstFile&#x2F;FindNextFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetModuleFileName"><span class="toc-number">3.1.5.</span> <span class="toc-text">GetModuleFileName</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetModuleHandle"><span class="toc-number">3.1.6.</span> <span class="toc-text">GetModuleHandle</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetProcAddress"><span class="toc-number">3.1.7.</span> <span class="toc-text">GetProcAddress</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetStartupInfo"><span class="toc-number">3.1.8.</span> <span class="toc-text">GetStartupInfo</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetTempPath"><span class="toc-number">3.1.9.</span> <span class="toc-text">GetTempPath</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetWindowsDirectory"><span class="toc-number">3.1.10.</span> <span class="toc-text">GetWindowsDirectory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MapViewOfFile"><span class="toc-number">3.1.11.</span> <span class="toc-text">MapViewOfFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NtQueryDirectoryFile"><span class="toc-number">3.1.12.</span> <span class="toc-text">NtQueryDirectoryFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SetFileTime"><span class="toc-number">3.1.13.</span> <span class="toc-text">SetFileTime</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Wow64DisableWow64FsRedirection"><span class="toc-number">3.1.14.</span> <span class="toc-text">Wow64DisableWow64FsRedirection</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%B1%BB"><span class="toc-number">3.2.</span> <span class="toc-text">网络类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#accept"><span class="toc-number">3.2.1.</span> <span class="toc-text">accept</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bind"><span class="toc-number">3.2.2.</span> <span class="toc-text">bind</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#connect"><span class="toc-number">3.2.3.</span> <span class="toc-text">connect</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetOpenA"><span class="toc-number">3.2.4.</span> <span class="toc-text">InternetOpenA</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CoCreateInstance"><span class="toc-number">3.2.5.</span> <span class="toc-text">CoCreateInstance</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FtpPutFile"><span class="toc-number">3.2.6.</span> <span class="toc-text">FtpPutFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetAdaptersInfo"><span class="toc-number">3.2.7.</span> <span class="toc-text">GetAdaptersInfo</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#gethostbyname"><span class="toc-number">3.2.8.</span> <span class="toc-text">gethostbyname</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#gethostname"><span class="toc-number">3.2.9.</span> <span class="toc-text">gethostname</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inet-addr"><span class="toc-number">3.2.10.</span> <span class="toc-text">inet_addr</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetOpen"><span class="toc-number">3.2.11.</span> <span class="toc-text">InternetOpen</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetOpenUrl"><span class="toc-number">3.2.12.</span> <span class="toc-text">InternetOpenUrl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetReadFile"><span class="toc-number">3.2.13.</span> <span class="toc-text">InternetReadFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetWriteFile"><span class="toc-number">3.2.14.</span> <span class="toc-text">InternetWriteFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NetShareEnum"><span class="toc-number">3.2.15.</span> <span class="toc-text">NetShareEnum</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OleInitialize"><span class="toc-number">3.2.16.</span> <span class="toc-text">OleInitialize</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#recv"><span class="toc-number">3.2.17.</span> <span class="toc-text">recv</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#send"><span class="toc-number">3.2.18.</span> <span class="toc-text">send</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WSAStartup"><span class="toc-number">3.2.19.</span> <span class="toc-text">WSAStartup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%8E%E6%9C%8D%E5%8A%A1%E7%B1%BB"><span class="toc-number">3.3.</span> <span class="toc-text">注册与服务类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateService"><span class="toc-number">3.3.1.</span> <span class="toc-text">CreateService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ControlService"><span class="toc-number">3.3.2.</span> <span class="toc-text">ControlService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenSCManager"><span class="toc-number">3.3.3.</span> <span class="toc-text">OpenSCManager</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegisterHotKey"><span class="toc-number">3.3.4.</span> <span class="toc-text">RegisterHotKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegOpenKey"><span class="toc-number">3.3.5.</span> <span class="toc-text">RegOpenKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#StartServiceCtrlDispatcher"><span class="toc-number">3.3.6.</span> <span class="toc-text">StartServiceCtrlDispatcher</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegCloseKey"><span class="toc-number">3.3.7.</span> <span class="toc-text">RegCloseKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegCreateKey-RegCreateKeyEx"><span class="toc-number">3.3.8.</span> <span class="toc-text">RegCreateKey&#x2F;RegCreateKeyEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegDeleteKey"><span class="toc-number">3.3.9.</span> <span class="toc-text">RegDeleteKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegDeleteValue"><span class="toc-number">3.3.10.</span> <span class="toc-text">RegDeleteValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegQueryValue"><span class="toc-number">3.3.11.</span> <span class="toc-text">RegQueryValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegSetValue-RegSetValueEx"><span class="toc-number">3.3.12.</span> <span class="toc-text">RegSetValue&#x2F;RegSetValueEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegQueryInfoKey"><span class="toc-number">3.3.13.</span> <span class="toc-text">RegQueryInfoKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegEnumKey-RegEnumKeyEx"><span class="toc-number">3.3.14.</span> <span class="toc-text">RegEnumKey&#x2F;RegEnumKeyEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegEnumValue"><span class="toc-number">3.3.15.</span> <span class="toc-text">RegEnumValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegLoadKey"><span class="toc-number">3.3.16.</span> <span class="toc-text">RegLoadKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegReplaceKey"><span class="toc-number">3.3.17.</span> <span class="toc-text">RegReplaceKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegRestoreKey"><span class="toc-number">3.3.18.</span> <span class="toc-text">RegRestoreKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegSaveKey"><span class="toc-number">3.3.19.</span> <span class="toc-text">RegSaveKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegConnectRegistry"><span class="toc-number">3.3.20.</span> <span class="toc-text">RegConnectRegistry</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegNotifyChangeKeyValue"><span class="toc-number">3.3.21.</span> <span class="toc-text">RegNotifyChangeKeyValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegUnloadKey"><span class="toc-number">3.3.22.</span> <span class="toc-text">RegUnloadKey</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E7%B1%BB"><span class="toc-number">3.4.</span> <span class="toc-text">进程线程类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AttachThreadInput"><span class="toc-number">3.4.1.</span> <span class="toc-text">AttachThreadInput</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CheckRemoteDebuggerPresent"><span class="toc-number">3.4.2.</span> <span class="toc-text">CheckRemoteDebuggerPresent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ConnectNamedPipe"><span class="toc-number">3.4.3.</span> <span class="toc-text">ConnectNamedPipe</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateProcess"><span class="toc-number">3.4.4.</span> <span class="toc-text">CreateProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateRemoteThread"><span class="toc-number">3.4.5.</span> <span class="toc-text">CreateRemoteThread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateToolhelp32Snapshot"><span class="toc-number">3.4.6.</span> <span class="toc-text">CreateToolhelp32Snapshot</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#EnumProcesses"><span class="toc-number">3.4.7.</span> <span class="toc-text">EnumProcesses</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IsWow64Process"><span class="toc-number">3.4.8.</span> <span class="toc-text">IsWow64Process</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ZwQueryInformationProcess"><span class="toc-number">3.4.9.</span> <span class="toc-text">ZwQueryInformationProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenProcess"><span class="toc-number">3.4.10.</span> <span class="toc-text">OpenProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PeekNamedPipe"><span class="toc-number">3.4.11.</span> <span class="toc-text">PeekNamedPipe</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Process32First-Process32Next"><span class="toc-number">3.4.12.</span> <span class="toc-text">Process32First&#x2F;Process32Next</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ReadProcessMemory"><span class="toc-number">3.4.13.</span> <span class="toc-text">ReadProcessMemory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ResumeThread"><span class="toc-number">3.4.14.</span> <span class="toc-text">ResumeThread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SetThreadContext"><span class="toc-number">3.4.15.</span> <span class="toc-text">SetThreadContext</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ShellExecute"><span class="toc-number">3.4.16.</span> <span class="toc-text">ShellExecute</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SuspendThread"><span class="toc-number">3.4.17.</span> <span class="toc-text">SuspendThread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Thread32First"><span class="toc-number">3.4.18.</span> <span class="toc-text">Thread32First</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Thread32Next"><span class="toc-number">3.4.19.</span> <span class="toc-text">Thread32Next</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WinExec"><span class="toc-number">3.4.20.</span> <span class="toc-text">WinExec</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WriteProcessMemory"><span class="toc-number">3.4.21.</span> <span class="toc-text">WriteProcessMemory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServrRegisterIf"><span class="toc-number">3.4.22.</span> <span class="toc-text">RpcServrRegisterIf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServerListen"><span class="toc-number">3.4.23.</span> <span class="toc-text">RpcServerListen</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServerUseProtseqEp"><span class="toc-number">3.4.24.</span> <span class="toc-text">RpcServerUseProtseqEp</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcMgmtStopServerListening"><span class="toc-number">3.4.25.</span> <span class="toc-text">RpcMgmtStopServerListening</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServerUnregisterIf"><span class="toc-number">3.4.26.</span> <span class="toc-text">RpcServerUnregisterIf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcStringBindingCompose"><span class="toc-number">3.4.27.</span> <span class="toc-text">RpcStringBindingCompose</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5%E7%B1%BB"><span class="toc-number">3.5.</span> <span class="toc-text">注入类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#GetThreadContext"><span class="toc-number">3.5.1.</span> <span class="toc-text">GetThreadContext</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#VirtualAllocEx"><span class="toc-number">3.5.2.</span> <span class="toc-text">VirtualAllocEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#VirtualProtectEx"><span class="toc-number">3.5.3.</span> <span class="toc-text">VirtualProtectEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#QueueUserAPC"><span class="toc-number">3.5.4.</span> <span class="toc-text">QueueUserAPC</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        木马常用dll/api函数
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-12-19T06:52:10.000Z" itemprop="datePublished">2021-12-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%A3%80%E7%B4%A2/" rel="tag">检索</a>, <a class="tag-link-link" href="/tags/%E8%BE%85%E5%8A%A9%E6%96%87%E6%A1%A3/" rel="tag">辅助文档</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>微软提供了很多dll，被木马经常使用的也有很多，没有必要全部记下来，碰到了去查 msdn 就好了，但是有时候官方文档机翻过比较晦涩难懂，所以本文主要列举了常用的dll/api 以及对应的功能，希望对大家有所帮助，就当一篇索引吧。</p>
+<h2 id="DLL"><a href="#DLL" class="headerlink" title="DLL"></a>DLL</h2><h3 id="Kernel32-dll"><a href="#Kernel32-dll" class="headerlink" title="Kernel32.dll"></a>Kernel32.dll</h3><p>Kernel32.dll 包括 Windows操作系统最基本的功能，比如文件系统、设备访问、进程、线程、内存、错误处理等。这些功能基本上是所有操作系统都提供的功能。</p>
+<p>以下内容来自百度百科</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kernel32.dll是Windows 9x/Me中非常重要的32位动态链接库文件，属于内核级文件。它控制着系统的内存管理、数据的输入输出操作和中断处理，当Windows启动时，kernel32.dll就驻留在内存中特定的写保护区域，使别的程序无法占用这个内存区域。</span><br></pre></td></tr></table></figure>
+
+<p>这是百度的说法，其实是有问题的，Kernel32.dll 并不是内核层的dll，而是属于用户层。Kernel32.dll 属于子系统dll，作用就是提供一个进入内核层的接口。</p>
+<p>接口就是，ssdt表，把ring3的Win32 API和ring0的内核API联系起来。SSDT并不仅仅只包含一个庞大的地址索引表，它还包含着一些其它有用的信息，诸如地址索引的基地址、服务函数个数等。</p>
+<p>ssdt通过修改此表的函数地址可以对常用windows函数进行hook，从而实现对一些核心的系统动作进行过滤、监控的目的。一些HIPS、防毒软件、系统监控、注册表监控软件往往会采用此接口来实现自己的监控模块。</p>
+<p><img src="/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/image-20211201011746162.png" alt="image-20211201011746162"></p>
+<p><img src="/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/image-20211201094859848.png" alt="image-20211201094859848"></p>
+<h3 id="WS2-32-dll"><a href="#WS2-32-dll" class="headerlink" title="WS2_32.dll"></a>WS2_32.dll</h3><p>ws2_32.dll是<strong>Windows Sockets应用程序接口</strong>， 用于支持Internet和网络应用程序。它提供网络相关服务，包括 Winsock、NetDDE、RPC、Netbios。</p>
+<h3 id="Wininet-dll"><a href="#Wininet-dll" class="headerlink" title="Wininet.dll"></a>Wininet.dll</h3><p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/wininet/about-wininet">关于WinINet - Win32应用程序|微软文档 (microsoft.com)</a></p>
+<p>Windows Internet （WinINet） 应用程序编程接口 （API） 使应用程序能够与 FTP 和 HTTP 协议交互以访问 Internet 资源</p>
+<h3 id="Urlmon-dll"><a href="#Urlmon-dll" class="headerlink" title="Urlmon.dll"></a>Urlmon.dll</h3><p>urlmon.dll是计算机硬盘驱动器上的可执行文件。此文件包含机器代码。如果您在PC上启动软件OLE，则urlmon.dll中包含的命令将在您的PC上执行。为此，该文件将加载到主内存 （RAM） 中，并作为 Win32 进程的 OLE32 扩展（也称为任务）在那里运行。</p>
+<h3 id="Advapi32-dll"><a href="#Advapi32-dll" class="headerlink" title="Advapi32.dll"></a>Advapi32.dll</h3><p>Advapi32.dll是一个与API服务库关联的动态链接库文件，提供对高级功能的访问。它具有Windows 内核提供的额外功能，包括注册表、系统关闭重启、Windows Service、用户账号管理。</p>
+<h3 id="User32-dll"><a href="#User32-dll" class="headerlink" title="User32.dll"></a>User32.dll</h3><p>与Windows窗口交互相关的操作、鼠标键盘、基本控件如按钮、滚动条等。</p>
+<h3 id="Ntdll-dll"><a href="#Ntdll-dll" class="headerlink" title="Ntdll.dll"></a>Ntdll.dll</h3><p>ntdll.dll是Windows系统从ring3到ring0的入口。位于Kernel32.dll和user32.dll中的所有win32 API 最终都是调用ntdll.dll中的函数实现的。ntdll.dll中的函数使用SYSENTRY进入ring0，函数的实现实体在ring0中。注意 <strong>ntdll.dll</strong>也是属于用户层，而不是内核层。</p>
+<h3 id="Shell32-dll"><a href="#Shell32-dll" class="headerlink" title="Shell32.dll"></a>Shell32.dll</h3><p>主要进行与 Windows 图形shell相关的操作</p>
+<h3 id="Rpccrt4-dll"><a href="#Rpccrt4-dll" class="headerlink" title="Rpccrt4.dll"></a>Rpccrt4.dll</h3><p>rpcrt4.dll是远程程序调用(RPC)应用程序接口API，用于WIndows应用程序对网络和Internet连接。</p>
+<h3 id="Crypt32-dll"><a href="#Crypt32-dll" class="headerlink" title="Crypt32.dll"></a>Crypt32.dll</h3><p>Crypt32.dll是实现CryptoAPI中许多证书和加密消息传递功能的模块，例如<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/desktop/api/Wincrypt/nf-wincrypt-cryptsignmessage"><strong>CryptSignMessage</strong></a>。主要用来加密。</p>
+<p>当然不止这些，有师傅遇到经常见到的dll可以告诉我，我再补充，</p>
+<h2 id="API"><a href="#API" class="headerlink" title="API"></a>API</h2><h3 id="文件类"><a href="#文件类" class="headerlink" title="文件类"></a>文件类</h3><h4 id="CreateFile"><a href="#CreateFile" class="headerlink" title="CreateFile"></a>CreateFile</h4><p>顾名思义。创建一个新文件，或仅仅打开一个已有文件。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea">CreateFileA 函数 （fileapi.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="CreateFileMapping"><a href="#CreateFileMapping" class="headerlink" title="CreateFileMapping"></a>CreateFileMapping</h4><p>创建一个映射到文件的句柄，将文件装载到内存，并使得它可以通过内存地址进行访问。启动器、装载器和注入器会使用这个函数来读取和修改PE文件。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createfilemappinga">CreateFileMappingA 函数 （winbase.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="OpenFile"><a href="#OpenFile" class="headerlink" title="OpenFile"></a>OpenFile</h4><p>也是打开文件。和 Createfile 功能差不多，但感觉 create file用到的更多</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-openfile">OpenFile 函数 （winbase.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="FindFirstFile-FindNextFile"><a href="#FindFirstFile-FindNextFile" class="headerlink" title="FindFirstFile/FindNextFile"></a>FindFirstFile/FindNextFile</h4><p>根据文件名查找文件/ 遍历文件时，判断当前目录是否有下一个文件。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilea">FindFirstFileA function （fileapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="GetModuleFileName"><a href="#GetModuleFileName" class="headerlink" title="GetModuleFileName"></a>GetModuleFileName</h4><p>返回目前进程装载模块的文件的完整路径。恶意代码可以使用这个函数，在目前运行进程中修改或者复制文件。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulefilenamea">GetModuleFileNameA function （libloaderapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="GetModuleHandle"><a href="#GetModuleHandle" class="headerlink" title="GetModuleHandle"></a>GetModuleHandle</h4><p>用来获取已装载模块句柄的函数，恶意代码可以使用GetModuleHandle在一个装载模块中定位和修改代码，或者搜索一个合适位置来注入代码。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getmodulehandlea">GetModuleHandleA function （libloaderapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="GetProcAddress"><a href="#GetProcAddress" class="headerlink" title="GetProcAddress"></a>GetProcAddress</h4><p>获取装载到内存中一个DLL程序的函数地址。用来从其他DLL程序中导入函数，以补充在PE文件头部中导入的函数。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/cpp/build/getprocaddress?view=msvc-170">GetProcAddress | Microsoft Docs</a></p>
+<h4 id="GetStartupInfo"><a href="#GetStartupInfo" class="headerlink" title="GetStartupInfo"></a>GetStartupInfo</h4><p>取得进程在启动时被指定的 STARTUPINFO 结构。这个结构包括当前进程如何自动配置运行配置信息，比如标准句柄指向哪些位置。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getstartupinfow">GetStartupInfoW function （processthreadsapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="GetTempPath"><a href="#GetTempPath" class="headerlink" title="GetTempPath"></a>GetTempPath</h4><p>获取为临时文件指定的路径，如果看到恶意代码使用了这个函数，需要检查他是否在临时文件路径中读取或写入了一些文件。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettemppatha">GetTempPathA 函数 （fileapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="GetWindowsDirectory"><a href="#GetWindowsDirectory" class="headerlink" title="GetWindowsDirectory"></a>GetWindowsDirectory</h4><p>获取Windows 目录的路径，恶意代码经常使用这个函数来确定将其他恶意程序安装到哪个目录</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getwindowsdirectorya">GetWindowsDirectoryA function （sysinfoapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="MapViewOfFile"><a href="#MapViewOfFile" class="headerlink" title="MapViewOfFile"></a>MapViewOfFile</h4><p>将一个文件映射到内存，将文件内容变得通过内存地址可访问。启动器，装载器和注入器使用这个函数来读取和修改PE文件。通过使用此函数，恶意代码可以避免使用WriteFile来修改文件内容。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-mapviewoffile">MapViewOfFile 函数 （memoryapi.h） - Win32 应用程序|微软文档 (microsoft.com)</a></p>
+<h4 id="NtQueryDirectoryFile"><a href="#NtQueryDirectoryFile" class="headerlink" title="NtQueryDirectoryFile"></a>NtQueryDirectoryFile</h4><p>返回一个目录中文件的信息，内核套件普遍会hook这个函数来隐藏文件。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntquerydirectoryfile">NtQueryDirectoryFile function (ntifs.h) - Windows drivers | Microsoft Docs</a></p>
+<h4 id="SetFileTime"><a href="#SetFileTime" class="headerlink" title="SetFileTime"></a>SetFileTime</h4><p>修改一个文件的创建，访问或者最后修改时间，恶意代码经常使用这个函数来隐藏恶意行为。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime">SetFileTime function （fileapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="Wow64DisableWow64FsRedirection"><a href="#Wow64DisableWow64FsRedirection" class="headerlink" title="Wow64DisableWow64FsRedirection"></a>Wow64DisableWow64FsRedirection</h4><p>禁用32为文件在64位操作系统中装载后发生的文件重定向机制，如果一个32位应用程序在调用这个函数后向C:\Windows\System32写数据，那么它将会直接写到真正C:\Windows\System32，而不是被重定向至C:\Windows\SysWOW64</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wow64apiset/nf-wow64apiset-wow64disablewow64fsredirection">Wow64DisableWow64FsRedirection function (wow64apiset.h) - Win32 apps | Microsoft Docs</a></p>
+<h3 id="网络类"><a href="#网络类" class="headerlink" title="网络类"></a>网络类</h3><h4 id="accept"><a href="#accept" class="headerlink" title="accept"></a>accept</h4><p>用来监听入站网络连接，此函数预示着程序会在一个套接字上监听入站网络连接。</p>
+<h4 id="bind"><a href="#bind" class="headerlink" title="bind"></a>bind</h4><p>用来将一个本地地址关联到套接字上，以监听入站网络连接</p>
+<h4 id="connect"><a href="#connect" class="headerlink" title="connect"></a>connect</h4><p>用来连接一个远程套接字。恶意代码经常使用底层功能函数来连接一个命令控制服务器。</p>
+<h4 id="InternetOpenA"><a href="#InternetOpenA" class="headerlink" title="InternetOpenA"></a>InternetOpenA</h4><p>初始化WinINet中的一些高层次互联网访问函数，比如InternetOpenUrl和InternetReadFile。搜索Internetopen函数是找到互联网访问功能初始位置的一个好方法。InternetOpen函数的-一个参数是User-Agent，有时也可以作为基于网络的特征码。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetopena">InternetOpenA function (wininet.h) - Win32 apps | Microsoft Docs</a></p>
+<h4 id="CoCreateInstance"><a href="#CoCreateInstance" class="headerlink" title="CoCreateInstance"></a>CoCreateInstance</h4><p>创建一个COM对象，COM对象提供了非常多样化的功能。类标识（CLSID）会告诉你哪个文件包含着实现COM对象的代码。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-cocreateinstance">CoCreateInstance function （combaseapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="FtpPutFile"><a href="#FtpPutFile" class="headerlink" title="FtpPutFile"></a>FtpPutFile</h4><p>将本地文件上传到FTP服务器</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-ftpputfilea">FtpPutFileA 函数 （wininet.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="GetAdaptersInfo"><a href="#GetAdaptersInfo" class="headerlink" title="GetAdaptersInfo"></a>GetAdaptersInfo</h4><p>用来获取系统上网络适配器的相关信息。后门程序有时会调用GetAdaptersInfo函数，来取得关于受感染主机的摘要信息。在某些情况下，这个函数也会被使用来取得主机的MAC地址，在对抗虚拟机技术中用来检测VMware等虚拟机。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getadaptersinfo">GetAdaptersInfo function （iphlpapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="gethostbyname"><a href="#gethostbyname" class="headerlink" title="gethostbyname"></a>gethostbyname</h4><p>返回对应于给定主机名的包含主机名字和地址信息的hostent结构指针，在向一个远程主机发起IP连接之前，用来对一个特定域名执行一次DNS查询，作为命令控制服务器的域名通常可以用来创建很好的网络监测特征码</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-gethostbyname">gethostbyname 函数 （winsock2.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="gethostname"><a href="#gethostname" class="headerlink" title="gethostname"></a>gethostname</h4><p>获取计算机主机名。后门程序经常使用此函数来获取受害主机的摘要信息</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-gethostname">gethostname 函数 （winsock.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="inet-addr"><a href="#inet-addr" class="headerlink" title="inet_addr"></a>inet_addr</h4><p>将一个IP地址字符串，如127.0.0.1，进行转化，使其能够在如connect等函数中使用。这些字符串有时也可以用作基于网络的特征码。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-inet_addr">inet_addr函数 （winsock2.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="InternetOpen"><a href="#InternetOpen" class="headerlink" title="InternetOpen"></a>InternetOpen</h4><p>初始化WinINet中的一些高层次互联网访问函数，搜索此函数是找到互联网访问功能初始位置的一个好方法。该函数的一个参数是User-Agent，有时也可以作为基于的特征码。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetopena">InternetOpenA 函数 （wininet.h） - Win32 应用程序|微软文档 (microsoft.com)</a></p>
+<h4 id="InternetOpenUrl"><a href="#InternetOpenUrl" class="headerlink" title="InternetOpenUrl"></a>InternetOpenUrl</h4><p>使用FTP,HTTP或HTTPS协议连接来打开一个特定的URL，如果URL固定，则可以作为基于网络的特征码</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetopenurla">InternetOpenUrlA 函数 （wininet.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="InternetReadFile"><a href="#InternetReadFile" class="headerlink" title="InternetReadFile"></a>InternetReadFile</h4><p>从一个由InternetOpenUrl,FtpOpenFile, 或HttpOpenRequest函数打开的句柄中读取数据</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetreadfile">InternetReadFile function （wininet.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="InternetWriteFile"><a href="#InternetWriteFile" class="headerlink" title="InternetWriteFile"></a>InternetWriteFile</h4><p>向服务器上传文件</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetwritefile">InternetWriteFile 函数 （wininet.h） - Win32 应用程序|微软文档 (microsoft.com)</a></p>
+<h4 id="NetShareEnum"><a href="#NetShareEnum" class="headerlink" title="NetShareEnum"></a>NetShareEnum</h4><p>返回服务器上共享的资源的信息</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/lmshare/nf-lmshare-netshareenum">NetShareEnum function （lmshare.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="OleInitialize"><a href="#OleInitialize" class="headerlink" title="OleInitialize"></a>OleInitialize</h4><p>用来初始化COM库，使用COM对象的程序必须在调用任何其他COM功能之前，调用这个函数。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/ole2/nf-ole2-oleinitialize">OleInitialize function （ole2.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="recv"><a href="#recv" class="headerlink" title="recv"></a>recv</h4><p>从一个远程主机获取数据，恶意代码经常使用这个函数来从远程的命令控制服务器获取数据。</p>
+<h4 id="send"><a href="#send" class="headerlink" title="send"></a>send</h4><p>发送数据到远程主机，恶意代码经常使用这个函数来发送数据到远程的命令控制服务器。</p>
+<h4 id="WSAStartup"><a href="#WSAStartup" class="headerlink" title="WSAStartup"></a>WSAStartup</h4><p>用来初始化底层级别的网络功能，搜索此函数调用位置，经常是定位网络相关功能最简单的方法。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-wsastartup">WSAStartup 函数 （winsock.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h3 id="注册与服务类"><a href="#注册与服务类" class="headerlink" title="注册与服务类"></a>注册与服务类</h3><h4 id="CreateService"><a href="#CreateService" class="headerlink" title="CreateService"></a>CreateService</h4><p>用来启动、停止、修改或发送一-个信 号到运行服务。如果恶意代码使用了它自己的恶意服务，你就需要分析实现服务的代码，来确定出调用的用意。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-createservicea">CreateServiceA function （winsvc.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="ControlService"><a href="#ControlService" class="headerlink" title="ControlService"></a>ControlService</h4><p>用来启动，停止，修改或发送一个信号到运行服务。如果恶意代码使用了他自己的恶意服务，你就需要分析实现服务的代码，来确定出调用的用意。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-controlservice">ControlService function （winsvc.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="OpenSCManager"><a href="#OpenSCManager" class="headerlink" title="OpenSCManager"></a>OpenSCManager</h4><p>打开一个到服务控制管理器的句柄。任何想要安装，修改或是控制一个服务的程序，都必须要调用这个函数，才能使用其他服务操纵函数</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-openscmanagera">OpenSCManagerA function （winsvc.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegisterHotKey"><a href="#RegisterHotKey" class="headerlink" title="RegisterHotKey"></a>RegisterHotKey</h4><p>用来注册一个热键，当用户任意时刻输入一个特定键值组合时，注册热键句柄将会被通知，无论当用户输入键值组合时哪个窗口是活跃的，这个函数通常被间谍软件使用，使其在键值组合中输入前对用户保持隐藏。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey">RegisterHotKey function （winuser.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegOpenKey"><a href="#RegOpenKey" class="headerlink" title="RegOpenKey"></a>RegOpenKey</h4><p>打开一个注册表键值的句柄，来进行读写。修改注册表键值通常是软件在主机上进行持久化保存的一种方法。注册表也包含了完整的操作系统和应用程序配置信息。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regopenkeya">RegOpenKeyA 函数 （winreg.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="StartServiceCtrlDispatcher"><a href="#StartServiceCtrlDispatcher" class="headerlink" title="StartServiceCtrlDispatcher"></a>StartServiceCtrlDispatcher</h4><p>由服务使用来连接到服务管理控制进程的主线程。任何以服务方式运行的进程必须在启动后30秒内调用这个函数。在恶意代码中找到这个函数，可以知道他的功能应以服务方式运行。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-startservicectrldispatchera">StartServiceCtrlDispatcherA function (winsvc.h) - Win32 apps | Microsoft Docs</a></p>
+<h4 id="RegCloseKey"><a href="#RegCloseKey" class="headerlink" title="RegCloseKey"></a>RegCloseKey</h4><p>关闭指定注册表的键</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regclosekey">RegCloseKey 函数 （winreg.h） - Win32 应用程序|微软文档 (microsoft.com)</a></p>
+<h4 id="RegCreateKey-RegCreateKeyEx"><a href="#RegCreateKey-RegCreateKeyEx" class="headerlink" title="RegCreateKey/RegCreateKeyEx"></a>RegCreateKey/RegCreateKeyEx</h4><p>创建指定的注册表项。如果注册表中已存在该项，则该函数将打开它。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeya">RegCreateKeyA function （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeyexa">RegCreateKeyExA function （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegDeleteKey"><a href="#RegDeleteKey" class="headerlink" title="RegDeleteKey"></a>RegDeleteKey</h4><p>删除一个注册表项</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletekeya">RegDeleteKeyA function （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegDeleteValue"><a href="#RegDeleteValue" class="headerlink" title="RegDeleteValue"></a>RegDeleteValue</h4><p>用于删除一个键下的一个键值</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regdeletevaluea">RegDeleteValueA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegQueryValue"><a href="#RegQueryValue" class="headerlink" title="RegQueryValue"></a>RegQueryValue</h4><p>取得指定项或子项的默认（未命名）值</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryvalueexa">RegQueryValueExA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegSetValue-RegSetValueEx"><a href="#RegSetValue-RegSetValueEx" class="headerlink" title="RegSetValue/RegSetValueEx"></a>RegSetValue/RegSetValueEx</h4><p>设置指定注册表项的默认值或未命名值的数据</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvaluea">RegSetValueA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsetvalueexa">RegSetValueExA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegQueryInfoKey"><a href="#RegQueryInfoKey" class="headerlink" title="RegQueryInfoKey"></a>RegQueryInfoKey</h4><p>查询有关注册表项的信息</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryinfokeyw">RegQueryInfoKeyW 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegEnumKey-RegEnumKeyEx"><a href="#RegEnumKey-RegEnumKeyEx" class="headerlink" title="RegEnumKey/RegEnumKeyEx"></a>RegEnumKey/RegEnumKeyEx</h4><p>获取指定的子键值</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumkeya">RegEnumKeyA function （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegEnumValue"><a href="#RegEnumValue" class="headerlink" title="RegEnumValue"></a>RegEnumValue</h4><p>用来枚举指定项的值</p>
+<p>[RegEnumValueA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)](<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluea#:~:text=The">https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regenumvaluea#:~:text=The</a> winreg.h header defines RegEnumValue as an alias,mismatches that result in compilation or runtime errors.)</p>
+<h4 id="RegLoadKey"><a href="#RegLoadKey" class="headerlink" title="RegLoadKey"></a>RegLoadKey</h4><p>从以前用RegSaveKey函数创建的一个文件里装载注册表信息</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regloadkeya">RegLoadKeyA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegReplaceKey"><a href="#RegReplaceKey" class="headerlink" title="RegReplaceKey"></a>RegReplaceKey</h4><p>用一个磁盘文件保存的信息替换注册表信息；并创建一个备份，在其中包含当前注册表信息</p>
+<p>[RegReplaceKeyA function （winreg.h） - Win32 apps |微软文档 (microsoft.com)](<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regreplacekeya#:~:text=The">https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regreplacekeya#:~:text=The</a> winreg.h header defines RegReplaceKey as an alias,mismatches that result in compilation or runtime errors.)</p>
+<h4 id="RegRestoreKey"><a href="#RegRestoreKey" class="headerlink" title="RegRestoreKey"></a>RegRestoreKey</h4><p>从一个磁盘文件恢复注册表信息</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regrestorekeya">RegRestoreKeyA function （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegSaveKey"><a href="#RegSaveKey" class="headerlink" title="RegSaveKey"></a>RegSaveKey</h4><p>将一个项以及它的所有子项都保存到一个磁盘文件</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regsavekeya">RegSaveKeyA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegConnectRegistry"><a href="#RegConnectRegistry" class="headerlink" title="RegConnectRegistry"></a>RegConnectRegistry</h4><p>访问远程系统的部分注册表</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regconnectregistrya">RegConnectRegistryA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegNotifyChangeKeyValue"><a href="#RegNotifyChangeKeyValue" class="headerlink" title="RegNotifyChangeKeyValue"></a>RegNotifyChangeKeyValue</h4><p>使应用程序可以接收事件通知中指定的注册表项及其子项的更改</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regnotifychangekeyvalue">RegNotifyChangeKeyValue function （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RegUnloadKey"><a href="#RegUnloadKey" class="headerlink" title="RegUnloadKey"></a>RegUnloadKey</h4><p>卸载指定的项以及它的所有子项</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regunloadkeya">RegUnLoadKeyA 函数 （winreg.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h3 id="进程线程类"><a href="#进程线程类" class="headerlink" title="进程线程类"></a>进程线程类</h3><h4 id="AttachThreadInput"><a href="#AttachThreadInput" class="headerlink" title="AttachThreadInput"></a>AttachThreadInput</h4><p>把一个线程的输入消息连接到另外的线程，在一些情况下，自己的窗口没有输入焦点但是想要当前焦点窗口的键盘输入消息，可以使用Win32 API函数AttachThreadInput()来解决这个问题</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-attachthreadinput">AttachThreadInput 函数 （winuser.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="CheckRemoteDebuggerPresent"><a href="#CheckRemoteDebuggerPresent" class="headerlink" title="CheckRemoteDebuggerPresent"></a>CheckRemoteDebuggerPresent</h4><p>检查一个特定进程是否被调试。这个函数通常在一个反调试技术中被使用。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/debugapi/nf-debugapi-checkremotedebuggerpresent">CheckRemoteDebuggerPresent function （debugapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="ConnectNamedPipe"><a href="#ConnectNamedPipe" class="headerlink" title="ConnectNamedPipe"></a>ConnectNamedPipe</h4><p>用来为进程间通信创建一个服务端管道，等待一个客户端管道连接进来。后门程序和反向shell经常使用此函数来简单的连接到一个命令控制服务器。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-connectnamedpipe">ConnectNamedPipe function （namedpipeapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="CreateProcess"><a href="#CreateProcess" class="headerlink" title="CreateProcess"></a>CreateProcess</h4><p>创建并启动一个新进程。经常用到的函数，需要多关注下参数</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/win32/procthread/creating-processes">创建进程 - Win32 apps | Microsoft Docs</a></p>
+<h4 id="CreateRemoteThread"><a href="#CreateRemoteThread" class="headerlink" title="CreateRemoteThread"></a>CreateRemoteThread</h4><p>创建一个远程线程。启动器和隐蔽性恶意代码通常使用这个函数，将代码注入到其他进程中执行。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createremotethread">CreateRemoteThread function （processthreadsapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="CreateToolhelp32Snapshot"><a href="#CreateToolhelp32Snapshot" class="headerlink" title="CreateToolhelp32Snapshot"></a>CreateToolhelp32Snapshot</h4><p>用来创建一个进程，堆空间，线程和模块的快照。恶意代码经常使用这个函数，在多个进程或线程之间传播感染</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-createtoolhelp32snapshot">CreateToolhelp32Snapshot function （tlhelp32.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="EnumProcesses"><a href="#EnumProcesses" class="headerlink" title="EnumProcesses"></a>EnumProcesses</h4><p>用来在系统上枚举运行进程的函数，恶意代码经常枚举进程来找到一个可以注入的进程。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocesses">枚举进程函数 （psapi.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="IsWow64Process"><a href="#IsWow64Process" class="headerlink" title="IsWow64Process"></a>IsWow64Process</h4><p>由一个32位进程使用，来确定它是否运行在64位操作系统上</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wow64apiset/nf-wow64apiset-iswow64process">IsWow64Process function （wow64apiset.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="ZwQueryInformationProcess"><a href="#ZwQueryInformationProcess" class="headerlink" title="ZwQueryInformationProcess"></a>ZwQueryInformationProcess</h4><p>返回关于一个特定进程的不同信息。这个函数通常在反调试技术中被使用。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/win32/procthread/zwqueryinformationprocess">ZwQueryInformationProcess 函数 - Win32 apps | Microsoft Docs</a></p>
+<h4 id="OpenProcess"><a href="#OpenProcess" class="headerlink" title="OpenProcess"></a>OpenProcess</h4><p>打开系统上运行其他进程的句柄。这个句柄可以被用来向其他进程内存中读写数据，或是注入代码到其他进程中。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess">OpenProcess function （processthreadsapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="PeekNamedPipe"><a href="#PeekNamedPipe" class="headerlink" title="PeekNamedPipe"></a>PeekNamedPipe</h4><p>用来从一个命名管道中复制数据，而无须从管道中移除数据。这个函数在反向shell中很常用。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-peeknamedpipe">PeekNamedPipe 函数 （namedpipeapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="Process32First-Process32Next"><a href="#Process32First-Process32Next" class="headerlink" title="Process32First/Process32Next"></a>Process32First/Process32Next</h4><p>在调用CreateToolhelp32Snapshot之后，使用此函数和Process32Next来枚举进程。恶意代码通常枚举进程，来找到一个可以注入的进程。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-process32first">进程32第一个函数 （tlhelp32.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="ReadProcessMemory"><a href="#ReadProcessMemory" class="headerlink" title="ReadProcessMemory"></a>ReadProcessMemory</h4><p>用来从远程进程中读取内存。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-readprocessmemory">ReadProcessMemory function （memoryapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="ResumeThread"><a href="#ResumeThread" class="headerlink" title="ResumeThread"></a>ResumeThread</h4><p>继续之前挂起的线程。此函数在几种注入技术中都会被使用。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread">ResumeThread 函数 （processthreadsapi.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="SetThreadContext"><a href="#SetThreadContext" class="headerlink" title="SetThreadContext"></a>SetThreadContext</h4><p>修改给定线程的上下文，一些注入技术会使用这个函数</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreadcontext">SetThreadContext function （processthreadsapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="ShellExecute"><a href="#ShellExecute" class="headerlink" title="ShellExecute"></a>ShellExecute</h4><p>用来执行另一个程序，如果恶意代码创建了一个新的进程，需要分析这个新进程。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea">ShellExecuteA function （shellapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="SuspendThread"><a href="#SuspendThread" class="headerlink" title="SuspendThread"></a>SuspendThread</h4><p>挂起一个线程，使得他停止运行。恶意代码有时会挂起一个线程，通过代码注入技术来修改它。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-suspendthread">SuspendThread function （processthreadsapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="Thread32First"><a href="#Thread32First" class="headerlink" title="Thread32First"></a>Thread32First</h4><p>用来查询一个进程的所有线程。注入器会使用这些函数来找出可供注入的合适线程。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32first">Thread32First 函数 （tlhelp32.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="Thread32Next"><a href="#Thread32Next" class="headerlink" title="Thread32Next"></a>Thread32Next</h4><p>返回进程中下一个线程的信息</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/tlhelp32/nf-tlhelp32-thread32next">Thread32Next 函数 （tlhelp32.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="WinExec"><a href="#WinExec" class="headerlink" title="WinExec"></a>WinExec</h4><p>运行指定的程序</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-winexec">WinExec 函数 （winbase.h） - Win32 应用|微软文档 (microsoft.com)</a></p>
+<h4 id="WriteProcessMemory"><a href="#WriteProcessMemory" class="headerlink" title="WriteProcessMemory"></a>WriteProcessMemory</h4><p>用来向远程进程写数据的函数，恶意代码在进程注入中会用到此函数。入口区必须可以访问，否则操作将失败</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory">WriteProcessMemory function （memoryapi.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RpcServrRegisterIf"><a href="#RpcServrRegisterIf" class="headerlink" title="RpcServrRegisterIf"></a>RpcServrRegisterIf</h4><p>注册与RPC运行时库的接口。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/rpcdce/nf-rpcdce-rpcserverregisterif3">RpcServerRegisterIf3 函数 （rpcdce.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RpcServerListen"><a href="#RpcServerListen" class="headerlink" title="RpcServerListen"></a>RpcServerListen</h4><p>指示RPC运行时库来监听远程过程调用</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/rpcdce/nf-rpcdce-rpcserverlisten">RpcServerListen function （rpcdce.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RpcServerUseProtseqEp"><a href="#RpcServerUseProtseqEp" class="headerlink" title="RpcServerUseProtseqEp"></a>RpcServerUseProtseqEp</h4><p>告诉RPC运行时库使用指定的协议序列与指定的端点组合来接收远程过程调用。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/rpcdce/nf-rpcdce-rpcserveruseprotseqep">RpcServerUseProtseqEp function （rpcdce.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RpcMgmtStopServerListening"><a href="#RpcMgmtStopServerListening" class="headerlink" title="RpcMgmtStopServerListening"></a>RpcMgmtStopServerListening</h4><p>告诉服务端停止对RPC的监听</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/rpcdce/nf-rpcdce-rpcmgmtstopserverlistening">RpcMgmtStopServerListening function （rpcdce.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RpcServerUnregisterIf"><a href="#RpcServerUnregisterIf" class="headerlink" title="RpcServerUnregisterIf"></a>RpcServerUnregisterIf</h4><p>从RPC运行时库注册表中删除一个接口</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/rpcdce/nf-rpcdce-rpcserverunregisterif">RpcServerUnregisterIf function （rpcdce.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h4 id="RpcStringBindingCompose"><a href="#RpcStringBindingCompose" class="headerlink" title="RpcStringBindingCompose"></a>RpcStringBindingCompose</h4><p>创建一个字符串绑定句柄。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/rpcdce/nf-rpcdce-rpcstringbindingcompose">RpcStringBindingCompose function （rpcdce.h） - Win32 apps |微软文档 (microsoft.com)</a></p>
+<h3 id="注入类"><a href="#注入类" class="headerlink" title="注入类"></a>注入类</h3><h4 id="GetThreadContext"><a href="#GetThreadContext" class="headerlink" title="GetThreadContext"></a>GetThreadContext</h4><p>返回一个给定线程的上下文结构。线程上下文结构中存储了所有线程信息，比如寄存器值和目前状态。</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadcontext">GetThreadContext function (processthreadsapi.h) - Win32 apps | Microsoft Docs</a></p>
+<h4 id="VirtualAllocEx"><a href="#VirtualAllocEx" class="headerlink" title="VirtualAllocEx"></a>VirtualAllocEx</h4><p>一个内存分配的例程，支持在远程进程中分配内存。恶意代码有时会在进程注入中使用 VirtualAllocEx函数。</p>
+<h4 id="VirtualProtectEx"><a href="#VirtualProtectEx" class="headerlink" title="VirtualProtectEx"></a>VirtualProtectEx</h4><p>修改一个内存区域的保护机制，恶意代码可能会使用这个函数来将一块只读的内存节修改为可执行代码。</p>
+<h4 id="QueueUserAPC"><a href="#QueueUserAPC" class="headerlink" title="QueueUserAPC"></a>QueueUserAPC</h4><p>用来在其他线程中执行代码，恶意代码有时会使用这个函数注入代码到其他进程。</p>
+<p>参考链接:</p>
+<p><a target="_blank" rel="noopener" href="http://blog.nsfocus.net/malware-sample-analysis-api/">http://blog.nsfocus.net/malware-sample-analysis-api/</a></p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DLL"><span class="toc-number">2.</span> <span class="toc-text">DLL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kernel32-dll"><span class="toc-number">2.1.</span> <span class="toc-text">Kernel32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WS2-32-dll"><span class="toc-number">2.2.</span> <span class="toc-text">WS2_32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wininet-dll"><span class="toc-number">2.3.</span> <span class="toc-text">Wininet.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Urlmon-dll"><span class="toc-number">2.4.</span> <span class="toc-text">Urlmon.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Advapi32-dll"><span class="toc-number">2.5.</span> <span class="toc-text">Advapi32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#User32-dll"><span class="toc-number">2.6.</span> <span class="toc-text">User32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ntdll-dll"><span class="toc-number">2.7.</span> <span class="toc-text">Ntdll.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shell32-dll"><span class="toc-number">2.8.</span> <span class="toc-text">Shell32.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rpccrt4-dll"><span class="toc-number">2.9.</span> <span class="toc-text">Rpccrt4.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Crypt32-dll"><span class="toc-number">2.10.</span> <span class="toc-text">Crypt32.dll</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API"><span class="toc-number">3.</span> <span class="toc-text">API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">文件类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateFile"><span class="toc-number">3.1.1.</span> <span class="toc-text">CreateFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateFileMapping"><span class="toc-number">3.1.2.</span> <span class="toc-text">CreateFileMapping</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenFile"><span class="toc-number">3.1.3.</span> <span class="toc-text">OpenFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FindFirstFile-FindNextFile"><span class="toc-number">3.1.4.</span> <span class="toc-text">FindFirstFile&#x2F;FindNextFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetModuleFileName"><span class="toc-number">3.1.5.</span> <span class="toc-text">GetModuleFileName</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetModuleHandle"><span class="toc-number">3.1.6.</span> <span class="toc-text">GetModuleHandle</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetProcAddress"><span class="toc-number">3.1.7.</span> <span class="toc-text">GetProcAddress</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetStartupInfo"><span class="toc-number">3.1.8.</span> <span class="toc-text">GetStartupInfo</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetTempPath"><span class="toc-number">3.1.9.</span> <span class="toc-text">GetTempPath</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetWindowsDirectory"><span class="toc-number">3.1.10.</span> <span class="toc-text">GetWindowsDirectory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MapViewOfFile"><span class="toc-number">3.1.11.</span> <span class="toc-text">MapViewOfFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NtQueryDirectoryFile"><span class="toc-number">3.1.12.</span> <span class="toc-text">NtQueryDirectoryFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SetFileTime"><span class="toc-number">3.1.13.</span> <span class="toc-text">SetFileTime</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Wow64DisableWow64FsRedirection"><span class="toc-number">3.1.14.</span> <span class="toc-text">Wow64DisableWow64FsRedirection</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%B1%BB"><span class="toc-number">3.2.</span> <span class="toc-text">网络类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#accept"><span class="toc-number">3.2.1.</span> <span class="toc-text">accept</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#bind"><span class="toc-number">3.2.2.</span> <span class="toc-text">bind</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#connect"><span class="toc-number">3.2.3.</span> <span class="toc-text">connect</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetOpenA"><span class="toc-number">3.2.4.</span> <span class="toc-text">InternetOpenA</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CoCreateInstance"><span class="toc-number">3.2.5.</span> <span class="toc-text">CoCreateInstance</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FtpPutFile"><span class="toc-number">3.2.6.</span> <span class="toc-text">FtpPutFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#GetAdaptersInfo"><span class="toc-number">3.2.7.</span> <span class="toc-text">GetAdaptersInfo</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#gethostbyname"><span class="toc-number">3.2.8.</span> <span class="toc-text">gethostbyname</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#gethostname"><span class="toc-number">3.2.9.</span> <span class="toc-text">gethostname</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inet-addr"><span class="toc-number">3.2.10.</span> <span class="toc-text">inet_addr</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetOpen"><span class="toc-number">3.2.11.</span> <span class="toc-text">InternetOpen</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetOpenUrl"><span class="toc-number">3.2.12.</span> <span class="toc-text">InternetOpenUrl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetReadFile"><span class="toc-number">3.2.13.</span> <span class="toc-text">InternetReadFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#InternetWriteFile"><span class="toc-number">3.2.14.</span> <span class="toc-text">InternetWriteFile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NetShareEnum"><span class="toc-number">3.2.15.</span> <span class="toc-text">NetShareEnum</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OleInitialize"><span class="toc-number">3.2.16.</span> <span class="toc-text">OleInitialize</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#recv"><span class="toc-number">3.2.17.</span> <span class="toc-text">recv</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#send"><span class="toc-number">3.2.18.</span> <span class="toc-text">send</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WSAStartup"><span class="toc-number">3.2.19.</span> <span class="toc-text">WSAStartup</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%8E%E6%9C%8D%E5%8A%A1%E7%B1%BB"><span class="toc-number">3.3.</span> <span class="toc-text">注册与服务类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateService"><span class="toc-number">3.3.1.</span> <span class="toc-text">CreateService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ControlService"><span class="toc-number">3.3.2.</span> <span class="toc-text">ControlService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenSCManager"><span class="toc-number">3.3.3.</span> <span class="toc-text">OpenSCManager</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegisterHotKey"><span class="toc-number">3.3.4.</span> <span class="toc-text">RegisterHotKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegOpenKey"><span class="toc-number">3.3.5.</span> <span class="toc-text">RegOpenKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#StartServiceCtrlDispatcher"><span class="toc-number">3.3.6.</span> <span class="toc-text">StartServiceCtrlDispatcher</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegCloseKey"><span class="toc-number">3.3.7.</span> <span class="toc-text">RegCloseKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegCreateKey-RegCreateKeyEx"><span class="toc-number">3.3.8.</span> <span class="toc-text">RegCreateKey&#x2F;RegCreateKeyEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegDeleteKey"><span class="toc-number">3.3.9.</span> <span class="toc-text">RegDeleteKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegDeleteValue"><span class="toc-number">3.3.10.</span> <span class="toc-text">RegDeleteValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegQueryValue"><span class="toc-number">3.3.11.</span> <span class="toc-text">RegQueryValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegSetValue-RegSetValueEx"><span class="toc-number">3.3.12.</span> <span class="toc-text">RegSetValue&#x2F;RegSetValueEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegQueryInfoKey"><span class="toc-number">3.3.13.</span> <span class="toc-text">RegQueryInfoKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegEnumKey-RegEnumKeyEx"><span class="toc-number">3.3.14.</span> <span class="toc-text">RegEnumKey&#x2F;RegEnumKeyEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegEnumValue"><span class="toc-number">3.3.15.</span> <span class="toc-text">RegEnumValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegLoadKey"><span class="toc-number">3.3.16.</span> <span class="toc-text">RegLoadKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegReplaceKey"><span class="toc-number">3.3.17.</span> <span class="toc-text">RegReplaceKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegRestoreKey"><span class="toc-number">3.3.18.</span> <span class="toc-text">RegRestoreKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegSaveKey"><span class="toc-number">3.3.19.</span> <span class="toc-text">RegSaveKey</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegConnectRegistry"><span class="toc-number">3.3.20.</span> <span class="toc-text">RegConnectRegistry</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegNotifyChangeKeyValue"><span class="toc-number">3.3.21.</span> <span class="toc-text">RegNotifyChangeKeyValue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RegUnloadKey"><span class="toc-number">3.3.22.</span> <span class="toc-text">RegUnloadKey</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E7%B1%BB"><span class="toc-number">3.4.</span> <span class="toc-text">进程线程类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AttachThreadInput"><span class="toc-number">3.4.1.</span> <span class="toc-text">AttachThreadInput</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CheckRemoteDebuggerPresent"><span class="toc-number">3.4.2.</span> <span class="toc-text">CheckRemoteDebuggerPresent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ConnectNamedPipe"><span class="toc-number">3.4.3.</span> <span class="toc-text">ConnectNamedPipe</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateProcess"><span class="toc-number">3.4.4.</span> <span class="toc-text">CreateProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateRemoteThread"><span class="toc-number">3.4.5.</span> <span class="toc-text">CreateRemoteThread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CreateToolhelp32Snapshot"><span class="toc-number">3.4.6.</span> <span class="toc-text">CreateToolhelp32Snapshot</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#EnumProcesses"><span class="toc-number">3.4.7.</span> <span class="toc-text">EnumProcesses</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IsWow64Process"><span class="toc-number">3.4.8.</span> <span class="toc-text">IsWow64Process</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ZwQueryInformationProcess"><span class="toc-number">3.4.9.</span> <span class="toc-text">ZwQueryInformationProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenProcess"><span class="toc-number">3.4.10.</span> <span class="toc-text">OpenProcess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PeekNamedPipe"><span class="toc-number">3.4.11.</span> <span class="toc-text">PeekNamedPipe</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Process32First-Process32Next"><span class="toc-number">3.4.12.</span> <span class="toc-text">Process32First&#x2F;Process32Next</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ReadProcessMemory"><span class="toc-number">3.4.13.</span> <span class="toc-text">ReadProcessMemory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ResumeThread"><span class="toc-number">3.4.14.</span> <span class="toc-text">ResumeThread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SetThreadContext"><span class="toc-number">3.4.15.</span> <span class="toc-text">SetThreadContext</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ShellExecute"><span class="toc-number">3.4.16.</span> <span class="toc-text">ShellExecute</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SuspendThread"><span class="toc-number">3.4.17.</span> <span class="toc-text">SuspendThread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Thread32First"><span class="toc-number">3.4.18.</span> <span class="toc-text">Thread32First</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Thread32Next"><span class="toc-number">3.4.19.</span> <span class="toc-text">Thread32Next</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WinExec"><span class="toc-number">3.4.20.</span> <span class="toc-text">WinExec</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WriteProcessMemory"><span class="toc-number">3.4.21.</span> <span class="toc-text">WriteProcessMemory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServrRegisterIf"><span class="toc-number">3.4.22.</span> <span class="toc-text">RpcServrRegisterIf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServerListen"><span class="toc-number">3.4.23.</span> <span class="toc-text">RpcServerListen</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServerUseProtseqEp"><span class="toc-number">3.4.24.</span> <span class="toc-text">RpcServerUseProtseqEp</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcMgmtStopServerListening"><span class="toc-number">3.4.25.</span> <span class="toc-text">RpcMgmtStopServerListening</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcServerUnregisterIf"><span class="toc-number">3.4.26.</span> <span class="toc-text">RpcServerUnregisterIf</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RpcStringBindingCompose"><span class="toc-number">3.4.27.</span> <span class="toc-text">RpcStringBindingCompose</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5%E7%B1%BB"><span class="toc-number">3.5.</span> <span class="toc-text">注入类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#GetThreadContext"><span class="toc-number">3.5.1.</span> <span class="toc-text">GetThreadContext</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#VirtualAllocEx"><span class="toc-number">3.5.2.</span> <span class="toc-text">VirtualAllocEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#VirtualProtectEx"><span class="toc-number">3.5.3.</span> <span class="toc-text">VirtualProtectEx</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#QueueUserAPC"><span class="toc-number">3.5.4.</span> <span class="toc-text">QueueUserAPC</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&text=木马常用dll/api函数"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&is_video=false&description=木马常用dll/api函数"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=木马常用dll/api函数&body=Check out this article: https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&title=木马常用dll/api函数"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&name=木马常用dll/api函数&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/12/19/%E6%9C%A8%E9%A9%AC%E5%B8%B8%E7%94%A8dllapi%E5%87%BD%E6%95%B0/&t=木马常用dll/api函数"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

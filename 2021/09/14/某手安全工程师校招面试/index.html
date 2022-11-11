@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="这是第一次面严格意义上的甲方，知识面学到了很多，问题也很不一样 9.14 视频一面面试时长：一小时  介绍下自己熟悉的渗透领域 你会什么语言，能写什么东西 你在上一家实习公司的主要工作内容是什么，说一下流程 上家公司是乙方是吧，最后需要写报告吗，需要提出解决方案吗 说一下渗透的流程 你sql注入常用的工具，或者说手工结合工具 你经常用扫描器吗，为什么很少用 你渗透过程中碰到过waf吗，遇到了怎么办">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某甲方安全工程师校招面试">
+<meta property="og:url" content="https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="这是第一次面严格意义上的甲方，知识面学到了很多，问题也很不一样 9.14 视频一面面试时长：一小时  介绍下自己熟悉的渗透领域 你会什么语言，能写什么东西 你在上一家实习公司的主要工作内容是什么，说一下流程 上家公司是乙方是吧，最后需要写报告吗，需要提出解决方案吗 说一下渗透的流程 你sql注入常用的工具，或者说手工结合工具 你经常用扫描器吗，为什么很少用 你渗透过程中碰到过waf吗，遇到了怎么办">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-09-14T09:36:37.000Z">
+<meta property="article:modified_time" content="2021-12-03T18:04:48.785Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>某甲方安全工程师校招面试</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/09/23/%E5%A5%87%E5%AE%89%E4%BF%A1%E6%B8%97%E9%80%8F%E5%B2%97%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/09/14/%E6%9F%90%E5%A4%A7%E5%8E%82web%E7%BA%A2%E8%93%9D%E5%AE%9E%E4%B9%A0%E9%9D%A2%E8%AF%95/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&text=某甲方安全工程师校招面试"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&is_video=false&description=某甲方安全工程师校招面试"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=某甲方安全工程师校招面试&body=Check out this article: https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&name=某甲方安全工程师校招面试&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&t=某甲方安全工程师校招面试"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-14-%E8%A7%86%E9%A2%91%E4%B8%80%E9%9D%A2"><span class="toc-number">1.</span> <span class="toc-text">9.14 视频一面</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        某甲方安全工程师校招面试
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-09-14T09:36:37.000Z" itemprop="datePublished">2021-09-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E9%9D%A2%E8%AF%95/">面试</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>这是第一次面严格意义上的甲方，知识面学到了很多，问题也很不一样</p>
+<h3 id="9-14-视频一面"><a href="#9-14-视频一面" class="headerlink" title="9.14 视频一面"></a>9.14 视频一面</h3><p>面试时长：一小时</p>
+<ul>
+<li>介绍下自己熟悉的渗透领域</li>
+<li>你会什么语言，能写什么东西</li>
+<li>你在上一家实习公司的主要工作内容是什么，说一下流程</li>
+<li>上家公司是乙方是吧，最后需要写报告吗，需要提出解决方案吗</li>
+<li>说一下渗透的流程</li>
+<li>你sql注入常用的工具，或者说手工结合工具</li>
+<li>你经常用扫描器吗，为什么很少用</li>
+<li>你渗透过程中碰到过waf吗，遇到了怎么办</li>
+<li>作为乙方，你认为有waf的渗透测试和没有waf的渗透测试哪个好</li>
+<li>你遇到过的注入的种类</li>
+<li>堆叠注入和联合查询的不同点</li>
+<li>sqlmap想要看到更详细的信息需要什么命令，怎么看返回的响应包</li>
+<li>sqlmap  –os-shell的原理</li>
+<li>注入拿shell的条件</li>
+<li>Oracle、Mssql、MySQL注入的不同点，区别在哪</li>
+<li>上传绕过的方法</li>
+<li>说一下常见的逻辑漏洞</li>
+<li>修改密码有5步，说一下你找逻辑漏洞的思路</li>
+<li>你burp用的什么版本，是破解版的吗(实在不明白为啥问我这个，难道是公司都用正版的么)</li>
+<li>扫描器会用吗</li>
+<li>你还有其他的什么技能</li>
+<li>内网的渗透思路</li>
+<li>你碰到的内网是idc还是办公网(当时不知道idc是啥，随便答了个IDC，尴尬，后面面试官就直接说数据中心hhhh)</li>
+<li>你常用的免杀方法</li>
+<li>你觉得免杀在甲方有用吗(emmm雀食)</li>
+<li>你了解的防火墙有哪些</li>
+<li>注入的防护方法</li>
+<li>csrf的防护方法</li>
+<li>token加到哪里，加在cookie里会怎么样，加不加在cookie里区别在哪，为什么加token可以防护csrf</li>
+<li>如果不加token的话，只加验证码可以防护csrf吗，说一下你的理解</li>
+<li>如果你找到了一个业务的漏洞点，你要和开发沟通去修复，但是开发不想修复，你怎么和开发沟通，开发说这个软件已经发布了，现在才告诉漏洞点，为什么不提前告诉，你怎么办</li>
+<li>开发并不懂安全，也不了解漏洞的原理，他要你只告诉他怎么写代码，你怎么和他沟通，他要你教他怎么写代码怎么办(????搞开发的不会写代码难道让搞安全的写么 hhhhhh)</li>
+<li>sql注入到的数据库都是明文怎么办，比如说姓名，手机号，身份证需要怎么处理</li>
+<li>des、aes加密算法说一下</li>
+<li> 用户上传身份证这里你觉得需要注意什么(作为一个甲方人员)</li>
+<li>上传的身份证图片怎么防止审核员工偷偷保存</li>
+<li>如果他截屏或者右键保存怎么办，怎么防止</li>
+<li>上传的图片本身怎么处理(这里确实了解的很少，可以简单的加水印，明水印和暗水印)</li>
+<li>怎么对审核人员的权限进行限制，比如说超级管理员、管理员、客服人员等</li>
+<li>如果这个员工调去了另一个部门，但是他还有以前部门的权限，这时需要回收他的权限吗，你怎么知道他不在这个部门了呢</li>
+<li>给你一个系统，你怎么渗透测试</li>
+<li>对这套系统怎么进行风险评估，给出解决方案，修复方案</li>
+<li>你还有什么想问的吗</li>
+<li>我们公司经常加班，可以接受加班吗</li>
+</ul>
+<p>后面就是介绍了一下他们安全部的几个小组，介绍了他们组的内容，是做数据中心和权限治理的，也有其他的渗透小组，移动端小组等5个小组。先选一个小组作为二面的意向小组，一面通过的话，这个意向直接导致二面面试官的不同。</p>
+<p>总体来说这次面试还是非常好的体验，面试官问完我问题后，会告诉我那些我不了解的点，还详细介绍了他们部门所要干的工作，这里我本来后面录屏了，但刚刚发现录的系统声音，没录到麦克风~~~</p>
+<p>二面希望也不大，本来也没抱希望(我是废物)</p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-14-%E8%A7%86%E9%A2%91%E4%B8%80%E9%9D%A2"><span class="toc-number">1.</span> <span class="toc-text">9.14 视频一面</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&text=某甲方安全工程师校招面试"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&is_video=false&description=某甲方安全工程师校招面试"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=某甲方安全工程师校招面试&body=Check out this article: https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&title=某甲方安全工程师校招面试"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&name=某甲方安全工程师校招面试&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/14/%E6%9F%90%E6%89%8B%E5%AE%89%E5%85%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95/&t=某甲方安全工程师校招面试"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

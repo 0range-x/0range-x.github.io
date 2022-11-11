@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="没有介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单DDos木马的样本分析">
+<meta property="og:url" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="没有介绍">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029003952951.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029004703633.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029005721849.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029011021411.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029011001886.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029100527973.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211030013644987.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211030020205336.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211030015044384.png">
+<meta property="article:published_time" content="2021-10-29T18:14:10.000Z">
+<meta property="article:modified_time" content="2021-10-29T18:17:47.576Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="木马分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029003952951.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>简单DDos木马的样本分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/10/28/%E5%85%8D%E6%9D%80%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%E7%AF%87/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&text=简单DDos木马的样本分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&is_video=false&description=简单DDos木马的样本分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=简单DDos木马的样本分析&body=Check out this article: https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&name=简单DDos木马的样本分析&description=&lt;p&gt;没有介绍&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&t=简单DDos木马的样本分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">0x01 详细分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        简单DDos木马的样本分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-10-29T18:14:10.000Z" itemprop="datePublished">2021-10-30</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/" rel="tag">木马分析</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>没有介绍</p>
+<span id="more"></span>
+
+<h2 id="0x01-详细分析"><a href="#0x01-详细分析" class="headerlink" title="0x01 详细分析"></a>0x01 详细分析</h2><p>首先还是先看该PE文件的导入表，可以看到它导入了 <code>ADVAPI32</code>这个dll，调用的函数有 <code>CreateServiceA/ StartServiceCtrlDispatcherA/OpenSCManagerA</code> ，这三个函数对于初学者来说还是比较陌生的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CreateServiceA：创建服务对象并将其添加到指定的服务控制管理器数据库。创建成功，返回该服务的句柄，失败返回NULL</span><br><span class="line">StartServiceCtrlDispatcherA：将服务进程的主线程连接到服务控制管理器，使得线程成为调用进程的服务控制调度程序线程。成功返回非0，否则返回0</span><br><span class="line">OpenSCManagerA：建立与服务控制管理器的连接，并打开指定的服务控制管理器数据库</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029003952951.png" alt="image-20211029003952951"></p>
+<p>这两个函数就耳熟能详了。</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029004703633.png" alt="image-20211029004703633"></p>
+<p>大致看下它的字符串，大概可以猜测出是请求该域名并下载数据流，还可能用IE8.0的代理</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029005721849.png" alt="image-20211029005721849"></p>
+<p>下面就去分析 main 函数</p>
+<p>在 <code>401028</code>处调用了<code>StartServiceCtrlDispatcherA</code>函数，通常这个函数会立即被调用，前面是传入的参数，其中传入了 <code>401040</code>，这是<code>StartServiceCtrlDispatcherA</code>指定的服务控制管理器会调用的服务控制函数。整个主函数的流程是这样，貌似只创建了一个服务，别急，我们接着继续分析</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029011021411.png" alt="image-20211029011021411"></p>
+<p>接着去调用 <code>401040</code>处的函数，在这里面又调用了 <code>OpenMutexA</code>函数，清空eax寄存器，跳转到<code>401064</code>处。<code>OpenMutexA</code>会打开一个已有的互斥量句柄，看前面传入的参数，互斥量的名字是“HGL345”，如果函数调用成功，程序退出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">互斥量是windows的一个内核对象，互斥量与关键段的作用相似，可以用来确保全局资源的互斥访问。并且互斥量可以用在不同的进程中的线程互斥访问全局资源。更多关于互斥量，自行了解操作系统的进程与线程管理</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029011001886.png" alt="image-20211029011001886"></p>
+<p>来看下<code>401064</code>这段汇编代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">loc_401064:                             ; CODE XREF: sub_401040+1A↑j</span><br><span class="line">.text:00401064                 push    esi</span><br><span class="line">.text:00401065                 push    offset Name     ; &quot;HGL345&quot;</span><br><span class="line">.text:0040106A                 push    0               ; bInitialOwner</span><br><span class="line">.text:0040106C                 push    0               ; lpMutexAttributes</span><br><span class="line">.text:0040106E                 call    ds:CreateMutexA</span><br><span class="line">.text:00401074                 push    3               ; dwDesiredAccess</span><br><span class="line">.text:00401076                 push    0               ; lpDatabaseName</span><br><span class="line">.text:00401078                 push    0               ; lpMachineName</span><br><span class="line">.text:0040107A                 call    ds:OpenSCManagerA</span><br><span class="line">.text:00401080                 mov     esi, eax</span><br><span class="line">.text:00401082                 call    ds:GetCurrentProcess</span><br><span class="line">.text:00401088                 lea     eax, [esp+404h+Filename]</span><br><span class="line">.text:0040108C                 push    3E8h            ; nSize</span><br><span class="line">.text:00401091                 push    eax             ; lpFilename</span><br><span class="line">.text:00401092                 push    0               ; hModule</span><br><span class="line">.text:00401094                 call    ds:GetModuleFileNameA</span><br><span class="line">.text:0040109A                 push    0               ; lpPassword</span><br><span class="line">.text:0040109C                 push    0               ; lpServiceStartName</span><br><span class="line">.text:0040109E                 push    0               ; lpDependencies</span><br><span class="line">.text:004010A0                 push    0               ; lpdwTagId</span><br><span class="line">.text:004010A2                 lea     ecx, [esp+414h+Filename]</span><br><span class="line">.text:004010A6                 push    0               ; lpLoadOrderGroup</span><br><span class="line">.text:004010A8                 push    ecx             ; lpBinaryPathName</span><br><span class="line">.text:004010A9                 push    0               ; dwErrorControl</span><br><span class="line">.text:004010AB                 push    2               ; dwStartType</span><br><span class="line">.text:004010AD                 push    10h             ; dwServiceType</span><br><span class="line">.text:004010AF                 push    2               ; dwDesiredAccess</span><br><span class="line">.text:004010B1                 push    offset DisplayName ; &quot;Malservice&quot;</span><br><span class="line">.text:004010B6                 push    offset DisplayName ; &quot;Malservice&quot;</span><br><span class="line">.text:004010BB                 push    esi             ; hSCManager</span><br><span class="line">.text:004010BC                 call    ds:CreateServiceA</span><br><span class="line">.text:004010C2                 xor     edx, edx</span><br><span class="line">.text:004010C4                 lea     eax, [esp+404h+FileTime]</span><br><span class="line">.text:004010C8                 mov     dword ptr [esp+404h+SystemTime.wYear], edx</span><br><span class="line">.text:004010CC                 lea     ecx, [esp+404h+SystemTime]</span><br><span class="line">.text:004010D0                 mov     dword ptr [esp+404h+SystemTime.wDayOfWeek], edx</span><br><span class="line">.text:004010D4                 push    eax             ; lpFileTime</span><br><span class="line">.text:004010D5                 mov     dword ptr [esp+408h+SystemTime.wHour], edx</span><br><span class="line">.text:004010D9                 push    ecx             ; lpSystemTime</span><br><span class="line">.text:004010DA                 mov     dword ptr [esp+40Ch+SystemTime.wSecond], edx</span><br><span class="line">.text:004010DE                 mov     [esp+40Ch+SystemTime.wYear], 834h</span><br><span class="line">.text:004010E5                 call    ds:SystemTimeToFileTime</span><br><span class="line">.text:004010EB                 push    0               ; lpTimerName</span><br><span class="line">.text:004010ED                 push    0               ; bManualReset</span><br><span class="line">.text:004010EF                 push    0               ; lpTimerAttributes</span><br><span class="line">.text:004010F1                 call    ds:CreateWaitableTimerA</span><br><span class="line">.text:004010F7                 push    0               ; fResume</span><br><span class="line">.text:004010F9                 push    0               ; lpArgToCompletionRoutine</span><br><span class="line">.text:004010FB                 push    0               ; pfnCompletionRoutine</span><br><span class="line">.text:004010FD                 lea     edx, [esp+410h+FileTime]</span><br><span class="line">.text:00401101                 mov     esi, eax</span><br><span class="line">.text:00401103                 push    0               ; lPeriod</span><br><span class="line">.text:00401105                 push    edx             ; lpDueTime</span><br><span class="line">.text:00401106                 push    esi             ; hTimer</span><br><span class="line">.text:00401107                 call    ds:SetWaitableTimer</span><br><span class="line">.text:0040110D                 push    0FFFFFFFFh      ; dwMilliseconds</span><br><span class="line">.text:0040110F                 push    esi             ; hHandle</span><br><span class="line">.text:00401110                 call    ds:WaitForSingleObject</span><br><span class="line">.text:00401116                 test    eax, eax</span><br><span class="line">.text:00401118                 jnz     short loc_40113B</span><br><span class="line">.text:0040111A                 push    edi</span><br><span class="line">.text:0040111B                 mov     edi, ds:CreateThread</span><br><span class="line">.text:00401121                 mov     esi, 14h</span><br><span class="line">.text:00401126</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这段地址调用了很多函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CreateMutexA：创建互斥量</span><br><span class="line">OpenSCManagerA：建立与服务控制管理器的连接，并打开指定的服务控制管理器数据库</span><br><span class="line">GetCurrentProcess：返回当前进程的伪句柄，也可以理解为过渡句柄</span><br><span class="line">GetModuleFileNameA：获取包含一个特定模块的文件的全路径，这个模块必须是由当前运行的进程</span><br><span class="line">CreateServiceA：创建服务对象</span><br><span class="line">SystemTimeToFileTime：将系统时间转换为UTC文件时间</span><br><span class="line">CreateWaitableTimerA：创建计时器对象，与下个函数结合使用</span><br><span class="line">SetWaitableTimer：启动计时器对象</span><br><span class="line">WaitForSingleObject：多线程的情况下，等待其他线程执行完后再执行</span><br><span class="line">CreateThread：创建线程</span><br></pre></td></tr></table></figure>
+
+<p>整体分析这段地址， 在<code>40106E</code>处创建了一个名为”HGL345”的互斥量。所以现在有一对两个互斥量，分别是<code>OpenMutex</code> 和 <code>CreateMutex</code> 获取的，这两个互斥量被设计用来保证这个程序在任意时刻只有一份实例在内存中运行，如果已经在运行，那么对 <code>OpenMutex</code> 的第一次调用成功，程序退出。</p>
+<p>接着调用 <code>OpenSCManagerA</code> 函数，打开一个服务控制管理器的句柄，为了让该程序可以添加或修改服务。然后调用 <code>GetModuleFileNameA</code>，返回当前PE文件（该exe或者被加载的dll文件）的路径，这个路径接下来被<code>CreateServiceA</code>调用，来创建一个服务对象。<code>CreateServiceA</code>的关键参数是  <code>4010A8</code>处的<code>BinaryPathName</code>，<code>4010AB</code>处的<code>dwStartType</code>，<code>4010AD</code>处的 <code>dwServiceType</code>。对于 <code>dwStartType</code>来说，它的值可能是下面几个。而在这个程序中，push 入栈的是 2，对应的 <code>SERVICE_AUTO_START</code>，即开机自启。</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211029100527973.png" alt="image-20211029100527973"></p>
+<p>关于为什么需要调用 <code>GetModuleFileName</code>，获得当前程序的路径，因为它想要创建服务对象，需要一个路径，而该程序并不知道自己的路径在哪，所以需要动态的获取当前路径，来创建服务，这样就不用考虑该恶意程序的执行路径了。</p>
+<p><code>SystemTimeToFileTime</code>：这是一个关于时间的结构体。注意到在 <code>4010DE</code>处，表示年的值被设置为 <code>0x0834</code>即2100年。</p>
+<p>接着调用 <code>CreateWaitableTimerA/ SetWaitableTimer/ WaitForSingleObject</code>函数，注意到传给 <code>SetWaitableTimer</code>的参数是 <code>lpDueTime</code>，溯源下这个参数，是<code>SystemTimeToFileTime</code>返回的 <code>FileTime</code>，也就是转换后的2100年。所以传给<code>WaitForSingleObject</code>的参数是2100年，也就是说程序会等待到2100年。</p>
+<p>下面到 <code>401126</code>这里，很明显的看出这是一个循环函数。在进入 <code>401126</code>之前，esi 的值被设置为14h（20d），接着调用 <code>CreateThread</code>函数，然后 <code>esi</code>递减，直到 esi 为0时才会退出，否则一直循环，也就是说会创建20个线程。还注意到 <code>CreateTHread</code>函数的参数有6个，其中5个被设置为空，只有 <code>lpStartAddress</code>被传入了 <code>StartAddress</code>，</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211030013644987.png" alt="image-20211030013644987"></p>
+<p>f5看下伪代码，是个do-while循环</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211030020205336.png" alt="image-20211030020205336"></p>
+<p>跳转到  <code>StartAddress</code>这里，看到它调用了 <code>InTernetOpenA</code> 函数用来初始化网络连接，并且使用IE8代理。并且接下来还会循环调用 <code>InternetOpenUrlA</code>，传入的参数是 <code>401178</code>处的域名。并且这个跳转的指令是 <code>jmp</code> 无条件跳转，也就是说这段循环不会终止，会一直去访问 <code>http://www.malwareanalysisbook.com</code>。还有前面创建了20个线程，一直持续的访问一个网站，造成资源拥堵……到这里木马的行为已经很明显了吧，就是DDos攻击。</p>
+<p><img src="/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/image-20211030015044384.png" alt="image-20211030015044384"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个程序创建一个互斥量来保证同一时刻只有一个实例在运行，然后创建一个自启动服务，接着进入等待到2100年，开始创建20个线程访问目标站点，造成DDos攻击。</p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">0x01 详细分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&text=简单DDos木马的样本分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&is_video=false&description=简单DDos木马的样本分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=简单DDos木马的样本分析&body=Check out this article: https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&title=简单DDos木马的样本分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&name=简单DDos木马的样本分析&description=&lt;p&gt;没有介绍&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/10/30/%E7%AE%80%E5%8D%95DDos%E6%9C%A8%E9%A9%AC%E7%9A%84%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/&t=简单DDos木马的样本分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

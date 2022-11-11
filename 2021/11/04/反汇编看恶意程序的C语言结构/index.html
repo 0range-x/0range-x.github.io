@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;833">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从反汇编看恶意程序的C语言结构">
+<meta property="og:url" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;833">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211023170231536.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024100414924.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024095211845.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024100555118.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024100839298.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024103413308.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024102412365.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024104729701.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024113751290.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024122037986.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024161416764.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024162008554.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024162045209.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024163400472.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024163841168.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024164123810.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024164448907.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024165314833.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025010417268.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025011101939.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025013425602.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025014149215.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025013731743.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025014836872.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025105418100.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025105628657.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025110552536.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025110814576.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025145148050.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026005112318.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026005218171.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026005746253.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026010144588.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026010305611.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026010412326.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026011002118.png">
+<meta property="article:published_time" content="2021-11-04T07:55:10.000Z">
+<meta property="article:modified_time" content="2021-12-10T06:59:07.510Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="病毒">
+<meta property="article:tag" content="反汇编">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211023170231536.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>从反汇编看恶意程序的C语言结构</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/10/30/ida%E5%88%86%E6%9E%90dll/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&text=从反汇编看恶意程序的C语言结构"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&is_video=false&description=从反汇编看恶意程序的C语言结构"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从反汇编看恶意程序的C语言结构&body=Check out this article: https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&name=从反汇编看恶意程序的C语言结构&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/833&#34;&gt;https://forum.butian.net/share/833&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&t=从反汇编看恶意程序的C语言结构"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01"><span class="toc-number">2.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02"><span class="toc-number">4.</span> <span class="toc-text">0x02</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03"><span class="toc-number">5.</span> <span class="toc-text">0x03</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-2"><span class="toc-number">5.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">5.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04"><span class="toc-number">6.</span> <span class="toc-text">0x04</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-3"><span class="toc-number">6.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-3"><span class="toc-number">6.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-4"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        从反汇编看恶意程序的C语言结构
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-11-04T07:55:10.000Z" itemprop="datePublished">2021-11-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%8F%8D%E6%B1%87%E7%BC%96/" rel="tag">反汇编</a>, <a class="tag-link-link" href="/tags/%E7%97%85%E6%AF%92/" rel="tag">病毒</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>本文首发于奇安信攻防社区，原文链接：<a target="_blank" rel="noopener" href="https://forum.butian.net/share/833">https://forum.butian.net/share/833</a></p>
+<span id="more"></span>
+
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>本文利用IDA分析4个简单的恶意程序，旨在基本掌握这4个恶意程序的C语言逻辑结构，同时这4个程序功能逐渐递增，循序渐进。笔者也是初学者，有些不足之处在所难免，请师傅们斧正</p>
+<h2 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h2><h2 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h2><p>首先静态分析该exe文件，看下导入函数，其中一个调用了 <code>WININET.dll</code>中的 <code>InternetGetConnectedState</code> 函数，这个跟其他调用 <code>kernel32.dll</code> 中的函数相比，显得有些特殊。</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211023170231536.png" alt="image-20211023170231536"></p>
+<p>查阅文档可知，这是一个 判断本地网络连接状态的函数，连接成功返回1，连接失败返回0</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetgetconnectedstate">互联网连接状态功能 （wininet.h） - win32 应用程序|微软文档 (microsoft.com)</a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">InternetGetConnectedState</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  [out] LPDWORD lpdwFlags,</span></span></span><br><span class="line"><span class="params"><span class="function">  [in]  DWORD   dwReserved</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>找到了main 函数，就从这里开始分析</p>
+<p><code>main</code>函数位于<code>401040</code>，调用了<code>401000</code>处的函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024100414924.png" alt="image-20211024100414924"></p>
+<p>跳过去看看    </p>
+<p>上面一大堆没用的是编译器生成的，不要陷入其中</p>
+<p>看到该区段的权限是 可读/可执行，并且调用了 <code>InternetGetConnectedState</code> 函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024095211845.png" alt="image-20211024095211845"></p>
+<p>不看流程图的话大概也可以看出这是一个 if 语句的汇编代码，<code>cmp [ebp+var_4] ，0</code> ，根据结果跳转到不同的分支</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024100555118.png" alt="image-20211024100555118"></p>
+<p>在 <code>View-&gt;Graphs-&gt;Flow chart</code>可以查看流程图，相比较于空格的 流程图，更简洁明了</p>
+<p>这里使用cmp指令对保存了返回结果的eax寄存器与0比较，然后使用 jz 指令控制执行流。上面我们提到，当 建立网络连接时，<code>InternetGetConnectedState </code>函数返回1，否则返回0. 如果结果是1，0标志位（ZF）会被清除，jz跳转到1所在的<code>false</code>分支，否则跳转到<code>true</code>分支</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024100839298.png"></p>
+<p>下面分析这个位于 <code>40105f</code>处的子过程</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024103413308.png" alt="image-20211024103413308"></p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024102412365.png" alt="image-20211024102412365"></p>
+<p>其实这里是<code> printf</code> 函数，但是我们并没有看到一些printf函数的特征，这就需要去找一些其他的特征来证明这里是<code>printf</code>函数</p>
+<p>在调用这个函数之前，都向栈中<code>push</code>了 一串 格式化字符串，并且结尾是<code> \n</code> 换行符，因此可以推出这里调用的函数就是 <code>printf</code></p>
+<p>上面都是是根据静态分析得出的结论，真正的结果还是要实践检验一下</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024104729701.png" alt="image-20211024104729701"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个恶意代码的主要功能就是检查是否存在 <code>Internet</code>连接，存在输出1，否则输出0。</p>
+<h2 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h2><h4 id="详细分析-1"><a href="#详细分析-1" class="headerlink" title="详细分析"></a>详细分析</h4><p>首先还是看到这个pe文件的导入表</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024113751290.png" alt="image-20211024113751290"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">InternetOpenUrl: 通过FTP或 HTTP URL打开一个原始资源。如果连接成功建立，则返回一个有效的句柄，如果连接失败，则返回 NULL</span><br><span class="line">internetclosehandle ：关闭句柄，成功关闭返回 true，否则返回false</span><br><span class="line">InternetReadFile： 从InternetOpenA打开的句柄读取数据</span><br><span class="line">InternetGetConnectedState： 验证网络连接状态</span><br><span class="line">InternetOpenA: 设置用户代理，即HTTP的 user-agent 头</span><br></pre></td></tr></table></figure>
+
+
+
+<p>看到其中的一些字符串，在结合上面调用的 api函数，不难猜出，要访问的url地址</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024122037986.png" alt="image-20211024122037986"></p>
+<p>接着来分析 main 函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024161416764.png" alt="image-20211024161416764"></p>
+<p><code>401000</code> 处这里就不说了，和前面一样</p>
+<p>但是401000 这里还调用的 <code>40117f</code>，跳过去看看</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024162008554.png" alt="image-20211024162008554"></p>
+<p>这个结构很像前面分析的 <code>printf </code>函数，那我们再往前看一看。</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024162045209.png" alt="image-20211024162045209"></p>
+<p>果然，在push入栈中也有一串格式化的字符串，基本可以确定<code> 40117f</code> 处的函数是 <code>printf</code>函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024163400472.png" alt="image-20211024163400472"></p>
+<p>同时，main 函数中还调用了另一个<code> 401040</code>函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024163841168.png" alt="image-20211024163841168"></p>
+<p>这里包含了所有 前面发现的 WinINet api的调用。首先调用了<code> InternetOpen</code> ，以初始化对<code>WinINet</code>的使用。在这之前，将 <code>Internet Explorer 7.5</code> <code> push</code> 入栈，当作 User-Agent 头部，接着调用 <code>InternetOpenUrl</code> ，打开该静态网页</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024164123810.png" alt="image-20211024164123810"></p>
+<p>可以看到，调用完 <code>InternetOpenUrl </code>后，返回值被赋值给了hFIle，并接着与0比较，如果等于0会返回，否则跳转到<code>40109D</code>，hFile被传递给<code>InternetReadFIle</code>函数。</p>
+<p><code>InternetReadFile</code> 函数用于从<code> InternetOpenUrlA</code>打开的网页中读取内容。在调用完后，会和0比较，如果为0，该函数会关闭句柄并终止，否则会跳转到 <code>4010E5</code>，逐步比较 buffer 数组 与每个字符的值， </p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024164448907.png" alt="image-20211024164448907"></p>
+<p>这里有注释会好很多&lt;!—  ,否则的话，最开始的 3c 对应的ASCII码是 &lt;，也可以一一对应 出 &lt;!— ，这是html中注释的开始部分。</p>
+<p>这时候就可以猜测存在 http 交互</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211024165314833.png" alt="image-20211024165314833"></p>
+<p>因此大概就可以确定，如果 buffer 的前 4个字节与 &lt;!— 匹配成功的话，第5个字符就会被移到 AL 中并返回。</p>
+<p>接着分析 main 函数，</p>
+<p>看到在 401173 处 ，调用了 sleep 函数，传递的参数为 0xEA60h，即60000ms，1min</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025010417268.png" alt="image-20211025010417268"></p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025011101939.png" alt="image-20211025011101939"></p>
+<p>该恶意样本检查是否有可用的网络连接，如果不存在，终止运行，否则返回 true，使用代理去下载其中包含的一个网址中的内容，这个网址包含注释，并且将printf解析后的字符串 “success： Parsed command is %c”到屏幕，输出成功的话，会sleep一分钟。这种方式是通过注释来隐藏指令，使得恶意代码看起来像是访问正常网页。</p>
+<h2 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h2><h4 id="详细分析-2"><a href="#详细分析-2" class="headerlink" title="详细分析"></a>详细分析</h4><p>还是先看看导入表，一些旧东西</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025013425602.png" alt="image-20211025013425602"></p>
+<p>修改注册表的api函数， RegSet ValueExA和 RegOpenKeyExA 一起用于向注册表中插入信息，在设置应用程序启动项/开机自启时，通常会使用这两个函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025014149215.png" alt="image-20211025014149215"></p>
+<p>字符串也是发现了一些很有意思的，在临时目录会生成 cc.exe 文件，还会去修改注册表的自启动项目录</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025013731743.png" alt="image-20211025013731743"></p>
+<p>下面接着看main 函数，与上一个恶意样本很像，接下来就找不同</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025014836872.png" alt="image-20211025014836872"></p>
+<p>401000 处的检查网络连接和 401040处的下载网页与 上一篇基本相同，而不同的是这里多了对401030的调用</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025105418100.png" alt="image-20211025105418100"></p>
+<p>仔细分析 401130处的函数</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025105628657.png" alt="image-20211025105628657"></p>
+<p>根据注释可以看出是 switch 分支语句</p>
+<p>看下它传入的参数，在调用前，传入了 argv 和 var_8 push入栈作为参数，这里的 argv就是argv[0]，就是这个程序的字符串引用，</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025110552536.png" alt="image-20211025110552536"></p>
+<p>追踪 var_8 参数，发现在 40122D 处被设置为AL。此时 eax 存放的是上一个调用函数 401040的返回值，即html注释中的解析字符</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025110814576.png" alt="image-20211025110814576"></p>
+<p>再来分析401130</p>
+<p>arg_0 是IDA 自动生成的标签，用于标记调用函数前最后一个被push入栈的参数，所以这里的 arg_0 是解析得到的html指令字符，并赋值给 var_8，接着加载到ecx中执行，减去61h，因此，如果传入的arg_0 =a，执行sub指令后，ecx归0</p>
+<p>接下来 cmp ecx 和4，检查 arg_0 是否是 a-e 中的某个字符，如果不是，ja 跳转到 401153，如果是的话，这个指令字符放入edx中，被用作跳转表的索引，看到下面 edx*4，因为这是switch结构，跳转表是一组指向不同函数的地址表，每个地址的大小占4个字节，而下面也正如我们所料，跳转表有5条记录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">.text:00401130                 push    ebp</span><br><span class="line">.text:00401131                 mov     ebp, esp</span><br><span class="line">.text:00401133                 sub     esp, 8</span><br><span class="line">.text:00401136                 movsx   eax, [ebp+arg_0]</span><br><span class="line">.text:0040113A                 mov     [ebp+var_8], eax</span><br><span class="line">.text:0040113D                 mov     ecx, [ebp+var_8]</span><br><span class="line">.text:00401140                 sub     ecx, 61h ; &#x27;a&#x27;  ; switch 5 cases</span><br><span class="line">.text:00401143                 mov     [ebp+var_8], ecx</span><br><span class="line">.text:00401146                 cmp     [ebp+var_8], 4</span><br><span class="line">.text:0040114A                 ja      def_401153      ; jumptable 00401153 default case</span><br><span class="line">.text:00401150                 mov     edx, [ebp+var_8]</span><br><span class="line">.text:00401153                 jmp     ds:jpt_401153[edx*4] ; switch jump</span><br><span class="line">.text:0040115A ; ---------------------------------------------------------------------------</span><br><span class="line">.text:0040115A</span><br><span class="line">.text:0040115A loc_40115A:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:0040115A                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:0040115A                 push    0               ; jumptable 00401153 case 97</span><br><span class="line">.text:0040115C                 push    offset PathName ; &quot;C:\\Temp&quot;</span><br><span class="line">.text:00401161                 call    ds:CreateDirectoryA</span><br><span class="line">.text:00401167                 jmp     loc_4011EE</span><br><span class="line">.text:0040116C ; ---------------------------------------------------------------------------</span><br><span class="line">.text:0040116C</span><br><span class="line">.text:0040116C loc_40116C:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:0040116C                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:0040116C                 push    1               ; jumptable 00401153 case 98</span><br><span class="line">.text:0040116E                 push    offset Data     ; &quot;C:\\Temp\\cc.exe&quot;</span><br><span class="line">.text:00401173                 mov     eax, [ebp+lpExistingFileName]</span><br><span class="line">.text:00401176                 push    eax             ; lpExistingFileName</span><br><span class="line">.text:00401177                 call    ds:CopyFileA</span><br><span class="line">.text:0040117D                 jmp     short loc_4011EE</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211025145148050.png" alt="image-20211025145148050"></p>
+<p>分别来看这5条语句调用函数的地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">.text:0040115A loc_40115A:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:0040115A                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:0040115A                 push    0               ; jumptable 00401153 case 97</span><br><span class="line">.text:0040115C                 push    offset PathName ; &quot;C:\\Temp&quot;</span><br><span class="line">.text:00401161                 call    ds:CreateDirectoryA</span><br><span class="line">.text:00401167                 jmp     loc_4011EE</span><br><span class="line">.text:0040116C ; ---------------------------------------------------------------------------</span><br><span class="line">.text:0040116C</span><br><span class="line">.text:0040116C loc_40116C:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:0040116C                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:0040116C                 push    1               ; jumptable 00401153 case 98</span><br><span class="line">.text:0040116E                 push    offset Data     ; &quot;C:\\Temp\\cc.exe&quot;</span><br><span class="line">.text:00401173                 mov     eax, [ebp+lpExistingFileName]</span><br><span class="line">.text:00401176                 push    eax             ; lpExistingFileName</span><br><span class="line">.text:00401177                 call    ds:CopyFileA</span><br><span class="line">.text:0040117D                 jmp     short loc_4011EE</span><br><span class="line">.text:0040117F ; ---------------------------------------------------------------------------</span><br><span class="line">.text:0040117F</span><br><span class="line">.text:0040117F loc_40117F:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:0040117F                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:0040117F                 push    offset Data     ; jumptable 00401153 case 99</span><br><span class="line">.text:00401184                 call    ds:DeleteFileA</span><br><span class="line">.text:0040118A                 jmp     short loc_4011EE</span><br><span class="line">.text:0040118C ; ---------------------------------------------------------------------------</span><br><span class="line">.text:0040118C</span><br><span class="line">.text:0040118C loc_40118C:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:0040118C                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:0040118C                 lea     ecx, [ebp+phkResult] ; jumptable 00401153 case 100</span><br><span class="line">.text:0040118F                 push    ecx             ; phkResult</span><br><span class="line">.text:00401190                 push    0F003Fh         ; samDesired</span><br><span class="line">.text:00401195                 push    0               ; ulOptions</span><br><span class="line">.text:00401197                 push    offset SubKey   ; &quot;Software\\Microsoft\\Windows\\CurrentVe&quot;...</span><br><span class="line">.text:0040119C                 push    80000002h       ; hKey</span><br><span class="line">.text:004011A1                 call    ds:RegOpenKeyExA</span><br><span class="line">.text:004011A7                 push    0Fh             ; cbData</span><br><span class="line">.text:004011A9                 push    offset Data     ; &quot;C:\\Temp\\cc.exe&quot;</span><br><span class="line">.text:004011AE                 push    1               ; dwType</span><br><span class="line">.text:004011B0                 push    0               ; Reserved</span><br><span class="line">.text:004011B2                 push    offset ValueName ; &quot;Malware&quot;</span><br><span class="line">.text:004011B7                 mov     edx, [ebp+phkResult]</span><br><span class="line">.text:004011BA                 push    edx             ; hKey</span><br><span class="line">.text:004011BB                 call    ds:RegSetValueExA</span><br><span class="line">.text:004011C1                 test    eax, eax</span><br><span class="line">.text:004011C3                 jz      short loc_4011D2</span><br><span class="line">.text:004011C5                 push    offset aError31CouldNo ; &quot;Error 3.1: Could not set Registry value&quot;...</span><br><span class="line">.text:004011CA                 call    sub_401271</span><br><span class="line">.text:004011CF                 add     esp, 4</span><br><span class="line">.text:004011D2</span><br><span class="line">.text:004011D2 loc_4011D2:                             ; CODE XREF: sub_401130+93↑j</span><br><span class="line">.text:004011D2                 jmp     short loc_4011EE</span><br><span class="line">.text:004011D4 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:004011D4</span><br><span class="line">.text:004011D4 loc_4011D4:                             ; CODE XREF: sub_401130+23↑j</span><br><span class="line">.text:004011D4                                         ; DATA XREF: .text:jpt_401153↓o</span><br><span class="line">.text:004011D4                 push    186A0h          ; jumptable 00401153 case 101</span><br><span class="line">.text:004011D9                 call    ds:Sleep</span><br><span class="line">.text:004011DF                 jmp     short loc_4011EE</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a：调用createdirectory函数，参数是 C:\\Temp，如果该目录不存在，则创建该目录</span><br><span class="line">b：调用copy file函数，两个参数分别是源文件（argv[0]即目标程序）和目的文件（C:\\Temp\cc.exe）</span><br><span class="line">c：调用deletefile函数，当 C:\\Temp\cc.exe 文件存在时删除它</span><br><span class="line">d：调用 RegSet ValueExA和 RegOpenKeyExA 在注册表中添加开机自启，即将Software\Microsoft Windows \CurrentVersion\Run\Malware 的值添加为C:\\Temp\cc.exe,这样目标机器每次开机时都会启动该恶意程序 </span><br><span class="line">e：调用sleep函数，参数100s</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><p>该程序的主要功能也了然于胸了，首先 if 判断是否联网，不联网程序终止。联网的话程序会去下载一个网页，其中包含了html的注释头部，并解析出第一个字符，用来校验switch的参数，决定执行哪条语句（创建目录/拷贝文件/删除文件/修改注册表/sleep）</p>
+<h2 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h2><h4 id="详细分析-3"><a href="#详细分析-3" class="headerlink" title="详细分析"></a>详细分析</h4><p>首先还是先看下导入表，和前面一样，并没有多余的改变。</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026005112318.png" alt="image-20211026005112318"></p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026005218171.png" alt="image-20211026005218171"></p>
+<p>字符串的唯一变化就是多了 Internet Explorer 7.5 ，看来是多了个 user-agent 代理</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026005746253.png" alt="image-20211026005746253"></p>
+<p>相同的这些就不说了，来看看不同点有哪些</p>
+<p>来到main函数这里，也是很多相同的函数，401000（判断Internet是否连接），401040（解析HTML），4012b5（printf函数），401150（switch语句）</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026010144588.png" alt="image-20211026010144588"></p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026010305611.png" alt="image-20211026010305611"></p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026010412326.png" alt="image-20211026010412326"></p>
+<p>而当我们看整个函数视图的时候，发现了一个向上的箭头，很明显出现了循环</p>
+<p><img src="/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/image-20211026011002118.png" alt="image-20211026011002118"></p>
+<p>那就来分析下这段循环结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">00401248 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:00401248</span><br><span class="line">.text:00401248 loc_401248:                             ; CODE XREF: _main+12↑j</span><br><span class="line">.text:00401248                 mov     [ebp+var_C], 0</span><br><span class="line">.text:0040124F                 jmp     short loc_40125A</span><br><span class="line">.text:00401251 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:00401251</span><br><span class="line">.text:00401251 loc_401251:                             ; CODE XREF: _main+7D↓j</span><br><span class="line">.text:00401251                 mov     eax, [ebp+var_C]</span><br><span class="line">.text:00401254                 add     eax, 1</span><br><span class="line">.text:00401257                 mov     [ebp+var_C], eax</span><br><span class="line">.text:0040125A</span><br><span class="line">.text:0040125A loc_40125A:                             ; CODE XREF: _main+1F↑j</span><br><span class="line">.text:0040125A                 cmp     [ebp+var_C], 5A0h</span><br><span class="line">.text:00401261                 jge     short loc_4012AF</span><br><span class="line">.text:00401263                 mov     ecx, [ebp+var_C]</span><br><span class="line">.text:00401266                 push    ecx</span><br><span class="line">.text:00401267                 call    sub_401040</span><br><span class="line">.text:0040126C                 add     esp, 4</span><br><span class="line">.text:0040126F                 mov     [ebp+var_8], al</span><br><span class="line">.text:00401272                 movsx   edx, [ebp+var_8]</span><br><span class="line">.text:00401276                 test    edx, edx</span><br><span class="line">.text:00401278                 jnz     short loc_40127E</span><br><span class="line">.text:0040127A                 xor     eax, eax</span><br><span class="line">.text:0040127C                 jmp     short loc_4012B1</span><br><span class="line">.text:0040127E ; ---------------------------------------------------------------------------</span><br><span class="line">.text:0040127E</span><br><span class="line">.text:0040127E loc_40127E:                             ; CODE XREF: _main+48↑j</span><br><span class="line">.text:0040127E                 movsx   eax, [ebp+var_8]</span><br><span class="line">.text:00401282                 push    eax</span><br><span class="line">.text:00401283                 push    offset aSuccessParsedC ; &quot;Success: Parsed command is %c\n&quot;</span><br><span class="line">.text:00401288                 call    sub_4012B5</span><br><span class="line">.text:0040128D                 add     esp, 8</span><br><span class="line">.text:00401290                 mov     ecx, [ebp+argv]</span><br><span class="line">.text:00401293                 mov     edx, [ecx]</span><br><span class="line">.text:00401295                 push    edx             ; lpExistingFileName</span><br><span class="line">.text:00401296                 mov     al, [ebp+var_8]</span><br><span class="line">.text:00401299                 push    eax             ; char</span><br><span class="line">.text:0040129A                 call    sub_401150</span><br><span class="line">.text:0040129F                 add     esp, 8</span><br><span class="line">.text:004012A2                 push    0EA60h          ; dwMilliseconds</span><br><span class="line">.text:004012A7                 call    ds:Sleep</span><br><span class="line">.text:004012AD                 jmp     short loc_401251</span><br></pre></td></tr></table></figure>
+
+<p>很明显，var_c 是用来循环计数的，在 4012AD 处 jmp 401251，返回递增，如果大于5A0h(1440d) 就在401261处跳出循环到 4012AF，循环结束.否则程序接着运行，在401263处开始。将ecx（var_c） push入栈，接着调用401040（解析html）函数，然后慢慢执行，在4012A7 处调用sleep函数，参数是 EA60h（60000d），即1分钟，所以这个程序会sleep 1440 分钟（24小时）</p>
+<p>在上一个程序中，401040 处并没有参数，而这里传入了 arg_0 作为参数，并且是唯一的参数，而在调用 401040 前，push进了ecx，即var_c，所以这里的arg_0 就是var_c（计数器），push arg_0入栈后，接着push了  Internet Explorer 7.50/pma%d 字符串，和 szAgent的地址。然后调用_sprintf 函数，用来将格式化的数据写入字符串，并存储在szAgent 中。然后在40106a调用 INternetOpen 函数，传入的参数是 szAgent，也就是说，每次var_C 计数器增加后， user-agent长度也会随之改变。这里就可以用来监测该程序运行了多长时间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">text:00401040                 push    ebp</span><br><span class="line">.text:00401041                 mov     ebp, esp</span><br><span class="line">.text:00401043                 sub     esp, 230h</span><br><span class="line">.text:00401049                 mov     eax, [ebp+arg_0]</span><br><span class="line">.text:0040104C                 push    eax</span><br><span class="line">.text:0040104D                 push    offset Format   ; &quot;Internet Explorer 7.50/pma%d&quot;</span><br><span class="line">.text:00401052                 lea     ecx, [ebp+szAgent]</span><br><span class="line">.text:00401055                 push    ecx             ; Buffer</span><br><span class="line">.text:00401056                 call    _sprintf</span><br><span class="line">.text:0040105B                 add     esp, 0Ch</span><br><span class="line">.text:0040105E                 push    0               ; dwFlags</span><br><span class="line">.text:00401060                 push    0               ; lpszProxyBypass</span><br><span class="line">.text:00401062                 push    0               ; lpszProxy</span><br><span class="line">.text:00401064                 push    0               ; dwAccessType</span><br><span class="line">.text:00401066                 lea     edx, [ebp+szAgent]</span><br><span class="line">.text:00401069                 push    edx             ; lpszAgent</span><br><span class="line">.text:0040106A                 call    ds:InternetOpenA</span><br><span class="line">.text:00401070                 mov     [ebp+hInternet], eax</span><br><span class="line">.text:00401073                 push    0               ; dwContext</span><br><span class="line">.text:00401075                 push    0               ; dwFlags</span><br><span class="line">.text:00401077                 push    0               ; dwHeadersLength</span><br><span class="line">.text:00401079                 push    0               ; lpszHeaders</span><br><span class="line">.text:0040107B                 push    offset szUrl    ; &quot;http://www.practicalmalwareanalysis.com&quot;...</span><br><span class="line">.text:00401080                 mov     eax, [ebp+hInternet]</span><br><span class="line">.text:00401083                 push    eax             ; hInternet</span><br><span class="line">.text:00401084                 call    ds:InternetOpenUrlA</span><br><span class="line">.text:0040108A                 mov     [ebp+hFile], eax</span><br><span class="line">.text:0040108D                 cmp     [ebp+hFile], 0</span><br><span class="line">.text:00401091                 jnz     short loc_4010B1</span><br><span class="line">.text:00401093                 push    offset aError21FailToO ; &quot;Error 2.1: Fail to OpenUrl\n&quot;</span><br><span class="line">.text:00401098                 call    sub_4012B5</span><br><span class="line">.text:0040109D                 add     esp, 4</span><br><span class="line">.text:004010A0                 mov     ecx, [ebp+hInternet]</span><br><span class="line">.text:004010A3                 push    ecx             ; hInternet</span><br><span class="line">.text:004010A4                 call    ds:InternetCloseHandle</span><br><span class="line">.text:004010AA                 xor     al, al</span><br><span class="line">.text:004010AC                 jmp     loc_401140</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><p>首先，程序会使用if结构检查是否建立连接。如果无，程序终止运行。否则，程序使用<br>一个上面提到的的User-Agent 来下载一个html， 这个User-Agent包含了一个循环结构的计数器，用于向attacker显示程序已<br>经运行了多长时间。下载的网页中包含了以&lt;!–开头的html注释代码，这段注释代码中<br>接下来的第一个字符被用于一个switch语句，以决定接下来在本地系统的行为。包括删除文件、创建个目录、 设置一个注册表run键、复制文件、休眠100秒等。最终该程序会运行24小时后终止。</p>
+<h2 id="总结-4"><a href="#总结-4" class="headerlink" title="总结"></a>总结</h2><p>通过简单的反汇编看简单恶意文件的C语言结构就先到这里，思路我上面都有提到，更复杂的我也正在慢慢学习，如有不足，欢迎师傅们斧正。</p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01"><span class="toc-number">2.</span> <span class="toc-text">0x01</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02"><span class="toc-number">4.</span> <span class="toc-text">0x02</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">4.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03"><span class="toc-number">5.</span> <span class="toc-text">0x03</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-2"><span class="toc-number">5.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-2"><span class="toc-number">5.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04"><span class="toc-number">6.</span> <span class="toc-text">0x04</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90-3"><span class="toc-number">6.0.1.</span> <span class="toc-text">详细分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-3"><span class="toc-number">6.1.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-4"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&text=从反汇编看恶意程序的C语言结构"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&is_video=false&description=从反汇编看恶意程序的C语言结构"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从反汇编看恶意程序的C语言结构&body=Check out this article: https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&title=从反汇编看恶意程序的C语言结构"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&name=从反汇编看恶意程序的C语言结构&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/833&#34;&gt;https://forum.butian.net/share/833&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/11/04/%E5%8F%8D%E6%B1%87%E7%BC%96%E7%9C%8B%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8F%E7%9A%84C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84/&t=从反汇编看恶意程序的C语言结构"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

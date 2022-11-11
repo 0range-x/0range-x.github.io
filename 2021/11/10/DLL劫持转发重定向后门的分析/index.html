@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
+    <meta name="description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;857">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DLL劫持转发重定向后门的分析">
+<meta property="og:url" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="0r@nge の窝">
+<meta property="og:description" content="本文首发于奇安信攻防社区，原文链接：https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;857">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030170613133.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030180036980.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030180645492.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030181141170.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030182855386.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030183150593.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030183356506.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030183957689.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030190854333.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030191233951.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030174426383.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030174914026.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211102234302125.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103000336042.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103001628051.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103001951131.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103002543690.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103002651417.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103003010628.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103004617789.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103005237844.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103005344307.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103005653578.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103011813447.png">
+<meta property="og:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103011924433.png">
+<meta property="article:published_time" content="2021-11-10T14:05:10.000Z">
+<meta property="article:modified_time" content="2021-12-10T07:01:35.890Z">
+<meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="后门">
+<meta property="article:tag" content="病毒">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030170613133.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/icon.jpg">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/icon.jpg" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/icon.jpg">
+        
+      
+    
+    <!-- title -->
+    <title>DLL劫持转发重定向后门的分析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/true" title="0r@nge の窝" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Categories</a></li><!--
+     --><!--
+       --><li><a href="/links">Links</a></li><!--
+     --><!--
+       --><li><a href="/atom.xml">RSS</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2021/11/15/PSexec%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2021/11/05/%E8%BD%AC%E8%BD%BD-%E7%BA%A2%E9%98%9F%E4%BD%9C%E6%88%98%E6%89%8B%E5%86%8C/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&text=DLL劫持转发重定向后门的分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&is_video=false&description=DLL劫持转发重定向后门的分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DLL劫持转发重定向后门的分析&body=Check out this article: https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&name=DLL劫持转发重定向后门的分析&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/857&#34;&gt;https://forum.butian.net/share/857&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&t=DLL劫持转发重定向后门的分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-DLL%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">0x01 DLL文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-EXE%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">0x02 EXE文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        DLL劫持转发重定向后门的分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">0r@nge</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-11-10T14:05:10.000Z" itemprop="datePublished">2021-11-10</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%9C%A8%E9%A9%AC%E5%88%86%E6%9E%90/">木马分析</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%90%8E%E9%97%A8/" rel="tag">后门</a>, <a class="tag-link-link" href="/tags/%E7%97%85%E6%AF%92/" rel="tag">病毒</a>
+    </div>
+
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>本文首发于奇安信攻防社区，原文链接：<a target="_blank" rel="noopener" href="https://forum.butian.net/share/857">https://forum.butian.net/share/857</a></p>
+<span id="more"></span>
+
+
+
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>这次分析的是一个exe +dll文件，很明显，在exe执行的时候应该要动态链接该dll的，那就一个个分析，逐一攻破。</p>
+<h2 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h2><h3 id="0x01-DLL文件"><a href="#0x01-DLL文件" class="headerlink" title="0x01 DLL文件"></a>0x01 DLL文件</h3><p>几个导入函数。包括 <code>CreateProcessA</code>以及<code>WS2_32.dll</code> 的通过网络接收和发送数据的函数。<img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030170613133.png" alt="image-20211030170613133"></p>
+<p>但是该dll文件的字符串很有意思，其中还包括了一个 IP地址 <code>127.26.152.13</code></p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030180036980.png" alt="image-20211030180036980"></p>
+<p>另一点比较奇怪的是该dll文件并没有导出函数。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030180645492.png" alt="image-20211030180645492"></p>
+<p>那就先从入口点分析吧。但是……指令贼多，一句一句分析效率太慢了。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030181141170.png" alt="image-20211030181141170"></p>
+<p>先看call 指令调用的函数吧。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">10001015 			call 	alloca_ probe		//调用库函数__alloca_probe分配栈空间</span><br><span class="line">10001059 			call 	ds:OpenMutexA		//打开互斥量</span><br><span class="line">1000106E 			call 	ds:CreateMutexA		//创建互斥量  这两个在一起保证同一时间只有这个程序的一个实例在运行</span><br><span class="line">1000107E 			call 	ds:WSAStartup		//WS2_32.dll的一个函数</span><br><span class="line">10001092 			call 	ds:socket</span><br><span class="line">100010AF 			call 	ds:inet addr</span><br><span class="line">100010BB 			call 	ds:htons</span><br><span class="line">100010CE 			call 	ds:connect</span><br><span class="line">10001101 			call 	ds:send</span><br><span class="line">10001113 			cal1 	ds:shutdown</span><br><span class="line">10001132 			call 	ds:recv				//一直到这里，都是为了建立网络连接socket通信</span><br><span class="line">1000114B 			call 	ebp;strncmp </span><br><span class="line">10001159 			call 	ds:Sleep</span><br><span class="line">10001170 			call 	ebp ; strncmp </span><br><span class="line">100011AF 			call 	ebx ; CreateProcessA	//创建进程</span><br><span class="line">100011C5 			call 	ds:Sleep			</span><br></pre></td></tr></table></figure>
+
+<p>到这里大概可以猜一下，该dll文件建立通信后创建进程，很像我们建立shell的行为。</p>
+<p>接下来看函数的具体参数。</p>
+<p><code>connect</code>连接的是 <code>127.26.152.13</code>这个IP地址，并且端口是 50h，即80端口。emm80端口，猜测可能走http协议进行通信，找一下通信的流量</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030182855386.png" alt="image-20211030182855386"></p>
+<p>这里 buf数组存入了 hello 字符串……好像cobalt strike里的娱乐弹窗……</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030183150593.png" alt="image-20211030183150593"></p>
+<p>看下<code>recv</code>接收的流量。在 <code>10001124</code>处，lea 指令访问 buf，指针指向buf这块缓冲区，接着 <code>push</code>了3个参数，调用 <code>recv</code>指令，但这里好像也看不出来什么</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030183356506.png" alt="image-20211030183356506"></p>
+<p>接着往下看。<code>1000114B</code>cmp 前面是不是 <code>sleep</code>字符串，它会在 <code>10001150</code>处检查是否返回值是否为0，如果是0，调用 <code>sleep</code>函数</p>
+<p>也就是说如果远程shell终端发送的命令是sleep，则执行sleep函数</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030183957689.png" alt="image-20211030183957689"></p>
+<p>到这里并没有结束，buf 缓冲区还在被使用。首先检查指令是不是 <code>exec</code>，如果是，<code>strncpy</code>函数返回0，顺序执行，直到 <code>100011AF</code>处创建进程。看到<code>CreateProcessA</code>有很多参数，不过最重要的还是 <code>lpCOmmandLine</code>，它来自<code>1000119B</code>处的 <code>CommandLine</code>,双击追踪这个参数发现它在栈空间中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">.text:10001161 loc_10001161:                           ; CODE XREF: DllMain(x,x,x)+142↑j</span><br><span class="line">.text:10001161                 lea     edx, [esp+1208h+buf]</span><br><span class="line">.text:10001168                 push    4               ; MaxCount</span><br><span class="line">.text:1000116A                 push    edx             ; Str2</span><br><span class="line">.text:1000116B                 push    offset aExec    ; &quot;exec&quot;</span><br><span class="line">.text:10001170                 call    ebp ; strncmp</span><br><span class="line">.text:10001172                 add     esp, 0Ch</span><br><span class="line">.text:10001175                 test    eax, eax</span><br><span class="line">.text:10001177                 jnz     short loc_100011B6</span><br><span class="line">.text:10001179                 mov     ecx, 11h</span><br><span class="line">.text:1000117E                 lea     edi, [esp+1208h+StartupInfo]</span><br><span class="line">.text:10001182                 rep stosd</span><br><span class="line">.text:10001184                 lea     eax, [esp+1208h+ProcessInformation]</span><br><span class="line">.text:10001188                 lea     ecx, [esp+1208h+StartupInfo]</span><br><span class="line">.text:1000118C                 push    eax             ; lpProcessInformation</span><br><span class="line">.text:1000118D                 push    ecx             ; lpStartupInfo</span><br><span class="line">.text:1000118E                 push    0               ; lpCurrentDirectory</span><br><span class="line">.text:10001190                 push    0               ; lpEnvironment</span><br><span class="line">.text:10001192                 push    8000000h        ; dwCreationFlags</span><br><span class="line">.text:10001197                 push    1               ; bInheritHandles</span><br><span class="line">.text:10001199                 push    0               ; lpThreadAttributes</span><br><span class="line">.text:1000119B                 lea     edx, [esp+1224h+CommandLine]</span><br><span class="line">.text:100011A2                 push    0               ; lpProcessAttributes</span><br><span class="line">.text:100011A4                 push    edx             ; lpCommandLine</span><br><span class="line">.text:100011A5                 push    0               ; lpApplicationName</span><br><span class="line">.text:100011A7                 mov     [esp+1230h+StartupInfo.cb], 44h ; &#x27;D&#x27;</span><br><span class="line">.text:100011AF                 call    ebx ; CreateProcessA</span><br><span class="line">.text:100011B1                 jmp     loc_100010E9</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030190854333.png" alt="image-20211030190854333"></p>
+<p>追踪到dllmain函数这里，发现它的初始值是 0FFBh，同时<code>buf</code>的初始值是<code>1000h</code>，说明缓冲区从这里开始。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030191233951.png" alt="image-20211030191233951"></p>
+<p>这里大概清楚了这个dll文件会创建进程来实现远程socket通信，对于攻击者来说就是弹shell，也就是后门。但是这个dll文件并没有导出函数，它怎么被调用执行啊……</p>
+<p>先放一放，看看exe文件</p>
+<h3 id="0x02-EXE文件"><a href="#0x02-EXE文件" class="headerlink" title="0x02 EXE文件"></a>0x02 EXE文件</h3><p>先看exe的导入表，其中几个重点关注下，当然不止这几个，这里我懒得敲了，等下逐个分析</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CreateFileMappingA</span><br><span class="line">CreateFileA</span><br><span class="line">CopyFileA</span><br></pre></td></tr></table></figure>
+
+<p>很明显，这里exe文件并没有在运行时导入该dll文件，导入函数中没有 <code>LoadLibrary/ GetProcAddress</code>，与前面分析dll文件正好对应</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030174426383.png" alt="image-20211030174426383"></p>
+<p>这几个字符串也是很有意思</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211030174914026.png" alt="image-20211030174914026"></p>
+<p>来看一看main函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">.text:00401440                 mov     eax, [esp+argc]</span><br><span class="line">.text:00401444                 sub     esp, 44h</span><br><span class="line">.text:00401447                 cmp     eax, 2</span><br><span class="line">.text:0040144A                 push    ebx</span><br><span class="line">.text:0040144B                 push    ebp</span><br><span class="line">.text:0040144C                 push    esi</span><br><span class="line">.text:0040144D                 push    edi</span><br><span class="line">.text:0040144E                 jnz     loc_401813</span><br><span class="line">.text:00401454                 mov     eax, [esp+54h+argv]</span><br><span class="line">.text:00401458                 mov     esi, offset aWarningThisWil ;&quot;WARNING_THIS_WILL_DESTROY_YOUR_MACHINE&quot;</span><br><span class="line">.text:0040145D                 mov     eax, [eax+4]</span><br><span class="line">.text:00401460</span><br><span class="line">.text:00401460 loc_401460:                             ; CODE XREF: _main+42↓j</span><br><span class="line">.text:00401460                 mov     dl, [eax]</span><br><span class="line">.text:00401462                 mov     bl, [esi]</span><br><span class="line">.text:00401464                 mov     cl, dl</span><br><span class="line">.text:00401466                 cmp     dl, bl</span><br><span class="line">.text:00401468                 jnz     short loc_401488</span><br><span class="line">.text:0040146A                 test    cl, cl</span><br><span class="line">.text:0040146C                 jz      short loc_401484</span><br><span class="line">.text:0040146E                 mov     dl, [eax+1]</span><br><span class="line">.text:00401471                 mov     bl, [esi+1]</span><br><span class="line">.text:00401474                 mov     cl, dl</span><br><span class="line">.text:00401476                 cmp     dl, bl</span><br><span class="line">.text:00401478                 jnz     short loc_401488</span><br><span class="line">.text:0040147A                 add     eax, 2</span><br><span class="line">.text:0040147D                 add     esi, 2</span><br><span class="line">.text:00401480                 test    cl, cl</span><br><span class="line">.text:00401482                 jnz     short loc_401460</span><br><span class="line">.text:00401484</span><br><span class="line">.text:00401484 loc_401484:                             ; CODE XREF: _main+2C↑j</span><br><span class="line">.text:00401484                 xor     eax, eax</span><br><span class="line">.text:00401486                 jmp     short loc_40148D</span><br></pre></td></tr></table></figure>
+
+<p>先分析关键指令，在 <code>401447</code>处会比较 eax/argc （即传递的参数的个数）是否为2，如果不是2，跳转到 <code>101813</code>，程序终止，这里启动程序时添加参数是为了防止意外启动造成不必要的后果。否则继续执行。在 <code>401458</code>处将 “WARNING_THIS_WILL_DESTROY_YOUR_MACHINE” 字符串放入 esi 寄存器中，在 <code>40145D</code>中，eax 存储 argv[1]。接着比较 argv[1] 的值是不是  “WARNING_THIS_WILL_DESTROY_YOUR_MACHINE” ，如果不是，跳转到 <code>401488</code>,程序终止。注意在 <code>401482</code>处的跳转到 <code>401460</code>，往回跳转，很明显是个循环。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211102234302125.png" alt="image-20211102234302125"></p>
+<p>接下来分析 <code>40148D</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">.text:0040148D loc_40148D:                             ; CODE XREF: _main+46↑j</span><br><span class="line">.text:0040148D                 test    eax, eax</span><br><span class="line">.text:0040148F                 jnz     loc_401813</span><br><span class="line">.text:00401495                 mov     edi, ds:CreateFileA</span><br><span class="line">.text:0040149B                 push    eax             ; hTemplateFile</span><br><span class="line">.text:0040149C                 push    eax             ; dwFlagsAndAttributes</span><br><span class="line">.text:0040149D                 push    3               ; dwCreationDisposition</span><br><span class="line">.text:0040149F                 push    eax             ; lpSecurityAttributes</span><br><span class="line">.text:004014A0                 push    1               ; dwShareMode</span><br><span class="line">.text:004014A2                 push    80000000h       ; dwDesiredAccess</span><br><span class="line">.text:004014A7                 push    offset FileName ; &quot;C:\\Windows\\System32\\Kernel32.dll&quot;</span><br><span class="line">.text:004014AC                 call    edi ; CreateFileA</span><br><span class="line">.text:004014AE                 mov     ebx, ds:CreateFileMappingA</span><br><span class="line">.text:004014B4                 push    0               ; lpName</span><br><span class="line">.text:004014B6                 push    0               ; dwMaximumSizeLow</span><br><span class="line">.text:004014B8                 push    0               ; dwMaximumSizeHigh</span><br><span class="line">.text:004014BA                 push    2               ; flProtect</span><br><span class="line">.text:004014BC                 push    0               ; lpFileMappingAttributes</span><br><span class="line">.text:004014BE                 push    eax             ; hFile</span><br><span class="line">.text:004014BF                 mov     [esp+6Ch+hObject], eax</span><br><span class="line">.text:004014C3                 call    ebx ; CreateFileMappingA</span><br><span class="line">.text:004014C5                 mov     ebp, ds:MapViewOfFile</span><br><span class="line">.text:004014CB                 push    0               ; dwNumberOfBytesToMap</span><br><span class="line">.text:004014CD                 push    0               ; dwFileOffsetLow</span><br><span class="line">.text:004014CF                 push    0               ; dwFileOffsetHigh</span><br><span class="line">.text:004014D1                 push    4               ; dwDesiredAccess</span><br><span class="line">.text:004014D3                 push    eax             ; hFileMappingObject</span><br><span class="line">.text:004014D4                 call    ebp ; MapViewOfFile</span><br><span class="line">.text:004014D6                 push    0               ; hTemplateFile</span><br><span class="line">.text:004014D8                 push    0               ; dwFlagsAndAttributes</span><br><span class="line">.text:004014DA                 push    3               ; dwCreationDisposition</span><br><span class="line">.text:004014DC                 push    0               ; lpSecurityAttributes</span><br><span class="line">.text:004014DE                 push    1               ; dwShareMode</span><br><span class="line">.text:004014E0                 mov     esi, eax</span><br><span class="line">.text:004014E2                 push    10000000h       ; dwDesiredAccess</span><br><span class="line">.text:004014E7                 push    offset ExistingFileName ; &quot;Lab07-03.dll&quot;</span><br><span class="line">.text:004014EC                 mov     [esp+70h+argc], esi</span><br><span class="line">.text:004014F0                 call    edi ; CreateFileA</span><br><span class="line">.text:004014F2                 cmp     eax, 0FFFFFFFFh</span><br><span class="line">.text:004014F5                 mov     [esp+54h+var_4], eax</span><br><span class="line">.text:004014F9                 push    0               ; lpName</span><br><span class="line">.text:004014FB                 jnz     short loc_401503</span><br><span class="line">.text:004014FD                 call    ds:exit</span><br></pre></td></tr></table></figure>
+
+<p>在<code>4014AC</code>处调用了 <code>CreateFileA</code>，接着还有 <code>CreateFileMappingA/MapViewOfFile/</code>，所以这么多函数到底干了什么？毋庸置疑的是 创建了 <code>Kernel32.dll</code>这个文件，<code>CreateFileMappingA</code>这是一个共享内存函数，会 创建一个文件映射对象，目的是为了写入内存中，这里的参数就是 <code>kernel32.dll</code>，接着利用<code>MapViewOfFile</code>将文件映射到进程地址空间</p>
+<p>接着往下看，在 <code>4017D4</code>这里，调用了两个 <code>CloseHandle</code>，因为对前面的文件已经操作完毕。接着在 <code>4017F4</code>处调用 <code>CopyFileA</code>，将 恶意dll文件 copy为 kernel32.dll，这样就可以理解为什么 该恶意dll文件没有被导出了，很常规的一次dll劫持</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103000336042.png" alt="image-20211103000336042"></p>
+<p>紧接着传入了C盘的盘符，调用了 <code>4011E0</code>，</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103001628051.png" alt="image-20211103001628051"></p>
+<p>来到 <code>4011E0</code>处，只调用了 <code>FindFirstFileA</code>，来搜索C盘符，</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103001951131.png" alt="image-20211103001951131"></p>
+<p>接下来的call指令就是 <code>stricmp</code>，找一下它push的参数，会比较字符串是否是<code>.exe</code>， </p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103002543690.png" alt="image-20211103002543690"></p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103002651417.png" alt="image-20211103002651417"></p>
+<p>在这之后会调用 <code>FindNextFileA</code>，查找下一个文件，然后在 <code>401427</code>处jmp 到 <code>401210</code>，往前跳转，说明这是一个循环，然后在<code>40142E</code>处调用 <code>FindClose</code>函数，终止。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103003010628.png" alt="image-20211103003010628"></p>
+<p>到这里，梳理一下，这个函数在找C盘里的exe文件，并且匹配相应的dll，接着进行一系列操作。</p>
+<p>接着<code>call 4011A0</code>，看到 <code>4010A0</code>处的函数调用。</p>
+<p>依旧是调用了 <code>CreateFileA/ CreateFileMappingA/ MapViewOfFile  </code>用来将文件映射到内存中。</p>
+<p>接着调用 <code>IsBadReadPtr</code>函数，检查调用进程是否具有读取指定内存区域的权限。下面都是对该函数的一些算术运算，直接pass</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">.text:004010A0                 sub     esp, 0Ch</span><br><span class="line">.text:004010A3                 push    ebx</span><br><span class="line">.text:004010A4                 mov     eax, [esp+10h+lpFileName]</span><br><span class="line">.text:004010A8                 push    ebp</span><br><span class="line">.text:004010A9                 push    esi</span><br><span class="line">.text:004010AA                 push    edi</span><br><span class="line">.text:004010AB                 push    0               ; hTemplateFile</span><br><span class="line">.text:004010AD                 push    0               ; dwFlagsAndAttributes</span><br><span class="line">.text:004010AF                 push    3               ; dwCreationDisposition</span><br><span class="line">.text:004010B1                 push    0               ; lpSecurityAttributes</span><br><span class="line">.text:004010B3                 push    1               ; dwShareMode</span><br><span class="line">.text:004010B5                 push    10000000h       ; dwDesiredAccess</span><br><span class="line">.text:004010BA                 push    eax             ; lpFileName</span><br><span class="line">.text:004010BB                 call    ds:CreateFileA</span><br><span class="line">.text:004010C1                 push    0               ; lpName</span><br><span class="line">.text:004010C3                 push    0               ; dwMaximumSizeLow</span><br><span class="line">.text:004010C5                 push    0               ; dwMaximumSizeHigh</span><br><span class="line">.text:004010C7                 push    4               ; flProtect</span><br><span class="line">.text:004010C9                 push    0               ; lpFileMappingAttributes</span><br><span class="line">.text:004010CB                 push    eax             ; hFile</span><br><span class="line">.text:004010CC                 mov     [esp+34h+var_4], eax</span><br><span class="line">.text:004010D0                 call    ds:CreateFileMappingA</span><br><span class="line">.text:004010D6                 push    0               ; dwNumberOfBytesToMap</span><br><span class="line">.text:004010D8                 push    0               ; dwFileOffsetLow</span><br><span class="line">.text:004010DA                 push    0               ; dwFileOffsetHigh</span><br><span class="line">.text:004010DC                 push    0F001Fh         ; dwDesiredAccess</span><br><span class="line">.text:004010E1                 push    eax             ; hFileMappingObject</span><br><span class="line">.text:004010E2                 mov     [esp+30h+hObject], eax</span><br><span class="line">.text:004010E6                 call    ds:MapViewOfFile</span><br><span class="line">.text:004010EC                 mov     esi, eax</span><br><span class="line">.text:004010EE                 test    esi, esi</span><br><span class="line">.text:004010F0                 mov     [esp+1Ch+var_C], esi</span><br><span class="line">.text:004010F4                 jz      loc_4011D5</span><br><span class="line">.text:004010FA                 mov     ebp, [esi+3Ch]</span><br><span class="line">.text:004010FD                 mov     ebx, ds:IsBadReadPtr</span><br><span class="line">.text:00401103                 add     ebp, esi</span><br><span class="line">.text:00401105                 push    4               ; ucb</span><br><span class="line">.text:00401107                 push    ebp             ; lp</span><br><span class="line">.text:00401108                 call    ebx ; IsBadReadPtr</span><br><span class="line">.text:0040110A                 test    eax, eax</span><br><span class="line">.text:0040110C                 jnz     loc_4011D5</span><br><span class="line">.text:00401112                 cmp     dword ptr [ebp+0], 4550h</span><br><span class="line">.text:00401119                 jnz     loc_4011D5</span><br><span class="line">.text:0040111F                 mov     ecx, [ebp+80h]</span><br><span class="line">.text:00401125                 push    esi</span><br><span class="line">.text:00401126                 push    ebp</span><br><span class="line">.text:00401127                 push    ecx</span><br><span class="line">.text:00401128                 call    sub_401040</span><br><span class="line">.text:0040112D                 add     esp, 0Ch</span><br><span class="line">.text:00401130                 mov     edi, eax</span><br><span class="line">.text:00401132                 push    14h             ; ucb</span><br><span class="line">.text:00401134                 push    edi             ; lp</span><br><span class="line">.text:00401135                 call    ebx ; IsBadReadPtr</span><br><span class="line">.text:00401137                 test    eax, eax</span><br><span class="line">.text:00401139                 jnz     loc_4011D5</span><br><span class="line">.text:0040113F                 add     edi, 0Ch</span><br></pre></td></tr></table></figure>
+
+
+
+<p>继续往下看，找到了 <code>stricmp</code>函数调用，来检查 字符串是否是 <code>kernel32.dll</code>，接着在<code>401186</code>处调用 <code>repne scasb</code>，用来重复扫描特定字符串的长度， 在<code>401196</code>处调用 <code>rep movsd</code>。这里的用处和 <code>strlen+memcpy</code>函数是等价的。至于往内存中写入的是什么东西，看下edi寄存器里存的是什么，</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103004617789.png" alt="image-20211103004617789"></p>
+<p>定位到<code>403010</code>处，</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103005237844.png" alt="image-20211103005237844"></p>
+<p>这里存储的是 <code>kernel32.dll</code>这个字符串，按下A键，可以看到转换为了该字符串。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103005344307.png" alt="image-20211103005344307"></p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103005653578.png" alt="image-20211103005653578"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此，梳理下，这个exe文件遍历C盘查找所有的 exe文件，并且找到其中 <code>kernel32.dll</code>的位置，并且用我们的恶意dll文件替换它，简单来说就是劫持 <code>kernel32.dll</code>。但是也不对啊，这个恶意dll只是实现了后门的功能，并没有正常<code>kernel32.dll</code>的功能，按理说劫持后exe文件会运行失败。</p>
+<p>动态分析，在恶意代码运行后，正常<code>kernel32.dll</code>的md5并没有被改变，说明该dll没有被修改。而当我们再次看我们的恶意dll时，发现它导出了所有的<code>kernel32.dll</code>的导出函数，这些导出函数是重定向后的，相当于做了一次转发。功能还在原来的<code>kernel32.dll</code>上，只是程序运行时会加载我们的恶意dll。所以在main函数中访问 <code>kernel32.dll</code>和我们的恶意dll，是在解析<code>kernel32.dll</code>中的导出段并且在恶意dll中创建一个导出段，用来导出并转发函数。这是一个重定向转发dll劫持。</p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103011813447.png" alt="image-20211103011813447"></p>
+<p><img src="/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/image-20211103011924433.png" alt="image-20211103011924433"></p>
+<p>Peace.</p>
+
+  </div>
+</article>
+
+    <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+    <div id="vcomments" class="blog-post-comments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            visitor: true,
+            appId: '7u7uebjtVAc7zqC8W6KLczVp-gzGzoHsz',
+            appKey: 'MWpJPixdx6qnP8OBPnTR7Yd9',
+            placeholder: '',
+            avatar: 'mp'
+        })
+    </script>
+
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="/categories/">Categories</a></li>
+         
+          <li><a href="/links">Links</a></li>
+         
+          <li><a href="/atom.xml">RSS</a></li>
+         
+          <li><a href="/about/">About</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-DLL%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">0x01 DLL文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-EXE%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">0x02 EXE文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&text=DLL劫持转发重定向后门的分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&is_video=false&description=DLL劫持转发重定向后门的分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DLL劫持转发重定向后门的分析&body=Check out this article: https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&title=DLL劫持转发重定向后门的分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&name=DLL劫持转发重定向后门的分析&description=&lt;p&gt;本文首发于奇安信攻防社区，原文链接：&lt;a href=&#34;https://forum.butian.net/share/857&#34;&gt;https://forum.butian.net/share/857&lt;/a&gt;&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2021/11/10/DLL%E5%8A%AB%E6%8C%81%E8%BD%AC%E5%8F%91%E9%87%8D%E5%AE%9A%E5%90%91%E5%90%8E%E9%97%A8%E7%9A%84%E5%88%86%E6%9E%90/&t=DLL劫持转发重定向后门的分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2022
+    0r@nge
+  </div>
+  
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+</footer>
+
+    </div>
+
+    
+
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-86660611-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-86660611-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2e6da3c375c8a87f5b664cea6d4cb29c";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
