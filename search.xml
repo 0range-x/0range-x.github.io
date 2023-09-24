@@ -5529,14 +5529,14 @@
   </entry>
   <entry>
     <title>IIS 提权修复</title>
-    <url>/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/</url>
+    <url>/2023/09/24/IIS%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/</url>
     <content><![CDATA[<p>土豆提权是一个老生常谈的话题，近些年也衍生出了很多新的土豆提权方法，各种攻击方法层出不穷。但微软却并不认为这是漏洞，因此也一直没有修复。这里我给出两种修复的方法。mssql 也同理。<br>我们知道出现这个提权漏洞的原因是因为 IIS 服务有 seimpersonateprivilege 这个模拟特权，那我们把这个 IIS 服务用户的该特权删掉即可。</p>
 <p>介绍一下 IIS 的权限配置。<br>IIS_IUSRS组是用于管理IIS应用程序池权限的用户组。IIS_IUSRS组的主要用途是为IIS应用程序池（Application Pools）中运行的应用程序提供必要的权限。当在IIS中创建一个新的应用程序池时，该应用程序池的身份标识（Identity）会自动被添加到IIS_IUSRS用户组中。<br>所以有了 2 种限制权限方法，分别针对用户组与应用程序池的身份标识。</p>
-<h1 id="1-删除模拟特权"><a href="#1-删除模拟特权" class="headerlink" title="1. 删除模拟特权"></a>1. 删除模拟特权</h1><p>删除 IIS_IUSRS 组的特权即可<br><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171421507.png" alt="image-20230924171421507"><br>将 IIS_IUSRS 组的模拟特权删除，然后重启机器后重启 IIS 服务即可。<br>自动化方案</p>
+<h1 id="1-删除模拟特权"><a href="#1-删除模拟特权" class="headerlink" title="1. 删除模拟特权"></a>1. 删除模拟特权</h1><p>删除 IIS_IUSRS 组的特权即可<br><img src="/2023/09/24/IIS%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171421507.png" alt="image-20230924171421507"><br>将 IIS_IUSRS 组的模拟特权删除，然后重启机器后重启 IIS 服务即可。<br>自动化方案</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line">$secpolcfg = <span class="string">&quot;C:\Windows\Temp\secpol.cfg&quot;</span></span><br><span class="line">secedit /export /cfg $secpolcfg</span><br><span class="line">(Get-Content $secpolcfg) -replace <span class="string">&quot;SeImpersonatePrivilege = .*$&quot;</span>, <span class="string">&quot;SeImpersonatePrivilege = *S-1-5-32-544,*S-1-5-6&quot;</span> | Out-File $secpolcfg</span><br><span class="line">secedit /configure /db c:\windows\security\local.sdb /cfg $secpolcfg /areas user_rights</span><br><span class="line">rm -force $secpolcfg -confirm:$<span class="literal">false</span></span><br></pre></td></tr></table></figure>
-<h1 id="2-修改默认应用程序池的身份标识"><a href="#2-修改默认应用程序池的身份标识" class="headerlink" title="2. 修改默认应用程序池的身份标识"></a>2. 修改默认应用程序池的身份标识</h1><p><a href="https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities">https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities</a><br>默认网站的应用程序池的标识是 ApplicationPoolIdentity ，所以很多情况下攻击者在拿到 webshell 的情况下的权限是 DefaultAppPool/ApplicationPoolIdentity ，这个用户是有模拟特权的。<br><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171440756.png" alt="image-20230924171440756"></p>
-<p>可以新建一个普通用户来替换该用户。<br><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171452221.png" alt="image-20230924171452221"></p>
-<p><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171503121.png" alt="image-20230924171503121"><br>这时拿到的 webshell 权限即为 DefaultAppPool/test 。是默认普通用户组的权限。</p>
+<h1 id="2-修改默认应用程序池的身份标识"><a href="#2-修改默认应用程序池的身份标识" class="headerlink" title="2. 修改默认应用程序池的身份标识"></a>2. 修改默认应用程序池的身份标识</h1><p><a href="https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities">https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities</a><br>默认网站的应用程序池的标识是 ApplicationPoolIdentity ，所以很多情况下攻击者在拿到 webshell 的情况下的权限是 DefaultAppPool/ApplicationPoolIdentity ，这个用户是有模拟特权的。<br><img src="/2023/09/24/IIS%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171440756.png" alt="image-20230924171440756"></p>
+<p>可以新建一个普通用户来替换该用户。<br><img src="/2023/09/24/IIS%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171452221.png" alt="image-20230924171452221"></p>
+<p><img src="/2023/09/24/IIS%E5%9C%9F%E8%B1%86%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171503121.png" alt="image-20230924171503121"><br>这时拿到的 webshell 权限即为 DefaultAppPool/test 。是默认普通用户组的权限。</p>
 ]]></content>
       <categories>
         <category>windows</category>
