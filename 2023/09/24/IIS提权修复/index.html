@@ -9,20 +9,21 @@
     <meta name="baidu-site-verification" content="code-n4alrUzr1E" />
     <meta name="description" content="土豆提权是一个老生常谈的话题，近些年也衍生出了很多新的土豆提权方法，各种攻击方法层出不穷。但微软却并不认为这是漏洞，因此也一直没有修复。这里我给出两种修复的方法。mssql 也同理。我们知道出现这个提权漏洞的原因是因为 IIS 服务有 seimpersonateprivilege 这个模拟特权，那我们把这个 IIS 服务用户的该特权删掉即可。 介绍一下 IIS 的权限配置。IIS_IUSRS组是用">
 <meta property="og:type" content="article">
-<meta property="og:title" content="0r@nge の窝">
+<meta property="og:title" content="IIS 提权修复">
 <meta property="og:url" content="https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/index.html">
 <meta property="og:site_name" content="0r@nge の窝">
 <meta property="og:description" content="土豆提权是一个老生常谈的话题，近些年也衍生出了很多新的土豆提权方法，各种攻击方法层出不穷。但微软却并不认为这是漏洞，因此也一直没有修复。这里我给出两种修复的方法。mssql 也同理。我们知道出现这个提权漏洞的原因是因为 IIS 服务有 seimpersonateprivilege 这个模拟特权，那我们把这个 IIS 服务用户的该特权删掉即可。 介绍一下 IIS 的权限配置。IIS_IUSRS组是用">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695539535055-91f1436b-afc0-449f-a95f-036850eb5b46.png#averageHue=%23d7d5d0&clientId=u95f059b9-4c8c-4&from=paste&height=559&id=u448fcd74&originHeight=1118&originWidth=1742&originalType=binary&ratio=2&rotation=0&showTitle=false&size=2611919&status=done&style=none&taskId=u97c09dba-8d79-473a-b085-9148ca14086&title=&width=871">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695540236045-d3bbece0-6436-4981-8e8e-d4780a25b798.png#averageHue=%23f4f5f2&clientId=u95f059b9-4c8c-4&from=paste&height=252&id=u5d4d4844&originHeight=504&originWidth=2696&originalType=binary&ratio=2&rotation=0&showTitle=false&size=1479014&status=done&style=none&taskId=u184f9e96-1a34-4afa-b102-3e38c83ccda&title=&width=1348">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695540441840-cc82afba-842a-4d82-9c20-65e777a5b378.png#averageHue=%23edefec&clientId=u95f059b9-4c8c-4&from=paste&height=526&id=ud0a2bb83&originHeight=1052&originWidth=848&originalType=binary&ratio=2&rotation=0&showTitle=false&size=1039755&status=done&style=none&taskId=ue4b0aa52-d250-48b3-ad87-db91b1621f9&title=&width=424">
-<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695540580918-a52da2a6-b1d5-4065-bb93-f960fb697752.png#averageHue=%23f0f1ed&clientId=u95f059b9-4c8c-4&from=paste&height=171&id=ud30de4a0&originHeight=342&originWidth=1458&originalType=binary&ratio=2&rotation=0&showTitle=false&size=549763&status=done&style=none&taskId=u63f95972-be48-4019-939d-71d0c9b3f55&title=&width=729">
-<meta property="article:published_time" content="2023-09-24T09:09:31.187Z">
-<meta property="article:modified_time" content="2023-09-24T09:09:31.187Z">
+<meta property="og:image" content="https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171421507.png">
+<meta property="og:image" content="https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171440756.png">
+<meta property="og:image" content="https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171452221.png">
+<meta property="og:image" content="https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171503121.png">
+<meta property="article:published_time" content="2023-09-24T09:12:10.000Z">
+<meta property="article:modified_time" content="2023-09-24T09:15:04.550Z">
 <meta property="article:author" content="0r@nge">
+<meta property="article:tag" content="windows">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695539535055-91f1436b-afc0-449f-a95f-036850eb5b46.png#averageHue=%23d7d5d0&clientId=u95f059b9-4c8c-4&from=paste&height=559&id=u448fcd74&originHeight=1118&originWidth=1742&originalType=binary&ratio=2&rotation=0&showTitle=false&size=2611919&status=done&style=none&taskId=u97c09dba-8d79-473a-b085-9148ca14086&title=&width=871">
+<meta name="twitter:image" content="https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171421507.png">
     
     
       
@@ -42,7 +43,7 @@
       
     
     <!-- title -->
-    <title>0r@nge の窝</title>
+    <title>IIS 提权修复</title>
     <!-- styles -->
     
 <link rel="stylesheet" href="/css/style.css">
@@ -101,16 +102,16 @@
     <div id="share" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&text="><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&is_video=false&description="><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=&body=Check out this article: https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&name=&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&t="><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&text=IIS 提权修复"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&is_video=false&description=IIS 提权修复"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=IIS 提权修复&body=Check out this article: https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&name=IIS 提权修复&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&t=IIS 提权修复"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -127,7 +128,7 @@
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
-        
+        IIS 提权修复
     </h1>
 
 
@@ -139,15 +140,25 @@
       
     <div class="postdate">
       
-        <time datetime="2023-09-24T09:09:31.187Z" itemprop="datePublished">2023-09-24</time>
+        <time datetime="2023-09-24T09:12:10.000Z" itemprop="datePublished">2023-09-24</time>
         
       
     </div>
 
 
       
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/windows/">windows</a>
+    </div>
+
 
       
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/windows/" rel="tag">windows</a>
+    </div>
+
 
 
     </div>
@@ -157,11 +168,11 @@
   <div class="content" itemprop="articleBody">
     <p>土豆提权是一个老生常谈的话题，近些年也衍生出了很多新的土豆提权方法，各种攻击方法层出不穷。但微软却并不认为这是漏洞，因此也一直没有修复。这里我给出两种修复的方法。mssql 也同理。<br>我们知道出现这个提权漏洞的原因是因为 IIS 服务有 seimpersonateprivilege 这个模拟特权，那我们把这个 IIS 服务用户的该特权删掉即可。</p>
 <p>介绍一下 IIS 的权限配置。<br>IIS_IUSRS组是用于管理IIS应用程序池权限的用户组。IIS_IUSRS组的主要用途是为IIS应用程序池（Application Pools）中运行的应用程序提供必要的权限。当在IIS中创建一个新的应用程序池时，该应用程序池的身份标识（Identity）会自动被添加到IIS_IUSRS用户组中。<br>所以有了 2 种限制权限方法，分别针对用户组与应用程序池的身份标识。</p>
-<h1 id="1-删除模拟特权"><a href="#1-删除模拟特权" class="headerlink" title="1. 删除模拟特权"></a>1. 删除模拟特权</h1><p>删除 IIS_IUSRS 组的特权即可<br><img src="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695539535055-91f1436b-afc0-449f-a95f-036850eb5b46.png#averageHue=%23d7d5d0&clientId=u95f059b9-4c8c-4&from=paste&height=559&id=u448fcd74&originHeight=1118&originWidth=1742&originalType=binary&ratio=2&rotation=0&showTitle=false&size=2611919&status=done&style=none&taskId=u97c09dba-8d79-473a-b085-9148ca14086&title=&width=871" alt="image.png"><br>将 IIS_IUSRS 组的模拟特权删除，然后重启机器后重启 IIS 服务即可。<br>自动化方案</p>
+<h1 id="1-删除模拟特权"><a href="#1-删除模拟特权" class="headerlink" title="1. 删除模拟特权"></a>1. 删除模拟特权</h1><p>删除 IIS_IUSRS 组的特权即可<br><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171421507.png" alt="image-20230924171421507"><br>将 IIS_IUSRS 组的模拟特权删除，然后重启机器后重启 IIS 服务即可。<br>自动化方案</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$secpolcfg = <span class="string">&quot;C:\Windows\Temp\secpol.cfg&quot;</span></span><br><span class="line">secedit /export /cfg $secpolcfg</span><br><span class="line">(Get-Content $secpolcfg) -replace <span class="string">&quot;SeImpersonatePrivilege = .*$&quot;</span>, <span class="string">&quot;SeImpersonatePrivilege = *S-1-5-32-544,*S-1-5-6&quot;</span> | Out-File $secpolcfg</span><br><span class="line">secedit /configure /db c:\windows\security\local.sdb /cfg $secpolcfg /areas user_rights</span><br><span class="line">rm -force $secpolcfg -confirm:$<span class="literal">false</span></span><br></pre></td></tr></table></figure>
-<h1 id="2-修改默认应用程序池的身份标识"><a href="#2-修改默认应用程序池的身份标识" class="headerlink" title="2. 修改默认应用程序池的身份标识"></a>2. 修改默认应用程序池的身份标识</h1><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities">https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities</a><br>默认网站的应用程序池的标识是 ApplicationPoolIdentity ，所以很多情况下攻击者在拿到 webshell 的情况下的权限是 DefaultAppPool/ApplicationPoolIdentity ，这个用户是有模拟特权的。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695540236045-d3bbece0-6436-4981-8e8e-d4780a25b798.png#averageHue=%23f4f5f2&clientId=u95f059b9-4c8c-4&from=paste&height=252&id=u5d4d4844&originHeight=504&originWidth=2696&originalType=binary&ratio=2&rotation=0&showTitle=false&size=1479014&status=done&style=none&taskId=u184f9e96-1a34-4afa-b102-3e38c83ccda&title=&width=1348" alt="image.png"></p>
-<p>可以新建一个普通用户来替换该用户。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695540441840-cc82afba-842a-4d82-9c20-65e777a5b378.png#averageHue=%23edefec&clientId=u95f059b9-4c8c-4&from=paste&height=526&id=ud0a2bb83&originHeight=1052&originWidth=848&originalType=binary&ratio=2&rotation=0&showTitle=false&size=1039755&status=done&style=none&taskId=ue4b0aa52-d250-48b3-ad87-db91b1621f9&title=&width=424" alt="image.png"></p>
-<p><img src="https://cdn.nlark.com/yuque/0/2023/png/21719413/1695540580918-a52da2a6-b1d5-4065-bb93-f960fb697752.png#averageHue=%23f0f1ed&clientId=u95f059b9-4c8c-4&from=paste&height=171&id=ud30de4a0&originHeight=342&originWidth=1458&originalType=binary&ratio=2&rotation=0&showTitle=false&size=549763&status=done&style=none&taskId=u63f95972-be48-4019-939d-71d0c9b3f55&title=&width=729" alt="image.png"><br>这时拿到的 webshell 权限即为 DefaultAppPool/test 。是默认普通用户组的权限。</p>
+<h1 id="2-修改默认应用程序池的身份标识"><a href="#2-修改默认应用程序池的身份标识" class="headerlink" title="2. 修改默认应用程序池的身份标识"></a>2. 修改默认应用程序池的身份标识</h1><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities">https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities</a><br>默认网站的应用程序池的标识是 ApplicationPoolIdentity ，所以很多情况下攻击者在拿到 webshell 的情况下的权限是 DefaultAppPool/ApplicationPoolIdentity ，这个用户是有模拟特权的。<br><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171440756.png" alt="image-20230924171440756"></p>
+<p>可以新建一个普通用户来替换该用户。<br><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171452221.png" alt="image-20230924171452221"></p>
+<p><img src="/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/image-20230924171503121.png" alt="image-20230924171503121"><br>这时拿到的 webshell 权限即为 DefaultAppPool/test 。是默认普通用户组的权限。</p>
 
   </div>
 </article>
@@ -213,16 +224,16 @@
     <div id="share-footer" style="display: none">
       <ul>
   <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&text="><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&is_video=false&description="><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=&body=Check out this article: https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title="><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&name=&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&t="><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&text=IIS 提权修复"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&is_video=false&description=IIS 提权修复"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=IIS 提权修复&body=Check out this article: https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&title=IIS 提权修复"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&name=IIS 提权修复&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://0range-x.github.io/2023/09/24/IIS%E6%8F%90%E6%9D%83%E4%BF%AE%E5%A4%8D/&t=IIS 提权修复"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
